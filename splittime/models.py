@@ -6,8 +6,6 @@ from django.db.models import UniqueConstraint
 
 # Create your models here.
 
-
-
 class Group(models.Model):
     creator = models.ForeignKey('auth.User', related_name='user_location',
                                 on_delete=models.CASCADE)
@@ -41,5 +39,5 @@ class Expense(models.Model):
     group = models.ForeignKey(Group, related_name='expense_group', on_delete=models.CASCADE)
 
     def __str__(self):
-        return self.name + " for " + self.amount + " " + self.currency
+        return self.name + " for " + str(self.amount) + " " + self.currency
 

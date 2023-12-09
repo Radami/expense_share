@@ -1,25 +1,58 @@
-from django.http import HttpResponse
+from typing import Any
+from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import get_object_or_404,render
+from django.urls import reverse
+from django.views import generic
 
-from .models import Group
+from .models import Group, GroupMembership, Expense
 
-def index(request):
-    latest_group_list = Group.objects.order_by("-creation_date")[:5]
-    context = {
-        "latest_group_list": latest_group_list
-    }
-    return render(request, "splittime/index.html", context)
+class IndexView(generic.ListView):
+    template_name = "splittime/index.html"
+    context_object_name = "latest_group_list"
 
-def group_details(request, group_id):
+    def get_queryset(self):
+        """Return the last five climbing sessions"""
+        return Group.objects.order_by('-creation_date')[:7]
+
+    def get_context_data(self, **kwargs):
+        context = super(IndexView, self).get_context_data(**kwargs)
+        latest_group_list = Group.objects.order_by("-creation_date")[:5]
+        context = {
+            "latest_group_list": latest_group_list
+        }
+        return context
+
+class GroupDetailsView(generic.DetailView):
+    model = Group
+    template_name = "splittime/group_details.html"
+
+    def get_context_data(self, **kwargs: Any) -> dict[str, Any]:
+        context = super(GroupDetailsView, self).get_context_data(**kwargs)
+        group = Group.objects.get(pk=self.kwargs['pk'])
+        group_memberships = GroupMembership.objects.filter(group=group)
+        members = [gm.member.username for gm in group_memberships]
+
+        expenses = Expense.objects.filter(group=group)
+        context = {
+            "group": group,
+            "members": members,
+            "expenses": expenses
+        }
+        return context
+        
+class ExpenseDetailsView(generic.DetailView):
+    model = Expense
+    template_name = "splittime/expense_details.html"
+
+
+def add_expense(request, group_id):
     group = get_object_or_404(Group, pk=group_id)
-    context = {
-        "group": group
-    }
-    return render(request, "splittime/group_details.html", context)
 
-def expense_details(request, expense_id):
-    return HttpResponse("You're looking at expense %s" % expense_id)
-
-def add_expense(request):
-    return HttpResponse("You are trying to add an expense")
-    
+    expense = Expense()
+    expense.name = request.POST["expense_name"]
+    expense.currency = request.POST["expense_currency"]
+    expense.amount = request.POST["expense_amount"]
+    expense.group = group
+    expense.save()    
+   
+    return HttpResponseRedirect(reverse("splittime:group_details", args=(group_id,)))
