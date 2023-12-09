@@ -1,0 +1,9 @@
+{% if latest_group_list %}
+    <ul>
+    {% for group in latest_group_list %}
+        <li><a href="{% url 'splittime:group_details' group.id  %}">{{ group.name }}</a></li>
+    {% endfor %}
+    </ul>
+{% else %}
+    <p>No groups are available.</p>
+{% endif %}

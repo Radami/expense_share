@@ -31,7 +31,15 @@ class GroupMembership(models.Model):
     member = models.ForeignKey('auth.User', related_name='membership_member', 
                                on_delete=models.CASCADE)
     
-    
-    
     def __str__(self):
         return self.group.name + "-" + self.member.username
+    
+class Expense(models.Model):
+    name = models.CharField(max_length=20)
+    currency = models.CharField(max_length=3)
+    amount = models.FloatField(max_length=9)
+    group = models.ForeignKey(Group, related_name='expense_group', on_delete=models.CASCADE)
+
+    def __str__(self):
+        return self.name + " for " + self.amount + " " + self.currency
+
