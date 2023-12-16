@@ -3,6 +3,8 @@ from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import get_object_or_404,render
 from django.urls import reverse
 from django.views import generic
+from django.utils import timezone
+from datetime import datetime, timedelta
 
 from .models import Group, GroupMembership, Expense
 
@@ -11,12 +13,13 @@ class IndexView(generic.ListView):
     context_object_name = "latest_group_list"
 
     def get_queryset(self):
-        """Return the last five climbing sessions"""
-        return Group.objects.order_by('-creation_date')[:7]
+        """Returns empy as everything is populated by get_context_data"""
+        return []
 
     def get_context_data(self, **kwargs):
         context = super(IndexView, self).get_context_data(**kwargs)
-        latest_group_list = Group.objects.order_by("-creation_date")[:5]
+        creation_date = timezone.make_aware(datetime.now() - timedelta(days=7), timezone.get_current_timezone())
+        latest_group_list = Group.objects.filter(creation_date__gte=creation_date).order_by("-creation_date")[:5]
         context = {
             "latest_group_list": latest_group_list
         }
