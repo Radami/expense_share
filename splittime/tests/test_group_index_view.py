@@ -22,7 +22,7 @@ class GroupIndexViewTests(TestCase):
         """
         If an old group exists, no groups are displayed
         """
-        GroupHelpers.create_group(days = -30)
+        GroupHelpers.create_group(days = -400)
         response = self.client.get(reverse("splittime:index"))
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, "No groups are available")
@@ -38,9 +38,9 @@ class GroupIndexViewTests(TestCase):
 
     def test_old_and_recent_group(self):
         """
-        If a recent and old group exists, display onyl the recent one
+        If a recent and old group exists, display only the recent one
         """
-        GroupHelpers.create_group(days = -30)
+        GroupHelpers.create_group(days = -400)
         group_recent = GroupHelpers.create_group(days = -5)
         response = self.client.get(reverse("splittime:index"))
         self.assertQuerySetEqual(response.context["latest_group_list"], [group_recent])
@@ -49,8 +49,8 @@ class GroupIndexViewTests(TestCase):
         """
         The index page might display multiple groups in reverse order of creation
         """
-        group_first = GroupHelpers.create_group(days = -5)
-        group_second = GroupHelpers.create_group(days = -2)
+        group_first = GroupHelpers.create_group(days = -300)
+        group_second = GroupHelpers.create_group(days = -200)
         response = self.client.get(reverse("splittime:index"))
         self.assertQuerySetEqual(response.context["latest_group_list"],
                                  [group_second, group_first])

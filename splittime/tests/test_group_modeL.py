@@ -26,13 +26,13 @@ class GroupModelTests(TestCase):
         was_created_recently() returns False for questions whose creation_date is
         too old
         """
-        future_group = GroupHelpers.create_group(days = -30)
+        future_group = GroupHelpers.create_group(days = -400)
         self.assertIs(future_group.was_created_recently(), False)
 
     def test_was_created_recently_with_recent_group(self):
         """
         was_created_recently() returns True for questions whose creation_date is 
-        in the last 7 days
+        in the last 365 days
         """
         future_group = GroupHelpers.create_group(days = -5)
         self.assertIs(future_group.was_created_recently(), True)

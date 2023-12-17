@@ -18,7 +18,7 @@ class IndexView(generic.ListView):
 
     def get_context_data(self, **kwargs):
         context = super(IndexView, self).get_context_data(**kwargs)
-        creation_date = timezone.make_aware(datetime.now() - timedelta(days=7), timezone.get_current_timezone())
+        creation_date = timezone.make_aware(datetime.now() - timedelta(days=365), timezone.get_current_timezone())
         latest_group_list = Group.objects.filter(creation_date__gte=creation_date).order_by("-creation_date")[:5]
         context = {
             "latest_group_list": latest_group_list

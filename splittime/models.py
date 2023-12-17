@@ -18,7 +18,7 @@ class Group(models.Model):
     
     def was_created_recently(self):
         now = timezone.now()
-        return now - datetime.timedelta(days=7) <= self.creation_date <= now
+        return now - datetime.timedelta(days=365) <= self.creation_date <= now
 
 class GroupMembership(models.Model):
 
