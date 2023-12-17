@@ -21,7 +21,7 @@ class GroupDetailViewTests(TestCase):
         """
         Test that an old group can be viewed
         """
-        old_group = GroupHelpers.create_group(days = -30)
+        old_group = GroupHelpers.create_group(days = -400)
         url = reverse("splittime:group_details", args=(old_group.id,))
         response = self.client.get(url)
         self.assertContains(response, old_group.name)
