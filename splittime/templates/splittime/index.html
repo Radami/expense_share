@@ -1,9 +1,21 @@
-{% if latest_group_list %}
-    <ul>
-    {% for group in latest_group_list %}
-        <li><a href="{% url 'splittime:group_details' group.id  %}">{{ group.name }}</a></li>
-    {% endfor %}
-    </ul>
-{% else %}
-    <p>No groups are available.</p>
-{% endif %}
+<!DOCTYPE html>
+<html lang="en">
+
+    {% load static %}
+    <head>
+        <link rel="stylesheet" type="text/css" href="{% static 'splittime/style.css' %}">
+    </head>
+
+    <body>
+        <img src="{% static 'splittime/images/example.png' %}" alt="My image">
+        {% if latest_group_list %}
+            <ul>
+            {% for group in latest_group_list %}
+                <li><a href="{% url 'splittime:group_details' group.id  %}">{{ group.name }}</a></li>
+            {% endfor %}
+            </ul>
+        {% else %}
+            <p>No groups are available.</p>
+        {% endif %}
+    </body>
+</html>
