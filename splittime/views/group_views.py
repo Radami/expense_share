@@ -1,13 +1,15 @@
 from typing import Any
-from django.views import generic
-from django.utils import timezone
 from datetime import datetime, timedelta
+
 from django.http import HttpResponseRedirect, HttpResponseServerError
-from django.shortcuts import get_object_or_404
-from django.urls import reverse
 from django.core.exceptions import PermissionDenied
+from django.shortcuts import get_object_or_404
+from django.views import generic
+from django.urls import reverse
+from django.utils import timezone
 
 from ..models import Group, GroupMembership, Expense
+
 
 class IndexView(generic.ListView):
     template_name = "splittime/index.html"
@@ -19,12 +21,17 @@ class IndexView(generic.ListView):
 
     def get_context_data(self, **kwargs):
         context = super(IndexView, self).get_context_data(**kwargs)
-        creation_date = timezone.make_aware(datetime.now() - timedelta(days=365), timezone.get_current_timezone())
-        latest_group_list = Group.objects.filter(creation_date__gte=creation_date).order_by("-creation_date")[:5]
+        creation_date = timezone.make_aware(
+            datetime.now() - timedelta(days=365),
+            timezone.get_current_timezone()
+        )
+        latest_group_list = Group.objects.filter(
+            creation_date__gte=creation_date).order_by("-creation_date")[:5]
         context = {
             "latest_group_list": latest_group_list
         }
         return context
+
 
 class GroupDetailsView(generic.DetailView):
     model = Group
@@ -43,7 +50,8 @@ class GroupDetailsView(generic.DetailView):
             "expenses": expenses
         }
         return context
-    
+
+
 def add_group(request):
     try:
         group = Group()
@@ -58,18 +66,20 @@ def add_group(request):
         gm.group = group
         gm.member = request.user
         gm.save()
-    except():
+    except ():
         group.delete()
         gm.delete()
         return HttpResponseServerError()
-    return HttpResponseRedirect(reverse("splittime:group_details", args=(group.id,)))
+    return HttpResponseRedirect(reverse("splittime:group_details",
+                                        args=(group.id,)))
+
 
 def delete_group(request, pk):
     group = get_object_or_404(Group, pk=pk)
 
     if group.creator != request.user:
-         raise PermissionDenied()
-    
+        raise PermissionDenied()
+
     group.delete()
 
     return HttpResponseRedirect(reverse("splittime:index"))
