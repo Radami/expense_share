@@ -5,6 +5,7 @@ from django.urls import reverse
 from django.views import generic
 from django.utils import timezone
 from datetime import datetime, timedelta
+from django.core.exceptions import PermissionDenied
 
 from .models import Group, GroupMembership, Expense
 
@@ -59,3 +60,24 @@ def add_expense(request, group_id):
     expense.save()    
    
     return HttpResponseRedirect(reverse("splittime:group_details", args=(group_id,)))
+
+def add_group(request):
+    group = Group()
+    group.name = request.POST["group_name"]
+    group.description = request.POST["group_description"]
+    group.creation_date = datetime.now()
+    group.creator = request.user
+
+    group.save()
+
+    return HttpResponseRedirect(reverse("splittime:group_details", args=(group.id,)))
+
+def delete_group(request, pk):
+    group = get_object_or_404(Group, pk=pk)
+
+    if group.creator != request.user:
+         raise PermissionDenied()
+    
+    group.delete()
+
+    return HttpResponseRedirect(reverse("splittime:index"))

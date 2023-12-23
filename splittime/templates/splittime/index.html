@@ -11,11 +11,25 @@
         {% if latest_group_list %}
             <ul>
             {% for group in latest_group_list %}
-                <li><a href="{% url 'splittime:group_details' group.id  %}">{{ group.name }}</a></li>
+                <li>
+                    <a href="{% url 'splittime:group_details' group.id  %}">{{ group.name }}</a> - 
+                    <a href="{% url 'splittime:delete_group' group.id %}">Delete</a>
+                </li>
             {% endfor %}
             </ul>
         {% else %}
             <p>No groups are available.</p>
         {% endif %}
+
+        <form action="{% url 'splittime:add_group' %}" method="post">
+            {% csrf_token %}
+            <filedset>
+                <label for="group_name">Group Name</label>
+                <input type="text" id="group_name" name="group_name">  <br/>
+                <label for="group_description">Group Description</label>
+                <input type="text" id="group_description" name="group_description"> <br />
+            </filedset>
+            <input type="submit" value="Add Group">
+            </form>
     </body>
 </html>
