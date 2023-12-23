@@ -1,13 +1,13 @@
 from typing import Any
-from django.http import HttpResponse, HttpResponseRedirect
-from django.shortcuts import get_object_or_404,render
-from django.urls import reverse
 from django.views import generic
 from django.utils import timezone
 from datetime import datetime, timedelta
+from django.http import HttpResponseRedirect, HttpResponseServerError
+from django.shortcuts import get_object_or_404
+from django.urls import reverse
 from django.core.exceptions import PermissionDenied
 
-from .models import Group, GroupMembership, Expense
+from ..models import Group, GroupMembership, Expense
 
 class IndexView(generic.ListView):
     template_name = "splittime/index.html"
@@ -43,33 +43,25 @@ class GroupDetailsView(generic.DetailView):
             "expenses": expenses
         }
         return context
-        
-class ExpenseDetailsView(generic.DetailView):
-    model = Expense
-    template_name = "splittime/expense_details.html"
-
-
-def add_expense(request, group_id):
-    group = get_object_or_404(Group, pk=group_id)
-
-    expense = Expense()
-    expense.name = request.POST["expense_name"]
-    expense.currency = request.POST["expense_currency"]
-    expense.amount = request.POST["expense_amount"]
-    expense.group = group
-    expense.save()    
-   
-    return HttpResponseRedirect(reverse("splittime:group_details", args=(group_id,)))
-
+    
 def add_group(request):
-    group = Group()
-    group.name = request.POST["group_name"]
-    group.description = request.POST["group_description"]
-    group.creation_date = datetime.now()
-    group.creator = request.user
+    try:
+        group = Group()
+        group.name = request.POST["group_name"]
+        group.description = request.POST["group_description"]
+        group.creation_date = datetime.now()
+        group.creator = request.user
 
-    group.save()
+        group.save()
 
+        gm = GroupMembership()
+        gm.group = group
+        gm.member = request.user
+        gm.save()
+    except():
+        group.delete()
+        gm.delete()
+        return HttpResponseServerError()
     return HttpResponseRedirect(reverse("splittime:group_details", args=(group.id,)))
 
 def delete_group(request, pk):
