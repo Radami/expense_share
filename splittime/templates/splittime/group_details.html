@@ -1,23 +1,29 @@
-<h1>{{ group.name }}</h1>
+<!DOCTYPE html>
+<html lang="en">
 
-<h2>{{ group.description }}</h2>
+    <body>
+        <h1>{{ group.name }}</h1>
 
-<h3>Members</h3>
-{{ members }}
-<h3>Expenses</h3>
-{% for expense in expenses %}
-    <li> <a href="{% url 'splittime:expense_details' expense.id %}">{{ expense }}</a></li>
-{% endfor %}
-<br/>
-<form action="{% url 'splittime:add_expense' group.id %}" method="post">
-{% csrf_token %}
-<filedset>
-    <label for="expense_name">Name</label>
-    <input type="text" id="expense_name" name="expense_name">  <br/>
-    <label for="expense_currency">Currency</label>
-    <input type="text" id="expense_currency" name="expense_currency"> <br />
-    <label for="expense_amount">Amount</label>
-    <input type="text" id="expense_amount" name="expense_amount">
-</filedset>
-<input type="submit" value="Add Expense">
-</form>
+        <h2>{{ group.description }}</h2>
+
+        <h3>Members</h3>
+        {{ members }}
+        <h3>Expenses</h3>
+        {% for expense in expenses %}
+            <li> <a href="{% url 'splittime:expense_details' expense.id %}">{{ expense }}</a></li>
+        {% endfor %}
+        <br/>
+        <form action="{% url 'splittime:add_expense' group.id %}" method="post">
+        {% csrf_token %}
+        <filedset>
+            <label for="expense_name">Name</label>
+            <input type="text" id="expense_name" name="expense_name">  <br/>
+            <label for="expense_currency">Currency</label>
+            <input type="text" id="expense_currency" name="expense_currency"> <br />
+            <label for="expense_amount">Amount</label>
+            <input type="text" id="expense_amount" name="expense_amount">
+        </filedset>
+        <input type="submit" value="Add Expense">
+        </form>
+    </body>
+</html>
