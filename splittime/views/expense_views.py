@@ -4,7 +4,7 @@ from django.shortcuts import get_object_or_404
 from django.urls import reverse
 from django.views import generic
 
-from ..models import Group, Expense
+from ..models import Group, GroupMembership, Expense
 
 class ExpenseDetailsView(generic.DetailView):
     model = Expense
@@ -22,3 +22,20 @@ def add_expense(request, group_id):
     expense.save()    
    
     return HttpResponseRedirect(reverse("splittime:group_details", args=(group_id,)))
+
+def delete_expense(request, pk):
+    expense = get_object_or_404(Expense, pk=pk)
+
+    # Check if the user performing the delete is a member of the group, otherwise error
+    group = expense.group
+    memberships = GroupMembership.objects.filter(group=group)
+    found = False
+    for gm in memberships:
+        if request.user == gm.member:
+            found = True
+    if found == False:
+        return PermissionError()
+
+    expense.delete()
+
+    return HttpResponseRedirect(reverse("splittime:group_details", args=(group.id,)))

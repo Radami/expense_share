@@ -16,5 +16,7 @@ urlpatterns = [
     path("expense/<int:pk>/", expense_views.ExpenseDetailsView.as_view(), name="expense_details"),
     # ex: /splittime/group/5/add_expense
     path("group/<int:group_id>/add_expense", expense_views.add_expense, name="add_expense"),
+    # ex: /splittile/expense/5/delete_expense
+    path("expense/<int:pk>/delete_expense", expense_views.delete_expense, name="delete_expense"),
    
 ]
