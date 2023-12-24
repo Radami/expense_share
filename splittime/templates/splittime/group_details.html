@@ -10,7 +10,20 @@
         <h2>{{ group.description }}</h2>
 
         <h3>Members</h3>
-        {{ members }}
+        {% for group_member in group_members %}
+            <li>
+                {{ group_member.member.username }} - 
+                <a href="{% url 'splittime:delete_group_member' group.id group_member.member.id %}">Delete</a>
+            </li>
+        {% endfor %}
+        <form action="{% url 'splittime:add_group_member' group.id %}" method="post">
+            {% csrf_token %}
+            <filedset>
+                <label for="email">Email</label>
+                <input type="text" id="member_email" name="member_email">  <br/>
+            </filedset>
+            <input type="submit" value="Add Member">
+        </form>
         <h3>Expenses</h3>
         {% for expense in expenses %}
             <li> 

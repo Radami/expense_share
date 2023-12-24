@@ -1,8 +1,9 @@
 from typing import Any
 from datetime import datetime, timedelta
 
-from django.http import HttpResponseRedirect, HttpResponseServerError
+from django.contrib.auth.models import User
 from django.core.exceptions import PermissionDenied
+from django.http import HttpResponseRedirect, HttpResponseServerError
 from django.shortcuts import get_object_or_404
 from django.views import generic
 from django.urls import reverse
@@ -41,12 +42,11 @@ class GroupDetailsView(generic.DetailView):
         context = super(GroupDetailsView, self).get_context_data(**kwargs)
         group = Group.objects.get(pk=self.kwargs['pk'])
         group_memberships = GroupMembership.objects.filter(group=group)
-        members = [gm.member.username for gm in group_memberships]
 
         expenses = Expense.objects.filter(group=group)
         context = {
             "group": group,
-            "members": members,
+            "group_members": group_memberships,
             "expenses": expenses
         }
         return context
@@ -83,3 +83,26 @@ def delete_group(request, pk):
     group.delete()
 
     return HttpResponseRedirect(reverse("splittime:index"))
+
+
+def add_group_member(request, group_id):
+    user = get_object_or_404(User, email=request.POST["member_email"])
+    group = get_object_or_404(Group, pk=group_id)
+    gm = GroupMembership()
+    gm.member = user
+    gm.group = group
+    gm.save()
+
+    return HttpResponseRedirect(reverse("splittime:group_details",
+                                        args=(group.id,)))
+
+
+def delete_group_member(request, group_id, user_id):
+    # TODO: add permission checks
+    user = get_object_or_404(User, pk=user_id)
+    group = get_object_or_404(Group, pk=group_id)
+    gm = get_object_or_404(GroupMembership, member=user, group=group)
+    gm.delete()
+
+    return HttpResponseRedirect(reverse("splittime:group_details",
+                                        args=(group.id,)))
