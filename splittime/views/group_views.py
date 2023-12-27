@@ -86,6 +86,7 @@ def delete_group(request, pk):
 
 
 def add_group_member(request, group_id):
+    # TODO: add permission checks - only creator and members can add
     user = get_object_or_404(User, email=request.POST["member_email"])
     group = get_object_or_404(Group, pk=group_id)
     gm = GroupMembership()
@@ -98,7 +99,7 @@ def add_group_member(request, group_id):
 
 
 def delete_group_member(request, group_id, user_id):
-    # TODO: add permission checks
+    # TODO: add permission checks - only creator and members can delete
     user = get_object_or_404(User, pk=user_id)
     group = get_object_or_404(Group, pk=group_id)
     gm = get_object_or_404(GroupMembership, member=user, group=group)
