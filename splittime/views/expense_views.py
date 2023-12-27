@@ -1,3 +1,5 @@
+import datetime
+
 from django.core.exceptions import PermissionDenied
 from django.http import HttpResponseRedirect
 from django.shortcuts import get_object_or_404
@@ -19,6 +21,7 @@ def add_expense(request, group_id):
     expense.name = request.POST["expense_name"]
     expense.currency = request.POST["expense_currency"]
     expense.amount = request.POST["expense_amount"]
+    expense.creation_date = datetime.datetime.now()
     expense.group = group
     expense.save()
     return HttpResponseRedirect(reverse("splittime:group_details",

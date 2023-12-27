@@ -43,11 +43,20 @@ class GroupDetailsView(generic.DetailView):
         group = Group.objects.get(pk=self.kwargs['pk'])
         group_memberships = GroupMembership.objects.filter(group=group)
 
-        expenses = Expense.objects.filter(group=group)
+        expenses = Expense.objects.filter(group=group).order_by("creation_date")
+
+        totals = {}
+        for e in expenses:
+            if e.currency not in totals:
+                totals[e.currency] = e.amount
+                continue
+            totals[e.currency] += e.amount
+
         context = {
             "group": group,
             "group_members": group_memberships,
-            "expenses": expenses
+            "expenses": expenses,
+            "totals": totals
         }
         return context
 
