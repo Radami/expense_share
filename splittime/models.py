@@ -1,8 +1,11 @@
 import datetime
 
+from django.core.validators import MinValueValidator, MaxValueValidator
 from django.db import models
-from django.utils import timezone
 from django.db.models import UniqueConstraint
+from django.utils import timezone
+
+PERCENTAGE_VALIDATOR = [MinValueValidator(0), MaxValueValidator(100)]
 
 
 class Group(models.Model):
@@ -30,7 +33,7 @@ class GroupMembership(models.Model):
     group = models.ForeignKey(Group, related_name='membership_group',
                               on_delete=models.CASCADE)
     member = models.ForeignKey('auth.User', related_name='membership_member',
-                               on_delete=models.CASCADE)
+                               on_delete=models.DO_NOTHING)
 
     def __str__(self):
         return self.group.name + "-" + self.member.username
@@ -40,9 +43,28 @@ class Expense(models.Model):
     name = models.CharField(max_length=20)
     currency = models.CharField(max_length=3)
     amount = models.FloatField(max_length=9)
-    group = models.ForeignKey(Group, related_name='expense_group',
-                              on_delete=models.CASCADE)
+    group = models.ForeignKey(Group, related_name='expense_group', on_delete=models.CASCADE)
     creation_date = models.DateTimeField("creation_date")
+    payee = models.ForeignKey('auth.User', related_name='payee', on_delete=models.DO_NOTHING)
 
     def __str__(self):
         return self.name + " for " + str(self.amount) + " " + self.currency
+
+
+class Debt(models.Model):
+
+    class Meta:
+        constraints = [
+            UniqueConstraint(fields=['from_user', 'to_user', 'expense'],
+                             name='one_debt_per_expense')]
+
+    from_user = models.ForeignKey('auth.User', related_name='from_user',
+                                  on_delete=models.DO_NOTHING)
+    to_user = models.ForeignKey('auth.User', related_name='to_user', on_delete=models.DO_NOTHING)
+    expense = models.ForeignKey(Expense, related_name='expense', on_delete=models.CASCADE)
+    ratio = models.DecimalField(max_digits=3, decimal_places=0, validators=PERCENTAGE_VALIDATOR)
+
+    def __str__(self):
+        relationship = self.from_user.username + " to " + self.to_user.username
+        amount = str(self.ratio) + " of " + str(self.expense.amount) + self.expense.currency
+        return relationship + "=" + amount

@@ -38,14 +38,27 @@
             <label for="expense_name">Name</label>
             <input type="text" id="expense_name" name="expense_name">  <br/>
             <label for="expense_currency">Currency</label>
-            <input type="text" id="expense_currency" name="expense_currency"> <br />
+            <select id="expense_currency" name="expense_currency">
+                <option value="USD">USD</option>
+                <option value="YEN">YEN</option>
+                <option value="EUR">EUR</option>
+                <option value="GBP">GBP</option>
+            </select><br />
             <label for="expense_amount">Amount</label>
-            <input type="text" id="expense_amount" name="expense_amount">
+            <input type="text" id="expense_amount" name="expense_amount"> <br />
+            <label for="payee">Payee</label>
+            <select id="payee" name="payee">
+                {% for group_member in group_members  %}
+                <option value="{{ group_member.member.id}}">{{ group_member.member.username }}</option>
+                {% endfor %}
+            </select> <br />
         </filedset>
         <input type="submit" value="Add Expense">
         </form>
 
         <h3>Totals</h3>
-        {{ totals }}
+        {% for k,v in totals.items %}
+            <li>{{ k }} - {{ v }}</li>
+        {% endfor %}
     </body>
 </html>

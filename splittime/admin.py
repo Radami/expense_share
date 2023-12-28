@@ -1,17 +1,18 @@
 from django.contrib import admin
 
-from .models import Group, GroupMembership, Expense
+from .models import Group, GroupMembership, Expense, Debt
 
 # Register your models here.
+
 
 class GroupMembershipInline(admin.TabularInline):
     model = GroupMembership
     extra = 3
 
+
 class GroupAdmin(admin.ModelAdmin):
-    fieldsets = [("Creation", {"fields": ["creator", "creation_date"]}), 
-                 ("Information", {"fields" : ["name", "description"]})
-    ]
+    fieldsets = [("Creation", {"fields": ["creator", "creation_date"]}),
+                 ("Information", {"fields": ["name", "description"]})]
     # Display the option to add group members in the Group admin page
     inlines = [GroupMembershipInline]
 
@@ -27,3 +28,4 @@ class GroupAdmin(admin.ModelAdmin):
 
 admin.site.register(Group, GroupAdmin)
 admin.site.register(Expense)
+admin.site.register(Debt)

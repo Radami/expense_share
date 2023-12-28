@@ -1,12 +1,13 @@
-import datetime
-
 from django.core.exceptions import PermissionDenied
 from django.http import HttpResponseRedirect
 from django.shortcuts import get_object_or_404
 from django.urls import reverse
+from django.utils import timezone
 from django.views import generic
 
-from ..models import Group, GroupMembership, Expense
+from django.contrib.auth.models import User
+
+from ..models import Group, GroupMembership, Expense, Debt
 
 
 class ExpenseDetailsView(generic.DetailView):
@@ -17,13 +18,32 @@ class ExpenseDetailsView(generic.DetailView):
 def add_expense(request, group_id):
     group = get_object_or_404(Group, pk=group_id)
 
-    expense = Expense()
-    expense.name = request.POST["expense_name"]
-    expense.currency = request.POST["expense_currency"]
-    expense.amount = request.POST["expense_amount"]
-    expense.creation_date = datetime.datetime.now()
-    expense.group = group
-    expense.save()
+    try:
+        expense = Expense()
+        expense.name = request.POST["expense_name"]
+        expense.currency = request.POST["expense_currency"]
+        expense.amount = request.POST["expense_amount"]
+        expense.creation_date = timezone.now()
+        expense.group = group
+
+        payee_user = get_object_or_404(User, pk=request.POST["payee"])
+        expense.payee = payee_user
+        expense.save()
+
+        members = GroupMembership.objects.filter(group=group)
+        ratio = 1 / len(members) * 100
+        for group_member in members:
+            if group_member.member.id == payee_user.id:
+                continue
+            debt = Debt()
+            debt.from_user = group_member.member
+            debt.to_user = payee_user
+            debt.expense = expense
+            debt.ratio = ratio
+            debt.save()
+    except Exception:
+        expense.delete()
+
     return HttpResponseRedirect(reverse("splittime:group_details",
                                         args=(group_id,)))
 
