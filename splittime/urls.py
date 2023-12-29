@@ -28,5 +28,4 @@ urlpatterns = [
     # ex: /splittile/expense/5/delete_expense
     path("expense/<int:pk>/delete_expense",
          expense_views.delete_expense, name="delete_expense"),
-   
 ]

@@ -1,15 +1,13 @@
 from django.urls import reverse
 from django.test import TestCase
-from django.contrib.auth.models import User
 
 from .helpers import GroupHelpers, UserHelpers
-from ..models import GroupMembership
 
 
 class GroupDetailViewTests(TestCase):
 
     def setUp(self):
-        User.objects.create_user(username='testuser', password='12345')
+        pass
 
     def test_nonexistent_group(self):
         """
@@ -42,11 +40,10 @@ class GroupDetailViewTests(TestCase):
         Test that checks group members are displayed
         """
         creator = UserHelpers.create_user()
-        member = UserHelpers.create_user(user_name="second",
-                                         user_email="second@email.com")
+        member = UserHelpers.create_user()
         group = GroupHelpers.create_group()
-        GroupHelpers.add_user_to_group(group=group, user=creator)
-        GroupHelpers.add_user_to_group(group=group, user=member)
+        GroupHelpers.add_user_to_group(group, creator)
+        GroupHelpers.add_user_to_group(group, member)
         url = reverse("splittime:group_details", args=(group.id,))
         response = self.client.get(url)
         self.assertContains(response, group.name)
