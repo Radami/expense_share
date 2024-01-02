@@ -14,7 +14,7 @@ class AddExpenseTest(TestCase):
         self.user3 = UserHelpers.create_user()
         self.group1 = GroupHelpers.create_group(creator=self.user1)
 
-    def test_add_expense_group_with_only_creator(self):
+    def test_add_expense_with_only_creator(self):
         """
         Test adding an expense to an existing group and that no debt relationships
         are created if the group has just 1 user
@@ -32,7 +32,6 @@ class AddExpenseTest(TestCase):
         # Check the expense was successfully saved
         expense = Expense.objects.get(name="test_expense1")
         self.assertIsNotNone(expense)
-        self.assertEqual(expense.name, "test_expense1")
         self.assertEqual(expense.currency, "USD")
         self.assertEqual(expense.amount, 100)
         self.assertEqual(expense.payee.id, self.user1.id)
@@ -40,7 +39,7 @@ class AddExpenseTest(TestCase):
         debt = Debt.objects.filter(expense=expense)
         self.assertEqual(len(debt), 0)
 
-    def test_add_expense_group_with_1_member(self):
+    def test_add_1_expense_with_1_group_member(self):
         """
         Test that an expense can be added to a group and that a debt relationship
         is created if the group has 1 other member
@@ -59,7 +58,6 @@ class AddExpenseTest(TestCase):
         # Check the expense was successfully saved
         expense = Expense.objects.get(name="test_expense2")
         self.assertIsNotNone(expense)
-        self.assertEqual(expense.name, "test_expense2")
         self.assertEqual(expense.currency, "USD")
         self.assertEqual(expense.amount, 100)
         self.assertEqual(expense.payee.id, self.user1.id)
@@ -72,13 +70,67 @@ class AddExpenseTest(TestCase):
         self.assertEqual(debt.ratio, 50)
         self.assertEqual(debt.expense.id, expense.id)
 
-    def test_add_expense_group_with_2_members(self):
+    def test_add_2_expenses_with_1_group_member(self):
         """
-        Test that an expense can be added to a group and that a debt relationship
+        Test that 2 expense can be added to a group and that 2 debt relationships
         is created if the group has 1 other member
         """
         data = {
-            "expense_name": "test_expense2",
+            "expense_name": "test_3_expense_1",
+            "expense_currency": "USD",
+            "expense_amount": 100,
+            "payee": self.user1.id
+        }
+        GroupHelpers.add_user_to_group(self.group1, self.user2)
+        url = "/splittime/group/"+str(self.group1.id) + "/add_expense"
+        response = self.client.post(url,
+                                    data=data)
+        self.assertEqual(response.status_code, HTTPStatus.FOUND)
+        expense1 = Expense.objects.get(name="test_3_expense_1")
+        self.assertIsNotNone(expense1)
+        self.assertEqual(expense1.currency, "USD")
+        self.assertEqual(expense1.amount, 100)
+        self.assertEqual(expense1.payee.id, self.user1.id)
+        # Add second expense
+        data = {
+            "expense_name": "test_3_expense_2",
+            "expense_currency": "GBP",
+            "expense_amount": 200,
+            "payee": self.user2.id
+        }
+        url = "/splittime/group/"+str(self.group1.id) + "/add_expense"
+        response = self.client.post(url,
+                                    data=data)
+        self.assertEqual(response.status_code, HTTPStatus.FOUND)
+        # Check the expense was successfully saved
+        expense2 = Expense.objects.get(name="test_3_expense_2")
+        self.assertIsNotNone(expense2)
+        self.assertEqual(expense2.currency, "GBP")
+        self.assertEqual(expense2.amount, 200)
+        self.assertEqual(expense2.payee.id, self.user2.id)
+        # There should be a debt relationship for each expense with the other group member
+        debt_set = Debt.objects.filter(expense=expense1)
+        self.assertEqual(len(debt_set), 1)
+        debt = debt_set[0]
+        self.assertEqual(debt.from_user.id, self.user2.id)
+        self.assertEqual(debt.to_user.id, self.user1.id)
+        self.assertEqual(debt.ratio, 50)
+        self.assertEqual(debt.expense.id, expense1.id)
+        debt_set = Debt.objects.filter(expense=expense2)
+        self.assertEqual(len(debt_set), 1)
+        debt = debt_set[0]
+        self.assertEqual(debt.from_user.id, self.user1.id)
+        self.assertEqual(debt.to_user.id, self.user2.id)
+        self.assertEqual(debt.ratio, 50)
+        self.assertEqual(debt.expense.id, expense2.id)
+
+    def test_add_expense_with_2_group_members(self):
+        """
+        Test that an expense can be added to a group and that a debt relationship
+        is created for each of the other group members
+        """
+        data = {
+            "expense_name": "test_4_expense_1",
             "expense_currency": "USD",
             "expense_amount": 100,
             "payee": self.user1.id
@@ -90,9 +142,8 @@ class AddExpenseTest(TestCase):
                                     data=data)
         self.assertEqual(response.status_code, HTTPStatus.FOUND)
         # Check the expense was successfully saved
-        expense = Expense.objects.get(name="test_expense2")
+        expense = Expense.objects.get(name="test_4_expense_1")
         self.assertIsNotNone(expense)
-        self.assertEqual(expense.name, "test_expense2")
         self.assertEqual(expense.currency, "USD")
         self.assertEqual(expense.amount, 100)
         self.assertEqual(expense.payee.id, self.user1.id)
@@ -109,3 +160,69 @@ class AddExpenseTest(TestCase):
         self.assertEqual(debt.to_user.id, self.user1.id)
         self.assertEqual(debt.ratio, 33)
         self.assertEqual(debt.expense.id, expense.id)
+
+    def test_add_2_expenses_with_2_group_members(self):
+        """
+        Test that multiple expenses can be added to a group and that a debt relationship
+        is created for each of the other group members
+        """
+        data = {
+            "expense_name": "test_5_expense_1",
+            "expense_currency": "USD",
+            "expense_amount": 100,
+            "payee": self.user1.id
+        }
+        GroupHelpers.add_user_to_group(self.group1, self.user2)
+        GroupHelpers.add_user_to_group(self.group1, self.user3)
+        url = "/splittime/group/"+str(self.group1.id) + "/add_expense"
+        response = self.client.post(url,
+                                    data=data)
+        self.assertEqual(response.status_code, HTTPStatus.FOUND)
+        # Check the first expense was successfully saved
+        expense1 = Expense.objects.get(name="test_5_expense_1")
+        self.assertIsNotNone(expense1)
+        self.assertEqual(expense1.currency, "USD")
+        self.assertEqual(expense1.amount, 100)
+        self.assertEqual(expense1.payee.id, self.user1.id)
+        # Create second expense
+        data = {
+            "expense_name": "test_5_expense_2",
+            "expense_currency": "EUR",
+            "expense_amount": 300,
+            "payee": self.user2.id
+        }
+        url = "/splittime/group/"+str(self.group1.id) + "/add_expense"
+        response = self.client.post(url,
+                                    data=data)
+        self.assertEqual(response.status_code, HTTPStatus.FOUND)
+        # Check the second expense was successfully saved
+        expense2 = Expense.objects.get(name="test_5_expense_2")
+        self.assertIsNotNone(expense2)
+        self.assertEqual(expense2.currency, "EUR")
+        self.assertEqual(expense2.amount, 300)
+        self.assertEqual(expense2.payee.id, self.user2.id)
+        # There should be 2 debt relationships for each expense, one with each other group member
+        debt_set = Debt.objects.filter(expense=expense1)
+        self.assertEqual(len(debt_set), 2)
+        debt = debt_set[0]
+        self.assertEqual(debt.from_user.id, self.user2.id)
+        self.assertEqual(debt.to_user.id, self.user1.id)
+        self.assertEqual(debt.ratio, 33)
+        self.assertEqual(debt.expense.id, expense1.id)
+        debt = debt_set[1]
+        self.assertEqual(debt.from_user.id, self.user3.id)
+        self.assertEqual(debt.to_user.id, self.user1.id)
+        self.assertEqual(debt.ratio, 33)
+        self.assertEqual(debt.expense.id, expense1.id)
+        debt_set = Debt.objects.filter(expense=expense2)
+        self.assertEqual(len(debt_set), 2)
+        debt = debt_set[0]
+        self.assertEqual(debt.from_user.id, self.user1.id)
+        self.assertEqual(debt.to_user.id, self.user2.id)
+        self.assertEqual(debt.ratio, 33)
+        self.assertEqual(debt.expense.id, expense2.id)
+        debt = debt_set[1]
+        self.assertEqual(debt.from_user.id, self.user3.id)
+        self.assertEqual(debt.to_user.id, self.user2.id)
+        self.assertEqual(debt.ratio, 33)
+        self.assertEqual(debt.expense.id, expense2.id)
