@@ -2,7 +2,7 @@ import datetime
 from django.utils import timezone
 from django.contrib.auth.models import User
 
-from ..models import Group, GroupMembership
+from ..models import Group, GroupMembership, Expense, Debt
 
 
 class GroupHelpers():
@@ -43,6 +43,25 @@ class GroupHelpers():
         gm.member = user
         gm.save()
 
+    def add_expense(group, payee, name=None, currency="USD", amount=100):
+        if group is None or payee is None:
+            raise (Exception)
+        memberships = GroupMembership.objects.filter(group=group)
+        member_ids = [gm.id for gm in memberships]
+        if payee.id not in member_ids:
+            raise (Exception)
+        if name is None:
+            name = "Expense " + str(GroupHelpers.seed)
+        expense = Expense()
+        expense.group = group
+        expense.name = name
+        expense.currency = currency
+        expense.amount = amount
+        expense.creation_date = timezone.now()
+        expense.payee = payee
+        expense.save()
+        return expense
+
 
 class UserHelpers():
 
@@ -62,3 +81,4 @@ class UserHelpers():
         return User.objects.create_user(username=user_name,
                                         email=user_email,
                                         password='glassonion123')
+

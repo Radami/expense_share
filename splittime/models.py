@@ -62,7 +62,7 @@ class Debt(models.Model):
                                   on_delete=models.DO_NOTHING)
     to_user = models.ForeignKey('auth.User', related_name='to_user', on_delete=models.DO_NOTHING)
     expense = models.ForeignKey(Expense, related_name='expense', on_delete=models.CASCADE)
-    ratio = models.DecimalField(max_digits=3, decimal_places=0, validators=PERCENTAGE_VALIDATOR)
+    ratio = models.DecimalField(max_digits=7, decimal_places=3, validators=PERCENTAGE_VALIDATOR)
 
     def __str__(self):
         relationship = self.from_user.username + " to " + self.to_user.username

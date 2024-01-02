@@ -34,25 +34,12 @@ class IndexView(generic.ListView):
         return context
 
 
-class GroupDetailsView(generic.DetailView):
-    model = Group
-    template_name = "splittime/group_details.html"
+class BalanceCalculator():
 
-    def get_context_data(self, **kwargs: Any) -> dict[str, Any]:
-        context = super(GroupDetailsView, self).get_context_data(**kwargs)
-        group = Group.objects.get(pk=self.kwargs['pk'])
-        group_memberships = GroupMembership.objects.filter(group=group)
-
+    def calculateBalances(group):
+        balances = {}
         expenses = Expense.objects.filter(group=group).order_by("creation_date")
 
-        totals = {}
-        for e in expenses:
-            if e.currency not in totals:
-                totals[e.currency] = e.amount
-                continue
-            totals[e.currency] += e.amount
-
-        balances = {}
         for e in expenses:
             debt_set = Debt.objects.filter(expense=e)
             for debt in debt_set:
@@ -72,6 +59,28 @@ class GroupDetailsView(generic.DetailView):
                     balances[from_user][to_user][e.currency] = 0
                 balances[to_user][from_user][e.currency] += float(debt.ratio) / 100 * e.amount
                 balances[from_user][to_user][e.currency] -= float(debt.ratio) / 100 * e.amount
+        return balances
+
+
+class GroupDetailsView(generic.DetailView):
+    model = Group
+    template_name = "splittime/group_details.html"
+
+    def get_context_data(self, **kwargs: Any) -> dict[str, Any]:
+        context = super(GroupDetailsView, self).get_context_data(**kwargs)
+        group = Group.objects.get(pk=self.kwargs['pk'])
+        group_memberships = GroupMembership.objects.filter(group=group)
+
+        expenses = Expense.objects.filter(group=group).order_by("creation_date")
+
+        totals = {}
+        for e in expenses:
+            if e.currency not in totals:
+                totals[e.currency] = e.amount
+                continue
+            totals[e.currency] += e.amount
+
+        balances = BalanceCalculator.calculateBalances(group)
 
         context = {
             "group": group,
