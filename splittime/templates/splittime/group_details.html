@@ -60,5 +60,28 @@
         {% for k,v in totals.items %}
             <li>{{ k }} - {{ v }}</li>
         {% endfor %}
+
+        <h3>Balances</h3>
+        <ul>
+        {% for k,v in balances.items %}
+        <li>
+            {{ k }} is owned:
+                <ul>
+                {% for user, amounts in v.items %}
+                <li> 
+                    by {{ user }}
+                        <ul> 
+                        {% for currency, amount in amounts.items %}
+                        <li>
+                            {{ currency }} - {{ amount }}
+                        </li>
+                        {% endfor %}
+                        </ul>
+                </li>
+                {% endfor %}
+                </ul>
+        </li>
+        {% endfor %}
+        </ul>
     </body>
 </html>

@@ -9,7 +9,7 @@ from django.views import generic
 from django.urls import reverse
 from django.utils import timezone
 
-from ..models import Group, GroupMembership, Expense
+from ..models import Group, GroupMembership, Expense, Debt
 
 
 class IndexView(generic.ListView):
@@ -52,11 +52,33 @@ class GroupDetailsView(generic.DetailView):
                 continue
             totals[e.currency] += e.amount
 
+        balances = {}
+        for e in expenses:
+            debt_set = Debt.objects.filter(expense=e)
+            for debt in debt_set:
+                to_user = debt.to_user
+                from_user = debt.from_user
+                if to_user not in balances:
+                    balances[to_user] = {}
+                if from_user not in balances:
+                    balances[from_user] = {}
+                if debt.from_user not in balances[to_user]:
+                    balances[to_user][from_user] = {}
+                if debt.to_user not in balances[from_user]:
+                    balances[from_user][to_user] = {}
+                if e.currency not in balances[to_user][from_user]:
+                    balances[to_user][from_user][e.currency] = 0
+                if e.currency not in balances[from_user][to_user]:
+                    balances[from_user][to_user][e.currency] = 0
+                balances[to_user][from_user][e.currency] += float(debt.ratio) / 100 * e.amount
+                balances[from_user][to_user][e.currency] -= float(debt.ratio) / 100 * e.amount
+
         context = {
             "group": group,
             "group_members": group_memberships,
             "expenses": expenses,
-            "totals": totals
+            "totals": totals,
+            "balances": balances,
         }
         return context
 
