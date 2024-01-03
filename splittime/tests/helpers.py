@@ -2,7 +2,8 @@ import datetime
 from django.utils import timezone
 from django.contrib.auth.models import User
 
-from ..models import Group, GroupMembership, Expense
+from ..models import Group, GroupMembership
+from ..services.expenses import ExpenseService
 
 
 class GroupHelpers():
@@ -52,14 +53,15 @@ class GroupHelpers():
             raise (Exception)
         if name is None:
             name = "Expense " + str(GroupHelpers.seed)
-        expense = Expense()
-        expense.group = group
-        expense.name = name
-        expense.currency = currency
-        expense.amount = amount
-        expense.creation_date = timezone.now()
-        expense.payee = payee
-        expense.save()
+
+        expense = {
+            "group": group,
+            "name": name,
+            "currency": currency,
+            "amount": amount,
+            "payee": payee
+        }
+        ExpenseService.add_expense(expense)
         return expense
 
 

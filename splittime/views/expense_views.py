@@ -1,5 +1,5 @@
 from django.core.exceptions import PermissionDenied
-from django.http import HttpResponseRedirect
+from django.http import HttpResponseRedirect, HttpResponseBadRequest
 from django.shortcuts import get_object_or_404
 from django.urls import reverse
 from django.utils import timezone
@@ -7,7 +7,8 @@ from django.views import generic
 
 from django.contrib.auth.models import User
 
-from ..models import Group, GroupMembership, Expense, Debt
+from ..models import Group, GroupMembership, Expense
+from ..services.expenses import ExpenseService
 
 
 class ExpenseDetailsView(generic.DetailView):
@@ -17,31 +18,22 @@ class ExpenseDetailsView(generic.DetailView):
 
 def add_expense(request, group_id):
     group = get_object_or_404(Group, pk=group_id)
+    payee = get_object_or_404(User, pk=request.POST["payee"])
 
     try:
         # Add an expense with the data from the POST request
-        expense = Expense()
-        expense.name = request.POST["expense_name"]
-        expense.currency = request.POST["expense_currency"]
-        expense.amount = request.POST["expense_amount"]
-        expense.creation_date = timezone.now()
-        expense.group = group
-        payee_user = get_object_or_404(User, pk=request.POST["payee"])
-        expense.payee = payee_user
-        expense.save()
-
-        # Add one debt relationship with each other member of the group
-        members = GroupMembership.objects.filter(group=group)
-        for group_member in members:
-            debt = Debt()
-            debt.from_user = group_member.member
-            debt.to_user = payee_user
-            debt.expense = expense
-            debt.shares = 1
-            debt.save()
+        expense = {
+            "name": request.POST["expense_name"],
+            "currency": request.POST["expense_currency"],
+            "amount": request.POST["expense_amount"],
+            "creation_date": timezone.now(),
+            "group": group,
+            "payee": payee
+        }
+        ExpenseService.add_expense(expense)
     except Exception as e:
         print(e)
-        expense.delete()
+        return HttpResponseBadRequest(e)
 
     return HttpResponseRedirect(reverse("splittime:group_details",
                                         args=(group_id,)))
