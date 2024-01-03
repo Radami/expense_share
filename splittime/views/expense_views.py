@@ -1,5 +1,5 @@
 from django.core.exceptions import PermissionDenied
-from django.http import HttpResponseRedirect, HttpResponseBadRequest
+from django.http import HttpResponseRedirect, HttpResponseBadRequest, HttpResponseNotAllowed
 from django.shortcuts import get_object_or_404
 from django.urls import reverse
 from django.utils import timezone
@@ -7,7 +7,7 @@ from django.views import generic
 
 from django.contrib.auth.models import User
 
-from ..models import Group, GroupMembership, Expense
+from ..models import Group, Expense
 from ..services.expenses import ExpenseService
 
 
@@ -44,16 +44,10 @@ def delete_expense(request, pk):
 
     # Check if the user performing the delete is a member of the group,
     # otherwise error
-    group = expense.group
-    memberships = GroupMembership.objects.filter(group=group)
-    found = False
-    for gm in memberships:
-        if request.user == gm.member:
-            found = True
-    if found is False:
-        raise PermissionDenied()
-
-    expense.delete()
+    try:
+        ExpenseService.delete_expense(expense, request.user)
+    except PermissionDenied as exception:
+        return HttpResponseNotAllowed(exception)
 
     return HttpResponseRedirect(reverse("splittime:group_details",
-                                        args=(group.id,)))
+                                        args=(expense.group.id,)))

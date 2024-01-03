@@ -61,8 +61,7 @@ class GroupHelpers():
             "amount": amount,
             "payee": payee
         }
-        ExpenseService.add_expense(expense)
-        return expense
+        return ExpenseService.add_expense(expense)
 
 
 class UserHelpers():
