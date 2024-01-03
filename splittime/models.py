@@ -6,6 +6,7 @@ from django.db.models import UniqueConstraint
 from django.utils import timezone
 
 PERCENTAGE_VALIDATOR = [MinValueValidator(0), MaxValueValidator(100)]
+INTEGER_VALIDATOR = [MinValueValidator(0)]
 
 
 class Group(models.Model):
@@ -62,9 +63,15 @@ class Debt(models.Model):
                                   on_delete=models.DO_NOTHING)
     to_user = models.ForeignKey('auth.User', related_name='to_user', on_delete=models.DO_NOTHING)
     expense = models.ForeignKey(Expense, related_name='expense', on_delete=models.CASCADE)
-    ratio = models.DecimalField(max_digits=7, decimal_places=3, validators=PERCENTAGE_VALIDATOR)
+    shares = models.IntegerField(validators=INTEGER_VALIDATOR)
 
     def __str__(self):
         relationship = self.from_user.username + " to " + self.to_user.username
-        amount = str(self.ratio) + " of " + str(self.expense.amount) + self.expense.currency
+        amount = str(self.shares) + " of " + str(self.expense.amount) + self.expense.currency
         return relationship + "=" + amount
+
+    def __eq__(self, other):
+        return self.from_user.id == other.from_user.id and \
+               self.to_user.id == other.to_user.id and \
+               self.expense.id == other.expense.id and \
+               self.shares == other.shares

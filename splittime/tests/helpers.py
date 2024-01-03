@@ -2,7 +2,7 @@ import datetime
 from django.utils import timezone
 from django.contrib.auth.models import User
 
-from ..models import Group, GroupMembership, Expense, Debt
+from ..models import Group, GroupMembership, Expense
 
 
 class GroupHelpers():
@@ -47,7 +47,7 @@ class GroupHelpers():
         if group is None or payee is None:
             raise (Exception)
         memberships = GroupMembership.objects.filter(group=group)
-        member_ids = [gm.id for gm in memberships]
+        member_ids = [gm.member.id for gm in memberships]
         if payee.id not in member_ids:
             raise (Exception)
         if name is None:
@@ -81,4 +81,3 @@ class UserHelpers():
         return User.objects.create_user(username=user_name,
                                         email=user_email,
                                         password='glassonion123')
-

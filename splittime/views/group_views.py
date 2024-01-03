@@ -45,6 +45,9 @@ class BalanceCalculator():
             for debt in debt_set:
                 to_user = debt.to_user
                 from_user = debt.from_user
+                if to_user.id == from_user.id:
+                    continue
+                shares = sum([d.shares for d in debt_set])
                 if to_user not in balances:
                     balances[to_user] = {}
                 if from_user not in balances:
@@ -57,8 +60,8 @@ class BalanceCalculator():
                     balances[to_user][from_user][e.currency] = 0
                 if e.currency not in balances[from_user][to_user]:
                     balances[from_user][to_user][e.currency] = 0
-                balances[to_user][from_user][e.currency] += float(debt.ratio) / 100 * e.amount
-                balances[from_user][to_user][e.currency] -= float(debt.ratio) / 100 * e.amount
+                balances[to_user][from_user][e.currency] += debt.shares / shares * e.amount
+                balances[from_user][to_user][e.currency] -= debt.shares / shares * e.amount
         return balances
 
 

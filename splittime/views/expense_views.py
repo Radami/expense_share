@@ -32,23 +32,12 @@ def add_expense(request, group_id):
 
         # Add one debt relationship with each other member of the group
         members = GroupMembership.objects.filter(group=group)
-        ratio = 1 / len(members) * 100
-        print(ratio)
-        remainder = 100 - round(ratio, 2) * len(members)
-        print(remainder)
-        first = True
         for group_member in members:
-            if group_member.member.id == payee_user.id:
-                continue
             debt = Debt()
             debt.from_user = group_member.member
             debt.to_user = payee_user
             debt.expense = expense
-            debt.ratio = ratio
-
-            if first is True:
-                debt.ratio += remainder
-                first = False
+            debt.shares = 1
             debt.save()
     except Exception as e:
         print(e)
