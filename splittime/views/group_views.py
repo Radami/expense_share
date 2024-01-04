@@ -11,6 +11,7 @@ from django.utils import timezone
 
 from ..models import Group, GroupMembership, Expense
 from ..services.balances import BalanceCalculator
+from ..services.groups import GroupService
 
 
 class IndexView(generic.ListView):
@@ -66,23 +67,17 @@ class GroupDetailsView(generic.DetailView):
 
 
 def add_group(request):
+
+    group_data = {
+        "name": request.POST["group_name"],
+        "description": request.POST["group_description"],
+        "creator": request.user
+    }
+    group = Group()
     try:
-        group = Group()
-        group.name = request.POST["group_name"]
-        group.description = request.POST["group_description"]
-        group.creation_date = datetime.now()
-        group.creator = request.user
-
-        group.save()
-
-        gm = GroupMembership()
-        gm.group = group
-        gm.member = request.user
-        gm.save()
-    except ():
-        group.delete()
-        gm.delete()
-        return HttpResponseServerError()
+        group = GroupService.add_group(group_data)
+    except Exception as e:
+        return HttpResponseServerError(e)
     return HttpResponseRedirect(reverse("splittime:group_details",
                                         args=(group.id,)))
 
@@ -93,7 +88,10 @@ def delete_group(request, pk):
     if group.creator != request.user:
         raise PermissionDenied()
 
-    group.delete()
+    try:
+        GroupService.delete_group(group)
+    except Exception as e:
+        return HttpResponseServerError(e)
 
     return HttpResponseRedirect(reverse("splittime:index"))
 
@@ -102,11 +100,10 @@ def add_group_member(request, group_id):
     # TODO: add permission checks - only creator and members can add
     user = get_object_or_404(User, email=request.POST["member_email"])
     group = get_object_or_404(Group, pk=group_id)
-    gm = GroupMembership()
-    gm.member = user
-    gm.group = group
-    gm.save()
-
+    try:
+        GroupService.add_group_member(group, user)
+    except Exception as e:
+        return HttpResponseServerError(e)
     return HttpResponseRedirect(reverse("splittime:group_details",
                                         args=(group.id,)))
 
@@ -116,7 +113,11 @@ def delete_group_member(request, group_id, user_id):
     user = get_object_or_404(User, pk=user_id)
     group = get_object_or_404(Group, pk=group_id)
     gm = get_object_or_404(GroupMembership, member=user, group=group)
-    gm.delete()
+
+    try:
+        GroupService.delete_group_member(gm)
+    except Exception as e:
+        return HttpResponseServerError(e)
 
     return HttpResponseRedirect(reverse("splittime:group_details",
                                         args=(group.id,)))

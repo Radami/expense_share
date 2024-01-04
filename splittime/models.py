@@ -56,7 +56,7 @@ class Debt(models.Model):
 
     class Meta:
         constraints = [
-            UniqueConstraint(fields=['from_user', 'to_user', 'expense'],
+            UniqueConstraint(fields=['from_user', 'to_user', 'expense',],
                              name='one_debt_per_expense')]
 
     from_user = models.ForeignKey('auth.User', related_name='from_user',
@@ -75,3 +75,6 @@ class Debt(models.Model):
                self.to_user.id == other.to_user.id and \
                self.expense.id == other.expense.id and \
                self.shares == other.shares
+
+    def __hash__(self):
+        return super().__hash__()
