@@ -1,35 +1,38 @@
-<!DOCTYPE html>
-<html lang="en">
-
-    {% load static %}
-    <head>
-        <link rel="stylesheet" type="text/css" href="{% static 'splittime/style.css' %}">
-    </head>
-
-    <body>
-        <img src="{% static 'splittime/images/example.png' %}" alt="My image">
+{% extends "splittime/base.html" %}
+{% block content %}
+<h2>All Groups</h2>
+    <div class="container-fluid p-3 vstack gap-3 bg-secondary-subtle border border-dark rounded">
         {% if latest_group_list %}
-            <ul>
             {% for group in latest_group_list %}
-                <li>
-                    <a href="{% url 'splittime:group_details' group.id  %}">{{ group.name }}</a> - 
-                    <a href="{% url 'splittime:delete_group' group.id %}">Delete</a>
-                </li>
+            <div class="row p-1 bg-primary-subtle border border-dark rounded">
+                <div class="col-md-10">
+                    <h3><a href="{% url 'splittime:group_details' group.id  %}">{{ group.name }}</a></h3>
+                </div>
+                <div class="col-md-2 justify-right">
+                    <a class="btn btn-outline-danger" href="{% url 'splittime:delete_group' group.id %}">Delete</a>
+                </div>
+            </div>
             {% endfor %}
-            </ul>
         {% else %}
             <p>No groups are available.</p>
         {% endif %}
 
         <form action="{% url 'splittime:add_group' %}" method="post">
-            {% csrf_token %}
-            <filedset>
-                <label for="group_name">Group Name</label>
-                <input type="text" id="group_name" name="group_name">  <br/>
-                <label for="group_description">Group Description</label>
-                <input type="text" id="group_description" name="group_description"> <br />
-            </filedset>
-            <input type="submit" value="Add Group">
-            </form>
-    </body>
-</html>
+        {% csrf_token %}
+            <div class="row  p-2 border border-dark rounded">    
+                <div class="col-sm-5 p-1">
+                    <label for="group_name" class="form-label">Group Name</label><br />
+                    <input type="text" class="form-control" id="group_name" name="group_name"> 
+                </div>
+                <div class="col-sm-5 p-1">
+                    <label for="group_description" class="form-label">Group Description</label> <br />
+                    <input type="text" class="form-control" id="group_description" name="group_description">
+                </div>
+                <div class="col-sm-2 p-4">
+                    <input type="submit" class="btn btn-success" value="Add Group">
+                </div>
+            </div>
+        </form>
+    </div>
+    
+{% endblock %}
