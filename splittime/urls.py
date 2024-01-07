@@ -1,6 +1,6 @@
 from django.urls import path
 
-from .views import expense_views, group_views, friend_views
+from .views import expense_views, group_views, friend_views, user_views
 
 app_name = "splittime"
 urlpatterns = [
@@ -30,4 +30,8 @@ urlpatterns = [
           expense_views.delete_expense, name="delete_expense"),
      path("friends/",
           friend_views.FriendsView.as_view(), name="friends"),
+
+     path("register", user_views.register_request, name="register"),
+     path("login", user_views.login_request, name="login"),
+     path("logout", user_views.logout_request, name="logout"),
 ]
