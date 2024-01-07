@@ -35,7 +35,7 @@ class ExpenseService():
         # otherwise error
         group = expense.group
         memberships = GroupMembership.objects.filter(group=group)
-        found = [gm.member for gm in memberships if user == gm.member]
+        found = [gm.member for gm in memberships if user.id == gm.member.id]
         if len(found) == 0:
             raise PermissionDenied()
 
