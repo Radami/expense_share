@@ -1,5 +1,5 @@
 from django.urls import reverse
-from django.test import TestCase
+from django.test import TestCase, Client
 
 from .helpers import GroupHelpers, UserHelpers
 
@@ -8,6 +8,7 @@ class GroupIndexViewTests(TestCase):
 
     def setUp(self):
         self.creator = UserHelpers.create_user(user_name="testuser")
+        self.assertEqual(self.client.login(username="testuser", password="glassonion123"), True)
 
     def test_no_group(self):
         """

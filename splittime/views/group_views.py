@@ -1,7 +1,9 @@
 from typing import Any
 from datetime import datetime, timedelta
 
+from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core.exceptions import PermissionDenied
 from django.http import HttpResponseRedirect, HttpResponseServerError
 from django.shortcuts import get_object_or_404
@@ -14,7 +16,7 @@ from ..services.balances import BalanceCalculator
 from ..services.groups import GroupService
 
 
-class IndexView(generic.ListView):
+class IndexView(LoginRequiredMixin, generic.ListView):
     template_name = "splittime/index.html"
     context_object_name = "latest_group_list"
 
@@ -36,7 +38,7 @@ class IndexView(generic.ListView):
         return context
 
 
-class GroupDetailsView(generic.DetailView):
+class GroupDetailsView(LoginRequiredMixin, generic.DetailView):
     model = Group
     template_name = "splittime/group_details.html"
 
@@ -65,37 +67,38 @@ class GroupDetailsView(generic.DetailView):
         }
         return context
 
-
+@login_required
 def add_group(request):
+    if request.method == "POST":
+        group_data = {
+            "name": request.POST["group_name"],
+            "description": request.POST["group_description"],
+            "creator": request.user
+        }
+        group = Group()
+        try:
+            group = GroupService.add_group(group_data)
+        except Exception as e:
+            return HttpResponseServerError(e)
+        return HttpResponseRedirect(reverse("splittime:group_details",
+                                            args=(group.id,)))
+    return HttpResponseRedirect(reverse("splittime:index",))
 
-    group_data = {
-        "name": request.POST["group_name"],
-        "description": request.POST["group_description"],
-        "creator": request.user
-    }
-    group = Group()
-    try:
-        group = GroupService.add_group(group_data)
-    except Exception as e:
-        return HttpResponseServerError(e)
-    return HttpResponseRedirect(reverse("splittime:group_details",
-                                        args=(group.id,)))
-
-
+@login_required
 def delete_group(request, pk):
-    group = get_object_or_404(Group, pk=pk)
+    if request.method == "POST":
+        group = get_object_or_404(Group, pk=pk)
 
-    if group.creator != request.user:
-        raise PermissionDenied()
+        if group.creator != request.user:
+            raise PermissionDenied()
 
-    try:
-        GroupService.delete_group(group)
-    except Exception as e:
-        return HttpResponseServerError(e)
-
+        try:
+            GroupService.delete_group(group)
+        except Exception as e:
+            return HttpResponseServerError(e)
     return HttpResponseRedirect(reverse("splittime:index"))
 
-
+@login_required
 def add_group_member(request, group_id):
     # TODO: add permission checks - only creator and members can add
     user = get_object_or_404(User, email=request.POST["member_email"])
@@ -107,7 +110,7 @@ def add_group_member(request, group_id):
     return HttpResponseRedirect(reverse("splittime:group_details",
                                         args=(group.id,)))
 
-
+@login_required
 def delete_group_member(request, group_id, user_id):
     # TODO: add permission checks - only creator and members can delete
     user = get_object_or_404(User, pk=user_id)

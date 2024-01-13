@@ -7,7 +7,8 @@ from .helpers import GroupHelpers, UserHelpers
 class GroupDetailViewTests(TestCase):
 
     def setUp(self):
-        pass
+        self.creator = UserHelpers.create_user(user_name="testuser")
+        self.assertEqual(self.client.login(username="testuser", password="glassonion123"), True)
 
     def test_nonexistent_group(self):
         """
@@ -21,7 +22,7 @@ class GroupDetailViewTests(TestCase):
         """
         Test that an old group can be viewed
         """
-        old_group = GroupHelpers.create_group(days=-400)
+        old_group = GroupHelpers.create_group(days=-400, creator=self.creator)
         url = reverse("splittime:group_details", args=(old_group.id,))
         response = self.client.get(url)
         self.assertContains(response, old_group.name)
@@ -30,7 +31,7 @@ class GroupDetailViewTests(TestCase):
         """
         Test that an old group can be viewed
         """
-        old_group = GroupHelpers.create_group(days=-5)
+        old_group = GroupHelpers.create_group(days=-5, creator=self.creator)
         url = reverse("splittime:group_details", args=(old_group.id,))
         response = self.client.get(url)
         self.assertContains(response, old_group.name)
