@@ -81,7 +81,7 @@ class GroupIndexViewNotLoggedInTests(TestCase):
         Trying to access the add group view without being logged in should return 200 and the 
         login url
         """
-        response = self.client.get(reverse("splittime:add_group"))
+        response = self.client.post(reverse("splittime:add_group"))
         self.assertEqual("/splittime/login?next=/splittime/add_group", response.url)
         self.assertEqual(response.status_code, 302)
     
@@ -90,7 +90,7 @@ class GroupIndexViewNotLoggedInTests(TestCase):
         Trying to access the delete group view without being logged in should return 200 and the 
         login url
         """
-        response = self.client.get(reverse("splittime:delete_group", args=("1",)))
+        response = self.client.post(reverse("splittime:delete_group", args=("1",)))
         self.assertEqual("/splittime/login?next=/splittime/group/1/delete_group", response.url)
         self.assertEqual(response.status_code, 302)
 
@@ -113,15 +113,33 @@ class GroupIndexViewPermissionsTests(TestCase):
     def test_index_with_1_group_as_creator(self):
         self.assertEqual(self.client.login(username=self.user1.username, password="glassonion123"), True)
         response = self.client.get(reverse("splittime:index"))
+        self.assertEqual(response.status_code, 200)
         self.assertQuerySetEqual(response.context["latest_group_list"], [self.group1])
 
     def test_index_with_2_groups_as_creator(self):
         self.assertEqual(self.client.login(username=self.user2.username, password="glassonion123"), True)
         response = self.client.get(reverse("splittime:index"))
+        self.assertEqual(response.status_code, 200)
         self.assertQuerySetEqual(response.context["latest_group_list"], [self.group2_1, self.group2])
     
     def test_index_with_2_groups_as_creator_and_member(self):
         self.assertEqual(self.client.login(username=self.user3.username, password="glassonion123"), True)
         response = self.client.get(reverse("splittime:index"))
+        self.assertEqual(response.status_code, 200)
         self.assertQuerySetEqual(response.context["latest_group_list"], [self.group3, self.group2])
 
+    def test_delete_group_with_no_permission(self):
+        self.assertEqual(self.client.login(username=self.user1.username, password="glassonion123"), True)
+        response = self.client.post(reverse("splittime:delete_group", args=(self.group2.id, )))
+        self.assertEqual(response.status_code, 403)
+
+    def test_delete_grpup_as_creator(self):
+        self.assertEqual(self.client.login(username=self.user1.username, password="glassonion123"), True)
+        response = self.client.post(reverse("splittime:delete_group", args=(self.group1.id, )))
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response.url, "/splittime/")
+    
+    def test_delete_group_as_member(self):
+        self.assertEqual(self.client.login(username=self.user3.username, password="glassonion123"), True)
+        response = self.client.post(reverse("splittime:delete_group", args=(self.group2.id, )))
+        self.assertEqual(response.status_code, 403)

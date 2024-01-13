@@ -5,7 +5,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core.exceptions import PermissionDenied
-from django.http import HttpResponseRedirect, HttpResponseServerError
+from django.http import HttpResponseRedirect, HttpResponseServerError, HttpResponseForbidden
 from django.shortcuts import get_object_or_404
 from django.views import generic
 from django.urls import reverse
@@ -91,9 +91,9 @@ def add_group(request):
 def delete_group(request, pk):
     if request.method == "POST":
         group = get_object_or_404(Group, pk=pk)
-
-        if group.creator != request.user:
-            raise PermissionDenied()
+        
+        if group.creator.id != request.user.id:
+            return HttpResponseForbidden()
 
         try:
             GroupService.delete_group(group)
