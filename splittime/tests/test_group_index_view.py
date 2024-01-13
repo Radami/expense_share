@@ -55,3 +55,36 @@ class GroupIndexViewTests(TestCase):
         response = self.client.get(reverse("splittime:index"))
         self.assertQuerySetEqual(response.context["latest_group_list"],
                                  [group_second, group_first])
+
+
+class GroupIndexViewNotLoggedInTests(TestCase):
+
+    def setUp(self):
+        pass
+    
+    def test_index_view(self):
+        """
+        Trying to access the index view without being logged in should return 200 and the 
+        login url
+        """
+        response = self.client.get(reverse("splittime:index"))
+        self.assertEqual("/splittime/login?next=/splittime/", response.url)
+        self.assertEqual(response.status_code, 302)
+
+    def test_add_group(self):
+        """
+        Trying to access the add group view without being logged in should return 200 and the 
+        login url
+        """
+        response = self.client.get(reverse("splittime:add_group"))
+        self.assertEqual("/splittime/login?next=/splittime/add_group", response.url)
+        self.assertEqual(response.status_code, 302)
+    
+    def test_delete_group(self):
+        """
+        Trying to access the delete group view without being logged in should return 200 and the 
+        login url
+        """
+        response = self.client.get(reverse("splittime:delete_group", args=("1",)))
+        self.assertEqual("/splittime/login?next=/splittime/group/1/delete_group", response.url)
+        self.assertEqual(response.status_code, 302)
