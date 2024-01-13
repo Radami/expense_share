@@ -33,7 +33,7 @@ class IndexView(LoginRequiredMixin, generic.ListView):
         group_memberships = GroupMembership.objects.filter(member=self.request.user)
         #latest_group_list = Group.objects.filter(creator=self.request.user).filter(
         #   creation_date__gte=creation_date).order_by("-creation_date")[:5]
-        latest_group_list = [gm.group for gm in group_memberships]
+        latest_group_list = [gm.group for gm in group_memberships if gm.group.creation_date >= creation_date ]
         latest_group_list.sort(key=lambda x: x.creation_date, reverse=True)
         context = {
             "latest_group_list": latest_group_list
