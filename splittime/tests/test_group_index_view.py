@@ -6,9 +6,12 @@ from .helpers import GroupHelpers, UserHelpers
 
 class GroupIndexViewTests(TestCase):
 
+    @classmethod
+    def setUpTestData(cls):
+        cls.user1 = UserHelpers.create_user(user_name="testuser")
+
     def setUp(self):
-        self.creator = UserHelpers.create_user(user_name="testuser")
-        self.assertEqual(self.client.login(username="testuser", password="glassonion123"), True)
+        self.assertEqual(self.client.login(username=self.user1.username, password="glassonion123"), True)
 
     def test_no_group(self):
         """
@@ -23,7 +26,7 @@ class GroupIndexViewTests(TestCase):
         """
         If an old group exists, no groups are displayed
         """
-        GroupHelpers.create_group(days=-400, creator=self.creator)
+        GroupHelpers.create_group(days=-400, creator=self.user1)
         response = self.client.get(reverse("splittime:index"))
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, "No groups are available")
@@ -33,7 +36,7 @@ class GroupIndexViewTests(TestCase):
         """
         If a recent group exists, display it
         """
-        group = GroupHelpers.create_group(days=-5, creator=self.creator)
+        group = GroupHelpers.create_group(days=-5, creator=self.user1)
         response = self.client.get(reverse("splittime:index"))
         self.assertQuerySetEqual(response.context["latest_group_list"], [group])
 
@@ -41,8 +44,8 @@ class GroupIndexViewTests(TestCase):
         """
         If a recent and old group exists, display only the recent one
         """
-        GroupHelpers.create_group(days=-400, creator=self.creator)
-        group_recent = GroupHelpers.create_group(days=-5, creator=self.creator)
+        GroupHelpers.create_group(days=-400, creator=self.user1)
+        group_recent = GroupHelpers.create_group(days=-5, creator=self.user1)
         response = self.client.get(reverse("splittime:index"))
         self.assertQuerySetEqual(response.context["latest_group_list"], [group_recent])
 
@@ -50,8 +53,8 @@ class GroupIndexViewTests(TestCase):
         """
         The index page might display multiple groups in reverse order of creation
         """
-        group_first = GroupHelpers.create_group(days=-300, creator=self.creator)
-        group_second = GroupHelpers.create_group(days=-200, creator=self.creator)
+        group_first = GroupHelpers.create_group(days=-300, creator=self.user1)
+        group_second = GroupHelpers.create_group(days=-200, creator=self.user1)
         response = self.client.get(reverse("splittime:index"))
         self.assertQuerySetEqual(response.context["latest_group_list"],
                                  [group_second, group_first])
