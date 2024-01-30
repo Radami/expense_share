@@ -1,15 +1,18 @@
+from django.db import IntegrityError
 from django.utils import timezone
 
 from ..models import Group, GroupMembership
+from ..exceptions import DuplicateEntryException
 
 
-class GroupService():
-
+class GroupService:
     def add_group(group_data):
-        group = Group(name=group_data["name"],
-                      description=group_data["description"],
-                      creation_date=timezone.now(),
-                      creator=group_data["creator"])
+        group = Group(
+            name=group_data["name"],
+            description=group_data["description"],
+            creation_date=timezone.now(),
+            creator=group_data["creator"],
+        )
         gm = GroupMembership(group=group, member=group_data["creator"])
 
         try:
@@ -34,7 +37,8 @@ class GroupService():
         try:
             gm.save()
         except Exception as e:
-            print(e)
+            if type(e) is IntegrityError:
+                raise DuplicateEntryException
             raise Exception(e)
 
     def delete_group_member(group_membership):

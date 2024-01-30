@@ -1,10 +1,10 @@
 from typing import Any
 from datetime import datetime, timedelta
 
+from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
-from django.contrib.auth.mixins import LoginRequiredMixin
-from django.core.exceptions import PermissionDenied
+from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.http import (
     HttpResponseRedirect,
     HttpResponseServerError,
@@ -18,6 +18,7 @@ from django.utils import timezone
 from ..models import Group, GroupMembership, Expense
 from ..services.balances import BalanceCalculator
 from ..services.groups import GroupService
+from ..exceptions import DuplicateEntryException
 
 
 class IndexView(LoginRequiredMixin, generic.ListView):
@@ -46,9 +47,12 @@ class IndexView(LoginRequiredMixin, generic.ListView):
         return context
 
 
-class GroupDetailsView(LoginRequiredMixin, generic.DetailView):
+class GroupDetailsView(LoginRequiredMixin, UserPassesTestMixin, generic.DetailView):
     model = Group
     template_name = "splittime/group_details.html"
+
+    def test_func(self):
+        return Group.objects.get(pk=self.kwargs["pk"]).has_member(self.request.user)
 
     def get_context_data(self, **kwargs: Any) -> dict[str, Any]:
         context = super(GroupDetailsView, self).get_context_data(**kwargs)
@@ -124,17 +128,23 @@ def add_group_member(request, group_id):
     try:
         GroupService.add_group_member(group, user)
     except Exception as e:
+        if type(e) is DuplicateEntryException:
+            # messages.add_message(request, messages.INFO, "Member already added")
+            return HttpResponseRedirect(
+                reverse("splittime:group_details", args=(group.id,))
+            )
         return HttpResponseServerError(e)
     return HttpResponseRedirect(reverse("splittime:group_details", args=(group.id,)))
 
 
 @login_required
 def delete_group_member(request, group_id, user_id):
-    # TODO: add permission checks - only creator and members can delete
     user = get_object_or_404(User, pk=user_id)
     group = get_object_or_404(Group, pk=group_id)
     gm = get_object_or_404(GroupMembership, member=user, group=group)
 
+    if not group.has_member(request.user):
+        return HttpResponseForbidden()
     try:
         GroupService.delete_group_member(gm)
     except Exception as e:

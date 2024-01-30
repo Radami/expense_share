@@ -1,0 +1,2 @@
+class DuplicateEntryException(Exception):
+    pass
