@@ -5,10 +5,12 @@ from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
+from django.core.exceptions import ObjectDoesNotExist
 from django.http import (
     HttpResponseRedirect,
     HttpResponseServerError,
     HttpResponseForbidden,
+    HttpResponseNotFound,
 )
 from django.shortcuts import get_object_or_404
 from django.views import generic
@@ -52,7 +54,11 @@ class GroupDetailsView(LoginRequiredMixin, UserPassesTestMixin, generic.DetailVi
     template_name = "splittime/group_details.html"
 
     def test_func(self):
-        return Group.objects.get(pk=self.kwargs["pk"]).has_member(self.request.user)
+        try:
+            group = Group.objects.get(pk=self.kwargs["pk"])
+        except ObjectDoesNotExist as e:
+            return HttpResponseNotFound(e)
+        return group.has_member(self.request.user)
 
     def get_context_data(self, **kwargs: Any) -> dict[str, Any]:
         context = super(GroupDetailsView, self).get_context_data(**kwargs)
