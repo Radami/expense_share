@@ -6,7 +6,7 @@ from ..models import Expense
 from ..services.expenses import ExpenseService
 
 
-class AddExpenseTest(TestCase):
+class DeleteExpenseTest(TestCase):
 
     def setUp(self):
         self.user1 = UserHelpers.create_user()
@@ -20,6 +20,6 @@ class AddExpenseTest(TestCase):
         self.assertFalse(Expense.objects.filter(pk=self.expense1.id).exists())
 
     def test_delete_expense_invalid_user(self):
-        self.assertRaises(PermissionDenied,
-                          ExpenseService.delete_expense,
-                          self.expense2, self.user2)
+        self.assertRaises(
+            PermissionDenied, ExpenseService.delete_expense, self.expense2, self.user2
+        )

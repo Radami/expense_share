@@ -62,9 +62,7 @@ class GroupIndexViewTests(TestCase):
         group_first = GroupHelpers.create_group(days=-300, creator=self.user1)
         group_second = GroupHelpers.create_group(days=-200, creator=self.user1)
         response = self.client.get(reverse("splittime:index"))
-        self.assertQuerySetEqual(
-            response.context["latest_group_list"], [group_second, group_first]
-        )
+        self.assertQuerySetEqual(response.context["latest_group_list"], [group_second, group_first])
 
 
 class GroupIndexViewNotLoggedInTests(TestCase):
@@ -99,9 +97,7 @@ class GroupIndexViewNotLoggedInTests(TestCase):
         login url
         """
         response = self.client.post(reverse("splittime:delete_group", args=("1",)))
-        self.assertEqual(
-            "/splittime/login?next=/splittime/group/1/delete_group", response.url
-        )
+        self.assertEqual("/splittime/login?next=/splittime/group/1/delete_group", response.url)
         self.assertEqual(response.status_code, 302)
 
 
@@ -165,7 +161,8 @@ class GroupIndexViewPermissionsTests(TestCase):
 
     def test_index_with_2_groups_as_creator_and_member(self):
         """
-        Index view with 2 groups (one as creator and one as member) should return both groups and nothing else
+        Index view with 2 groups (one as creator and one as member) should return both groups
+        and nothing else
         """
         self.assertEqual(
             self.client.login(

@@ -1,5 +1,6 @@
 from http import HTTPStatus
 
+from django.urls import reverse
 from django.test import TestCase
 
 from .helpers import GroupHelpers, UserHelpers
@@ -19,15 +20,24 @@ class AddExpenseTest(TestCase):
         Test adding an expense to an existing group and that no debt relationships
         are created if the group has just 1 user
         """
+        self.assertEqual(
+            self.client.login(
+                username=self.user1.username,
+                password="glassonion123",
+            ),
+            True,
+        )
         data = {
             "expense_name": "test_expense1",
             "expense_currency": "USD",
             "expense_amount": 100,
-            "payee": self.user1.id
+            "payee": self.user1.id,
         }
-        url = "/splittime/group/"+str(self.group1.id) + "/add_expense"
-        response = self.client.post(url,
-                                    data=data)
+        url = reverse(
+            "splittime:add_expense",
+            args=(self.group1.id,),
+        )
+        response = self.client.post(url, data=data)
         self.assertEqual(response.status_code, HTTPStatus.FOUND)
         # Check the expense was successfully saved
         expense = Expense.objects.get(name="test_expense1")
@@ -44,16 +54,25 @@ class AddExpenseTest(TestCase):
         Test that an expense can be added to a group and that a debt relationship
         is created if the group has 1 other member
         """
+        self.assertEqual(
+            self.client.login(
+                username=self.user1.username,
+                password="glassonion123",
+            ),
+            True,
+        )
         data = {
             "expense_name": "test_expense2",
             "expense_currency": "USD",
             "expense_amount": 100,
-            "payee": self.user1.id
+            "payee": self.user1.id,
         }
         GroupHelpers.add_user_to_group(self.group1, self.user2)
-        url = "/splittime/group/"+str(self.group1.id) + "/add_expense"
-        response = self.client.post(url,
-                                    data=data)
+        url = reverse(
+            "splittime:add_expense",
+            args=(self.group1.id,),
+        )
+        response = self.client.post(url, data=data)
         self.assertEqual(response.status_code, HTTPStatus.FOUND)
         # Check the expense was successfully saved
         expense = Expense.objects.get(name="test_expense2")
@@ -74,16 +93,25 @@ class AddExpenseTest(TestCase):
         Test that 2 expense can be added to a group and that 2 debt relationships
         is created if the group has 1 other member
         """
+        self.assertEqual(
+            self.client.login(
+                username=self.user1.username,
+                password="glassonion123",
+            ),
+            True,
+        )
         data = {
             "expense_name": "test_3_expense_1",
             "expense_currency": "USD",
             "expense_amount": 100,
-            "payee": self.user1.id
+            "payee": self.user1.id,
         }
         GroupHelpers.add_user_to_group(self.group1, self.user2)
-        url = "/splittime/group/"+str(self.group1.id) + "/add_expense"
-        response = self.client.post(url,
-                                    data=data)
+        url = reverse(
+            "splittime:add_expense",
+            args=(self.group1.id,),
+        )
+        response = self.client.post(url, data=data)
         self.assertEqual(response.status_code, HTTPStatus.FOUND)
         expense1 = Expense.objects.get(name="test_3_expense_1")
         self.assertIsNotNone(expense1)
@@ -95,11 +123,13 @@ class AddExpenseTest(TestCase):
             "expense_name": "test_3_expense_2",
             "expense_currency": "GBP",
             "expense_amount": 200,
-            "payee": self.user2.id
+            "payee": self.user2.id,
         }
-        url = "/splittime/group/"+str(self.group1.id) + "/add_expense"
-        response = self.client.post(url,
-                                    data=data)
+        url = reverse(
+            "splittime:add_expense",
+            args=(self.group1.id,),
+        )
+        response = self.client.post(url, data=data)
         self.assertEqual(response.status_code, HTTPStatus.FOUND)
         # Check the expense was successfully saved
         expense2 = Expense.objects.get(name="test_3_expense_2")
@@ -122,17 +152,26 @@ class AddExpenseTest(TestCase):
         Test that an expense can be added to a group and that a debt relationship
         is created for each of the other group members
         """
+        self.assertEqual(
+            self.client.login(
+                username=self.user1.username,
+                password="glassonion123",
+            ),
+            True,
+        )
         data = {
             "expense_name": "test_4_expense_1",
             "expense_currency": "USD",
             "expense_amount": 100,
-            "payee": self.user1.id
+            "payee": self.user1.id,
         }
         GroupHelpers.add_user_to_group(self.group1, self.user2)
         GroupHelpers.add_user_to_group(self.group1, self.user3)
-        url = "/splittime/group/"+str(self.group1.id) + "/add_expense"
-        response = self.client.post(url,
-                                    data=data)
+        url = reverse(
+            "splittime:add_expense",
+            args=(self.group1.id,),
+        )
+        response = self.client.post(url, data=data)
         self.assertEqual(response.status_code, HTTPStatus.FOUND)
         # Check the expense was successfully saved
         expense = Expense.objects.get(name="test_4_expense_1")
@@ -155,17 +194,26 @@ class AddExpenseTest(TestCase):
         Test that multiple expenses can be added to a group and that a debt relationship
         is created for each of the other group members
         """
+        self.assertEqual(
+            self.client.login(
+                username=self.user1.username,
+                password="glassonion123",
+            ),
+            True,
+        )
         data = {
             "expense_name": "test_5_expense_1",
             "expense_currency": "USD",
             "expense_amount": 100,
-            "payee": self.user1.id
+            "payee": self.user1.id,
         }
         GroupHelpers.add_user_to_group(self.group1, self.user2)
         GroupHelpers.add_user_to_group(self.group1, self.user3)
-        url = "/splittime/group/"+str(self.group1.id) + "/add_expense"
-        response = self.client.post(url,
-                                    data=data)
+        url = reverse(
+            "splittime:add_expense",
+            args=(self.group1.id,),
+        )
+        response = self.client.post(url, data=data)
         self.assertEqual(response.status_code, HTTPStatus.FOUND)
         # Check the first expense was successfully saved
         expense1 = Expense.objects.get(name="test_5_expense_1")
@@ -178,11 +226,13 @@ class AddExpenseTest(TestCase):
             "expense_name": "test_5_expense_2",
             "expense_currency": "EUR",
             "expense_amount": 300,
-            "payee": self.user2.id
+            "payee": self.user2.id,
         }
-        url = "/splittime/group/"+str(self.group1.id) + "/add_expense"
-        response = self.client.post(url,
-                                    data=data)
+        url = reverse(
+            "splittime:add_expense",
+            args=(self.group1.id,),
+        )
+        response = self.client.post(url, data=data)
         self.assertEqual(response.status_code, HTTPStatus.FOUND)
         # Check the second expense was successfully saved
         expense2 = Expense.objects.get(name="test_5_expense_2")
@@ -207,3 +257,49 @@ class AddExpenseTest(TestCase):
         self.assertIn(debt1, debt_set)
         self.assertIn(debt2, debt_set)
         self.assertIn(debt3, debt_set)
+
+
+class AddExpensePermissionTests(TestCase):
+    def setUp(self):
+        self.user1 = UserHelpers.create_user()
+        self.user2 = UserHelpers.create_user()
+        self.group1 = GroupHelpers.create_group(creator=self.user1)
+
+    def test_add_expense_user_not_logged_in(self):
+        data = {
+            "expense_name": "test_expense1",
+            "expense_currency": "USD",
+            "expense_amount": 100,
+            "payee": self.user1.id,
+        }
+        url = reverse(
+            "splittime:add_expense",
+            args=(self.group1.id,),
+        )
+        response = self.client.post(url, data=data)
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(
+            "/splittime/login?next=/splittime/group/" + str(self.group1.id) + "/add_expense",
+            response.url,
+        )
+
+    def test_add_expense_non_member(self):
+        self.assertEqual(
+            self.client.login(
+                username=self.user2.username,
+                password="glassonion123",
+            ),
+            True,
+        )
+        data = {
+            "expense_name": "test_expense1",
+            "expense_currency": "USD",
+            "expense_amount": 100,
+            "payee": self.user1.id,
+        }
+        url = reverse(
+            "splittime:add_expense",
+            args=(self.group1.id,),
+        )
+        response = self.client.post(url, data=data)
+        self.assertEqual(response.status_code, HTTPStatus.FORBIDDEN)
