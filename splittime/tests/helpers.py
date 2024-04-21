@@ -64,6 +64,9 @@ class GroupHelpers:
         }
         return ExpenseService.add_expense(expense)
 
+    def delete_expense(expense, user):
+        ExpenseService.delete_expense(expense, user)
+
 
 class UserHelpers:
 
