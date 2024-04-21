@@ -10,7 +10,11 @@ class GroupService:
         group = Group(
             name=group_data["name"],
             description=group_data["description"],
-            creation_date=timezone.now(),
+            creation_date=(
+                group_data["creation_date"]
+                if group_data["creation_date"] is not None
+                else timezone.now()
+            ),
             creator=group_data["creator"],
         )
         gm = GroupMembership(group=group, member=group_data["creator"])

@@ -2,20 +2,24 @@ import datetime
 from django.utils import timezone
 from django.contrib.auth.models import User
 
-from ..models import Group, GroupMembership
+from splittime.services.groups import GroupService
+
+from ..models import GroupMembership
 from ..services.expenses import ExpenseService
 
 
-class GroupHelpers():
+class GroupHelpers:
 
     seed = 1
 
-    def create_group(group_name=None,
-                     group_description=None,
-                     days=0,
-                     creator=None,):
+    def create_group(
+        group_name=None,
+        group_description=None,
+        days=0,
+        creator=None,
+    ):
         """
-        Creates a group with the given description an published the number of
+        Creates a group with the given description and published the number of
         days offset to now (negative for past, positive for future). If no name
         or description are provided, default ones + seed will be used
         """
@@ -28,21 +32,18 @@ class GroupHelpers():
         time = timezone.now() + datetime.timedelta(days=days)
         if creator is None:
             creator = UserHelpers.create_user()
-        group = Group.objects.create(name=group_name,
-                                     creator=creator,
-                                     description=group_description,
-                                     creation_date=time)
-        GroupHelpers.add_user_to_group(group, creator)
+
+        group_data = {
+            "name": group_name,
+            "description": group_description,
+            "creation_date": time,
+            "creator": creator,
+        }
+        group = GroupService.add_group(group_data)
         return group
 
     def add_user_to_group(group, user):
-        """
-        Add specified user to the group
-        """
-        gm = GroupMembership()
-        gm.group = group
-        gm.member = user
-        gm.save()
+        GroupService.add_group_member(group, user)
 
     def add_expense(group, payee, name=None, currency="USD", amount=100):
         if group is None or payee is None:
@@ -59,12 +60,12 @@ class GroupHelpers():
             "name": name,
             "currency": currency,
             "amount": amount,
-            "payee": payee
+            "payee": payee,
         }
         return ExpenseService.add_expense(expense)
 
 
-class UserHelpers():
+class UserHelpers:
 
     seed = 1
 
@@ -79,6 +80,6 @@ class UserHelpers():
             user_email = str(user_name) + str(UserHelpers.seed) + "@email.com"
         UserHelpers.seed += 1
 
-        return User.objects.create_user(username=user_name,
-                                        email=user_email,
-                                        password='glassonion123')
+        return User.objects.create_user(
+            username=user_name, email=user_email, password="glassonion123"
+        )
