@@ -4,7 +4,7 @@ from django.contrib.auth.models import User
 
 from splittime.services.groups import GroupService
 
-from ..models import GroupMembership
+from ..models import Expense, Group, GroupMembership
 from ..services.expenses import ExpenseService
 
 
@@ -13,11 +13,11 @@ class GroupHelpers:
     seed = 1
 
     def create_group(
-        group_name=None,
-        group_description=None,
-        days=0,
-        creator=None,
-    ):
+        group_name: str = None,
+        group_description: str = None,
+        days: int = 0,
+        creator: User = None,
+    ) -> Group:
         """
         Creates a group with the given description and published the number of
         days offset to now (negative for past, positive for future). If no name
@@ -42,10 +42,12 @@ class GroupHelpers:
         group = GroupService.add_group(group_data)
         return group
 
-    def add_user_to_group(group, user):
+    def add_user_to_group(group: Group, user: User) -> None:
         GroupService.add_group_member(group, user)
 
-    def add_expense(group, payee, name=None, currency="USD", amount=100):
+    def add_expense(
+        group: Group, payee: User, name: str = None, currency: str = "USD", amount: float = 100.0
+    ) -> Expense:
         if group is None or payee is None:
             raise (Exception)
         memberships = GroupMembership.objects.filter(group=group)
@@ -64,7 +66,7 @@ class GroupHelpers:
         }
         return ExpenseService.add_expense(expense)
 
-    def delete_expense(expense, user):
+    def delete_expense(expense: Expense, user: User) -> None:
         ExpenseService.delete_expense(expense, user)
 
 
