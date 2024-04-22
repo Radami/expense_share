@@ -1,7 +1,7 @@
 {% extends "splittime/base.html" %}
 {% block content %}
 <h2>All Groups</h2>
-    <div class="container-fluid p-3 vstack gap-3 bg-secondary-subtle border border-dark rounded">
+    <div class="container-fluid p-4 vstack gap-3 bg-green border border-dark rounded">
         {% if latest_group_list %}
             {% for group in latest_group_list %}
             <div class="row p-1 bg-primary-subtle border border-dark rounded">
@@ -11,8 +11,8 @@
                     <span>User A owes you 100 USD</span>
                 </div>
                 <div class="d-grid gap-2 col-md-2 mx-auto">
-                    <a class="btn btn btn-success" href="#">Add Expense</a>
-                    <a class="btn btn btn-primary" href="#">Edit members</a>
+                    <a class="btn btn-bd-test" href="#">Add Expense</a>
+                    <a class="btn btn-primary" href="#">Edit members</a>
                     <a class="btn btn-outline-danger" href="{% url 'splittime:delete_group' group.id %}">Delete Group</a>
                 </div>
             </div>

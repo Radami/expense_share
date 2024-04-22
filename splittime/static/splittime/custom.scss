@@ -1,0 +1,27 @@
+// Custom.scss
+// Option A: Include all of Bootstrap
+
+// Include any default variable overrides here (though functions won't be available)
+
+@import "../../../../../bootstrap/scss/bootstrap";
+
+// Then add additional custom code here
+.bg-green {
+    background-color: $green-200;
+  }
+
+$bd-add-expense: $orange-500;
+.btn-bd-test {
+    --bs-btn-color: #fff;
+    --bs-btn-bg: #{$bd-add-expense};
+    --bs-btn-border-color: #{shade-color($bd-add-expense, 10%)};
+    --bs-btn-hover-color: #fff;
+    --bs-btn-hover-bg: #{shade-color($bd-add-expense, 30%)};
+    --bs-btn-hover-border-color: #{shade-color($bd-add-expense, 40%)};
+    --bs-btn-focus-shadow-rgb: 60, 153, 110;
+    --bs-btn-active-color: #fff;
+    --bs-btn-active-bg: #{shade-color($bd-add-expense, 40%)};
+    --bs-btn-active-border-color: #{shade-color($bd-add-expense, 50%)};
+    --bs-btn-active-shadow: inset 0 3px 5px rgba(0, 0, 0, 0.125);
+}
+  
