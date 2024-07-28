@@ -1,0 +1,11 @@
+function Footer() {
+    return(
+      <footer className="footer mt-auto py-3 text-white">
+          <div className="container text-center">
+          @radami - <a href="https://github.com/Radami/expense_share"> Github</a>
+          </div>
+      </footer>
+    );
+  }
+    
+  export default Footer;
