@@ -9,7 +9,7 @@ const Profile = ({ token }) => {
     const fetchProfile = async () => {
         const token = localStorage.getItem('access_token');
         try {
-          const response = await axios.get('http://localhost:8000/api/profile/', {
+          const response = await axios.get('http://localhost:8000/users/api/profile/', {
             headers: {
               'Authorization': `Bearer ${token}`
             }
@@ -27,7 +27,7 @@ const Profile = ({ token }) => {
     <div>
       {profile ? (
         <div>
-          <h1>{profile.username}</h1>
+          <h2>{profile.username}</h2>
           <p>Email: {profile.email}</p>
         </div>
       ) : (

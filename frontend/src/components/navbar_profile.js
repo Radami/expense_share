@@ -6,7 +6,7 @@ function NavbarProfile({ loginParams }) {
 
     return (
         <li className="nav-item dropdown">
-            <a className="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+            <a className="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" data-bs-auto-close="outside" aria-expanded="false">
             { 
                 loginParams.isAuthenticated ? ( 
                     <>Profile</>
@@ -16,7 +16,7 @@ function NavbarProfile({ loginParams }) {
             }
             </a>
             <ul className="dropdown-menu" aria-labelledby="navbarDropdown">
-                <li className="dropdown-item">
+                <li className="mx-3">
                 { 
                     loginParams.isAuthenticated ? ( 
                     <>

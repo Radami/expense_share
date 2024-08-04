@@ -7,7 +7,7 @@ const Login = ({ onLogin }) => {
 
     const handleLogin = (e) => {
         e.preventDefault();
-        axios.post('http://localhost:8000/api/token/', {
+        axios.post('http://localhost:8000/users/api/token/', {
             username,
             password,
         })
@@ -26,15 +26,15 @@ const Login = ({ onLogin }) => {
 
     return (
         <form onSubmit={handleLogin} >
-        <div>
-            <label>Username</label>
-            <input type="text" value={username} onChange={(e) => setUsername(e.target.value)} />
-        </div>
-        <div>
-            <label>Password</label>
-            <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} />
-        </div>
-        <button type="submit">Login</button>
+            <div className="my-1">
+                <label htmlFor="loginEmailInput">Username</label>
+                <input className="form-control" type="text" id="loginEmailInput" value={username} onChange={(e) => setUsername(e.target.value)} />
+            </div> 
+            <div className="my-1">
+                <label htmlFor="loginPasswordInput">Password</label>
+                <input className="form-control" type="password" id="loginPasswordInput" value={password} onChange={(e) => setPassword(e.target.value)} />
+            </div>
+            <button className="btn btn-primary my-1" type="submit">Login</button>
         </form>
     );
 };

@@ -4,13 +4,13 @@ from django.contrib.auth.models import User
 from rest_framework import status
 
 
-class AccountsTest(APITestCase):
+class CreateUsersTest(APITestCase):
     def setUp(self):
         # We want to go ahead and originally create a user.
         self.test_user = User.objects.create_user("testuser", "test@example.com", "testpassword")
 
         # URL for creating an account.
-        self.create_url = reverse("account-create")
+        self.create_url = reverse("account_create")
 
     def test_create_user(self):
         """
@@ -95,3 +95,24 @@ class AccountsTest(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertEqual(User.objects.count(), 1)
         self.assertEqual(len(response.data["email"]), 1)
+
+
+class LoginUsersTests(APITestCase):
+    def setUp(self):
+        # We want to go ahead and originally create a user.
+        self.test_user = User.objects.create_user("testuser", "test@example.com", "testpassword")
+
+        # URL set-up
+        self.token_obtain_url = reverse("token_obtain")
+        self.token_verify_url = reverse("token_verify")
+
+    def test_login_user(self):
+        resp = self.client.post(
+            self.token_obtain_url,
+            {"username": self.test_user.username, "password": "testpassword"},
+            format="json",
+        )
+        self.assertEqual(resp.status_code, status.HTTP_200_OK)
+        self.assertTrue("access" in resp.data)
+        self.assertTrue("refresh" in resp.data)
+        # token = resp.data["token"]
