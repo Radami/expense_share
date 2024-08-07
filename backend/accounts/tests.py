@@ -101,12 +101,15 @@ class LoginUsersTests(APITestCase):
     def setUp(self):
         # We want to go ahead and originally create a user.
         self.test_user = User.objects.create_user("testuser", "test@example.com", "testpassword")
+        self.invalid_user = "invalid_user"
+        self.invalid_pass = "invalid_pass"
+        self.invalid_token = "abc"
 
         # URL set-up
         self.token_obtain_url = reverse("token_obtain")
         self.token_verify_url = reverse("token_verify")
 
-    def test_login_user(self):
+    def test_get_token_on_login_user(self):
         resp = self.client.post(
             self.token_obtain_url,
             {"username": self.test_user.username, "password": "testpassword"},
@@ -115,4 +118,54 @@ class LoginUsersTests(APITestCase):
         self.assertEqual(resp.status_code, status.HTTP_200_OK)
         self.assertTrue("access" in resp.data)
         self.assertTrue("refresh" in resp.data)
-        # token = resp.data["token"]
+
+    def test_verify_token_on_login_user(self):
+        resp = self.client.post(
+            self.token_obtain_url,
+            {"username": self.test_user.username, "password": "testpassword"},
+            format="json",
+        )
+        self.assertEqual(resp.status_code, status.HTTP_200_OK)
+        self.assertTrue("access" in resp.data)
+        self.assertTrue("refresh" in resp.data)
+        access_token = resp.data["access"]
+        refresh_token = resp.data["refresh"]
+
+        resp = self.client.post(
+            self.token_verify_url,
+            {"token": access_token},
+            format="json",
+        )
+        self.assertEqual(resp.status_code, status.HTTP_200_OK)
+        resp = self.client.post(
+            self.token_verify_url,
+            {"token": refresh_token},
+            format="json",
+        )
+        self.assertEqual(resp.status_code, status.HTTP_200_OK)
+
+    def test_verify_token_invalid_token(self):
+        resp = self.client.post(
+            self.token_verify_url,
+            {"token": self.invalid_token},
+            format="json",
+        )
+        self.assertEqual(resp.status_code, status.HTTP_401_UNAUTHORIZED)
+
+    def test_verify_token_on_invalid_username(self):
+        resp = self.client.post(
+            self.token_obtain_url,
+            {"username": self.invalid_user, "password": self.invalid_pass},
+            format="json",
+        )
+
+        self.assertEqual(resp.status_code, status.HTTP_401_UNAUTHORIZED)
+
+    def test_verify_token_on_invalid_password(self):
+        resp = self.client.post(
+            self.token_obtain_url,
+            {"username": self.test_user.username, "password": self.invalid_pass},
+            format="json",
+        )
+
+        self.assertEqual(resp.status_code, status.HTTP_401_UNAUTHORIZED)
