@@ -36,3 +36,20 @@
     transform: rotate(360deg);
   }
 }
+
+.my-node-enter .my-node-appear{
+    opacity: 0;
+    transition: opacity 1000ms;
+}
+.my-node-enter-active .my-node-appear-active{
+    opacity: 1;
+    transition: opacity 1000ms;
+}
+.my-node-exit {
+    opacity: 1;
+    transition: opacity 1000ms;
+}
+.my-node-exit-active {
+    opacity: 0;
+    transition: opacity 1000ms;
+}
