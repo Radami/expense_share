@@ -16,7 +16,13 @@ from django.urls import reverse
 from django.utils import timezone
 from django.views import generic
 
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.response import Response
+from rest_framework.views import APIView
+
+
 from ..models import Group, GroupMembership, Expense
+from ..serializers import GroupSerializer
 from ..services.balances import BalanceCalculator
 from ..services.groups import GroupService
 from ..exceptions import DuplicateEntryException
@@ -150,3 +156,25 @@ def delete_group_member(request, group_id, user_id):
         return HttpResponseServerError(e)
 
     return HttpResponseRedirect(reverse("splittime:group_details", args=(group.id,)))
+
+
+# Django Rest Framework views
+class GroupIndexView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+
+        creation_date = timezone.make_aware(
+            datetime.now() - timedelta(days=365), timezone.get_current_timezone()
+        )
+
+        group_memberships = GroupMembership.objects.filter(member=request.user)
+
+        latest_group_list = [
+            gm.group for gm in group_memberships if gm.group.creation_date >= creation_date
+        ]
+
+        latest_group_list.sort(key=lambda x: x.creation_date, reverse=True)
+
+        serializer = GroupSerializer(latest_group_list, many=True)
+        return Response(serializer.data)

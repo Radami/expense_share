@@ -26,11 +26,3 @@ class ProfileView(APIView):
         user = request.user
         serializer = UserSerializer(user, many=False)
         return Response(serializer.data)
-
-
-class UserProfile(APIView):
-
-    def get(self, request, format="json"):
-        user = request.user
-        serializer = UserSerializer(user, many=False)
-        return Response(serializer.data)

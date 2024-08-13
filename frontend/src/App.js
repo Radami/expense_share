@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import './App.css';
 import Footer from "./components/footer";
 import Header from "./components/header";
+import Home from "./components/home";
 
 function App() {
     const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -39,6 +40,7 @@ function App() {
     return (
         <div className="d-flex flex-column min-vh-100 bg-dark">
             <Header loginParams={loginParams}/>
+            <Home loginParams={loginParams}/>
             <Footer />
         </div>
     );
