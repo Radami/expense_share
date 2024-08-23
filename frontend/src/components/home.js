@@ -25,18 +25,20 @@ const Home = ({ loginParams }) => {
         }, [loginParams.token]);
 
     return (
-    <div className="container col-lg-4 mt-3 text-white">
-        {loginParams.isAuthenticated ? ( 
-            groups.map((group) => (
-                <Group group={group} />
-            ))    
-        ) : (
-            <p>
-                Please log in
-            </p>
-        )
-    }
-    </div>
+        <>
+            <div className="container col-lg-4 mt-3 text-white">
+            {loginParams.isAuthenticated ? ( 
+                groups.map((group) => (
+                    <Group key={group.id} group={group} />
+                ))    
+            ) : (
+                <p>
+                    Please log in
+                </p>
+            )
+            }
+            </div>
+        </>
    );
 }
 

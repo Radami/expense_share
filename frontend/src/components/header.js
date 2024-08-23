@@ -1,3 +1,4 @@
+import { Link } from "react-router-dom";
 import logo from '../assets/logo-compressed.png';
 import NavbarProfile from './navbar_profile';
 
@@ -12,12 +13,8 @@ function Header ({loginParams}) {
                         <span>Splittime</span>
                     </a>
                     <ul className="navbar-nav d-flex flex-row fs-4">
-                        <li className="nav-item mx-1">
-                            <a className="nav-link text-white" aria-current="page" href="#">Groups</a>
-                        </li>
-                        <li className="nav-item mx-1">
-                            <a className="nav-link text-white" aria-current="page" href="#">Friends</a>
-                        </li>
+                        <Link className="nav-link text-white" to="/">Groups</Link>
+                        <Link className="nav-link text-white" to="/friends">Friends</Link>
                         <NavbarProfile loginParams={loginParams}/>
                     </ul>                    
                 </div>  

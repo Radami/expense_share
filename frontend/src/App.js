@@ -1,7 +1,9 @@
 import { useEffect, useState } from 'react';
+import { Route, Routes } from 'react-router-dom';
 import './App.css';
-import Footer from "./components/footer";
-import Header from "./components/header";
+import Footer from './components/footer';
+import Friends from "./components/friends";
+import Header from './components/header';
 import Home from "./components/home";
 
 function App() {
@@ -37,13 +39,17 @@ function App() {
         handleLogout : handleLogout
     };
 
-    return (
+    return ( 
         <div className="d-flex flex-column min-vh-100 bg-color1">
             <Header loginParams={loginParams}/>
-            <Home loginParams={loginParams}/>
-            <Footer />
-        </div>
+            <Routes>
+                <Route path='/' element={<Home loginParams={loginParams}/>} />
+                <Route path='/friends' element={<Friends loginParams={loginParams}/>} />
+            </Routes>
+            <Footer/>
+        </div> 
     );
 }
+
 
 export default App;
