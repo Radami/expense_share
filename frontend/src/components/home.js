@@ -1,5 +1,6 @@
 import axios from 'axios';
 import React, { useEffect, useState } from 'react';
+import Group from './group';
 
 const Home = ({ loginParams }) => {
 
@@ -24,17 +25,15 @@ const Home = ({ loginParams }) => {
         }, [loginParams.token]);
 
     return (
-    <div className="text-white">
-    {loginParams.isAuthenticated ? ( 
-            <ul className="text-white">
-            { groups.map((group) => (
-                <li key={group.id}>{group.name}</li>
-            ))}
-            </ul>
+    <div className="container col-lg-4 mt-3 text-white">
+        {loginParams.isAuthenticated ? ( 
+            groups.map((group) => (
+                <Group group={group} />
+            ))    
         ) : (
-        <p>
-            Please log in
-        </p>
+            <p>
+                Please log in
+            </p>
         )
     }
     </div>
