@@ -1,7 +1,7 @@
 function Group({group}) {
 
     return (
-        <div className="row p-1 bg-secondary-subtle border border-dark rounded">
+        <div className="row p-1 bg-color2 border border-dark rounded">
             <div className="d-grid gap-2 col-md-10 mx-auto">
                 <h3><a href="#">{ group.name }</a></h3>
                 <span>You are owed 100 USD</span>

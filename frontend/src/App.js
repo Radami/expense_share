@@ -38,7 +38,7 @@ function App() {
     };
 
     return (
-        <div className="d-flex flex-column min-vh-100 bg-dark">
+        <div className="d-flex flex-column min-vh-100 bg-color1">
             <Header loginParams={loginParams}/>
             <Home loginParams={loginParams}/>
             <Footer />
