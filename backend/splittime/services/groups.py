@@ -12,7 +12,7 @@ class GroupService:
             description=group_data["description"],
             creation_date=(
                 group_data["creation_date"]
-                if group_data["creation_date"] is not None
+                if "creation_date" in group_data and group_data["creation_date"] is not None
                 else timezone.now()
             ),
             creator=group_data["creator"],

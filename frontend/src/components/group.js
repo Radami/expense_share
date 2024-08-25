@@ -8,18 +8,17 @@ function Group({group}) {
                 <span>User A owes you 100 USD</span>
             </div>
             <div className="d-grid gap-2 col-md-2 mx-auto">
-                <button className="btn btn-primary d-flex align-items-center" href="#">
+                <button className="btn btn-primary d-flex align-items-center">
                     <i className="bi bi-plus-circle-fill me-1"></i>
                     <span>Expense</span>
                 </button>
-                <button className="btn btn-warning d-flex align-items-center" href="#">
+                <button className="btn btn-warning d-flex align-items-center">
                     <i className="bi bi-pencil-fill me-1"></i>
                     <span>Members</span>
                 </button>
-                <button className="btn btn-danger d-flex align-items-center" href="#">
+                <button className="btn btn-danger d-flex align-items-center">
                     <i className="bi bi-x-circle-fill me-1"></i>
                     <span>Group</span>
-                  
                 </button>
             </div>
         </div>

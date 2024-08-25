@@ -19,7 +19,7 @@ from django.views import generic
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
-
+from rest_framework import status
 
 from ..models import Group, GroupMembership, Expense
 from ..serializers import GroupSerializer
@@ -178,3 +178,32 @@ class GroupIndexView(APIView):
 
         serializer = GroupSerializer(latest_group_list, many=True)
         return Response(serializer.data)
+
+
+# Django Rest Framework views
+class AddGroupView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def perform_create(self, serializer):
+        serializer.save(creator=self.request.user)
+
+    def post(self, request):
+        print(request.data)
+        serializer = GroupSerializer(data=request.data)
+        if serializer.is_valid():
+            # Extract validated data from serializer
+            validated_data = serializer.validated_data
+            # Add the current user as the creator
+            group_data = {
+                "name": validated_data.get("name"),
+                "description": validated_data.get("description"),
+                "creator": request.user,
+            }
+
+            # Use the GroupService to add the group
+            group = GroupService.add_group(group_data)
+
+            # Serialize the created group to return as response
+            response_serializer = GroupSerializer(group)
+            return Response(response_serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
