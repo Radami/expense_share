@@ -31,4 +31,5 @@ urlpatterns = [
     path("logout", user_views.logout_request, name="logout"),
     path("api/group_index", group_views.GroupIndexView.as_view(), name="api_index_view"),
     path("api/add_group", group_views.AddGroupView.as_view(), name="api_add_group"),
+    path("api/delete_group", group_views.DeleteGroupView.as_view(), name="api_delete_group"),
 ]

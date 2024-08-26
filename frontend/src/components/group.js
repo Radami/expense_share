@@ -1,9 +1,9 @@
-function Group({group}) {
+function Group({group, deleteFunction}) {
 
     return (
         <div className="row p-1 bg-color2 border border-dark rounded">
             <div className="d-grid gap-2 col-md-10 mx-auto">
-                <h3><a href="#">{ group.name }</a></h3>
+                <h3><a>{ group.name }</a></h3>
                 <span>You are owed 100 USD</span>
                 <span>User A owes you 100 USD</span>
             </div>
@@ -16,7 +16,7 @@ function Group({group}) {
                     <i className="bi bi-pencil-fill me-1"></i>
                     <span>Members</span>
                 </button>
-                <button className="btn btn-danger d-flex align-items-center">
+                <button className="btn btn-danger d-flex align-items-center" onClick={deleteFunction}>
                     <i className="bi bi-x-circle-fill me-1"></i>
                     <span>Group</span>
                 </button>

@@ -39,24 +39,64 @@ const Home = ({ loginParams }) => {
         }, [loginParams.token]);
 
     const addGroup = () => {
-            try {
-                const response = axios.post('http://localhost:8000/splittime/api/add_group', 
-                {
-                    name: groupName,
-                    description: groupDescription,
-                },
-                {
-                  headers: {
-                    'Authorization': `Bearer ${loginParams.token}`,
-                    'Content-Type': 'application/json',
-                  }
-                });
-                setGroups(response.data);
-            } catch (error) {
-                console.error('Error fetching profile', error);
-            }
-            handleClose();
-        }
+        axios.post('http://localhost:8000/splittime/api/add_group', 
+            {
+                name: groupName,
+                description: groupDescription,
+            },
+            {
+                headers: {
+                'Authorization': `Bearer ${loginParams.token}`,
+                'Content-Type': 'application/json',
+                }
+            }).then(response => {
+                if (response.status === 201) {
+                    console.log("Add success", response.data)
+                    const updatedGroups = [...groups, response.data]
+                    setGroups(updatedGroups);
+                }
+            }).catch(error => {
+                // Something happened in setting up the request that triggered an Error
+                console.log('Error', error.message);
+            })
+            
+       
+        handleClose();
+    }
+
+    const deleteGroup = (group_id) => {
+        axios.post('http://localhost:8000/splittime/api/delete_group', 
+            {
+                id: group_id,
+            },
+            {
+                headers: {
+                'Authorization': `Bearer ${loginParams.token}`,
+                'Content-Type': 'application/json',
+                }
+            }).then(response=> {
+                if (response.status === 200) {
+                    console.log('Delete Group Success:', response.data);
+                    const updatedGroups = groups.filter(group => group.id != group_id)
+                    setGroups(updatedGroups)
+                } else if (response.status === 404) {
+                    console.log('Not found');
+                }
+            }).catch(error => {
+                if (error.response) {
+                    // The request was made and the server responded with a status code
+                    // that falls out of the range of 2xx
+                    console.log('Error status code:', error.response.status);
+                } else if (error.request) {
+                    // The request was made but no response was received
+                    console.log('No response received:', error.request);
+                } else {
+                    // Something happened in setting up the request that triggered an Error
+                    console.log('Error', error.message);
+                }
+            })
+    }
+    
 
     return (
         <>
@@ -64,7 +104,7 @@ const Home = ({ loginParams }) => {
             {loginParams.isAuthenticated ? (
                 <>
                     {groups.map((group) => (
-                        <Group key={group.id} group={group} />
+                        <Group key={group.id} group={group} deleteFunction={() => deleteGroup(group.id)} />
                     ))}
                     <div className="container d-flex justify-content-center mt-3">
                         <button className="btn btn-success d-flex align-items-center" onClick={handleOpen}>

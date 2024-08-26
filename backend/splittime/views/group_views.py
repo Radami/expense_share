@@ -207,3 +207,24 @@ class AddGroupView(APIView):
             response_serializer = GroupSerializer(group)
             return Response(response_serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+class DeleteGroupView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request):
+        print(request.data)
+        id = request.data["id"]
+        group = get_object_or_404(Group, pk=id)
+
+        if group.creator.id != request.user.id:
+            return Response(
+                "User doesn not have permission to delete the group",
+                status=status.HTTP_403_FORBIDDEN,
+            )
+
+        try:
+            GroupService.delete_group(group)
+        except Exception as e:
+            return Response(e, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        return Response(status=status.HTTP_200_OK)
