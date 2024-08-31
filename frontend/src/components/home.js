@@ -1,4 +1,5 @@
 import axios from 'axios';
+import { AnimatePresence, motion } from 'framer-motion';
 import React, { useEffect, useState } from 'react';
 import Button from 'react-bootstrap/Button';
 import Form from 'react-bootstrap/Form';
@@ -77,7 +78,7 @@ const Home = ({ loginParams }) => {
             }).then(response=> {
                 if (response.status === 200) {
                     console.log('Delete Group Success:', response.data);
-                    const updatedGroups = groups.filter(group => group.id != group_id)
+                    const updatedGroups = groups.filter(group => group.id !== group_id)
                     setGroups(updatedGroups)
                 } else if (response.status === 404) {
                     console.log('Not found');
@@ -96,22 +97,48 @@ const Home = ({ loginParams }) => {
                 }
             })
     }
-    
 
     return (
         <>
             <div className="container col-lg-4 mt-3 text-white">
             {loginParams.isAuthenticated ? (
                 <>
-                    {groups.map((group) => (
-                        <Group key={group.id} group={group} deleteFunction={() => deleteGroup(group.id)} />
-                    ))}
-                    <div className="container d-flex justify-content-center mt-3">
-                        <button className="btn btn-success d-flex align-items-center" onClick={handleOpen}>
-                            <i className="bi bi-people-fill"></i>
-                            <span>Add Group</span>
-                        </button>
-                    </div>
+                    <AnimatePresence>
+                        {groups.map((group) => (
+                            <motion.div
+                            key={group.id}
+                            layout
+                            initial={{ opacity: 0, y: -50 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            exit={{ opacity: 0, scale: 0.8 }}
+                            transition={{
+                                opacity: { duration: 0.3 },
+                                layout: { duration: 0.3 },
+                                scale: { duration: 0.2 }
+                              }}>
+                                <Group key={group.id} 
+                                   group={group}
+                                   deleteFunction={() => deleteGroup(group.id)} />
+                            </motion.div>
+                        ))}
+
+                         <motion.div
+                            key="add_group_button"
+                            layout
+                            transition={{ 
+                                opacity: { duration: 0.3 },
+                                layout: { duration: 0.3 },
+                                scale: { duration: 0.2 }
+                            }}>    
+                            <div className="container d-flex justify-content-center mt-3">
+                                <button className="btn btn-success d-flex align-items-center" onClick={handleOpen}>
+                                    <i className="bi bi-people-fill"></i>
+                                    <span>Add Group</span>
+                                </button>
+                            </div>
+                        </motion.div>   
+                    </AnimatePresence>
+                
                     <Modal 
                         show={open}
                         onHide={handleClose}>
