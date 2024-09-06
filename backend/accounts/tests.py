@@ -7,16 +7,22 @@ from rest_framework import status
 class CreateUsersTest(APITestCase):
     def setUp(self):
         # We want to go ahead and originally create a user.
-        self.test_user = User.objects.create_user("testuser", "test@example.com", "testpassword")
+        self.test_user = User.objects.create_user(
+            "testuser", "test@example.com", "testpassword"
+        )
 
         # URL for creating an account.
-        self.create_url = reverse("account_create")
+        self.create_url = reverse("users:account_create")
 
     def test_create_user(self):
         """
         Ensure we can create a new user and a valid token is created with it.
         """
-        data = {"username": "foobar", "email": "foobar@example.com", "password": "somepassword"}
+        data = {
+            "username": "foobar",
+            "email": "foobar@example.com",
+            "password": "somepassword",
+        }
 
         response = self.client.post(self.create_url, data, format="json")
 
@@ -33,7 +39,11 @@ class CreateUsersTest(APITestCase):
         """
         Ensure user is not created for password lengths less than 8.
         """
-        data = {"username": "foobar", "email": "foobarbaz@example.com", "password": "foo"}
+        data = {
+            "username": "foobar",
+            "email": "foobarbaz@example.com",
+            "password": "foo",
+        }
 
         response = self.client.post(self.create_url, data, format="json")
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
@@ -49,7 +59,11 @@ class CreateUsersTest(APITestCase):
         self.assertEqual(len(response.data["password"]), 1)
 
     def test_create_user_with_too_long_username(self):
-        data = {"username": "foo" * 30, "email": "foobarbaz@example.com", "password": "foobar"}
+        data = {
+            "username": "foo" * 30,
+            "email": "foobarbaz@example.com",
+            "password": "foobar",
+        }
 
         response = self.client.post(self.create_url, data, format="json")
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
@@ -65,7 +79,11 @@ class CreateUsersTest(APITestCase):
         self.assertEqual(len(response.data["username"]), 1)
 
     def test_create_user_with_preexisting_username(self):
-        data = {"username": "testuser", "email": "user@example.com", "password": "testuser"}
+        data = {
+            "username": "testuser",
+            "email": "user@example.com",
+            "password": "testuser",
+        }
 
         response = self.client.post(self.create_url, data, format="json")
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
@@ -73,7 +91,11 @@ class CreateUsersTest(APITestCase):
         self.assertEqual(len(response.data["username"]), 1)
 
     def test_create_user_with_preexisting_email(self):
-        data = {"username": "testuser2", "email": "test@example.com", "password": "testuser"}
+        data = {
+            "username": "testuser2",
+            "email": "test@example.com",
+            "password": "testuser",
+        }
 
         response = self.client.post(self.create_url, data, format="json")
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
@@ -100,14 +122,16 @@ class CreateUsersTest(APITestCase):
 class LoginUsersTests(APITestCase):
     def setUp(self):
         # We want to go ahead and originally create a user.
-        self.test_user = User.objects.create_user("testuser", "test@example.com", "testpassword")
+        self.test_user = User.objects.create_user(
+            "testuser", "test@example.com", "testpassword"
+        )
         self.invalid_user = "invalid_user"
         self.invalid_pass = "invalid_pass"
         self.invalid_token = "abc"
 
         # URL set-up
-        self.token_obtain_url = reverse("token_obtain")
-        self.token_verify_url = reverse("token_verify")
+        self.token_obtain_url = reverse("users:token_obtain")
+        self.token_verify_url = reverse("users:token_verify")
 
     def test_get_token_on_login_user(self):
         resp = self.client.post(
