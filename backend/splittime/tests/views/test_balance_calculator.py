@@ -1,7 +1,7 @@
 from django.test import TestCase
 
-from .helpers import GroupHelpers, UserHelpers
-from ..services.balances import BalanceCalculator
+from ..helpers import GroupHelpers, UserHelpers
+from splittime.services.balances import BalanceCalculator
 
 
 class BalanceCalculator2MembersTests(TestCase):
@@ -183,21 +183,27 @@ class BalanceCalculator3MembersTests(TestCase):
         self.assertEqual(balances[self.user2][self.user3]["EUR"], -300.0)
 
     def test_balances_3_members_3_expenses_delete_expenses(self):
-        expense1 = GroupHelpers.add_expense(self.group1, self.user1, amount="300", currency="USD")
+        expense1 = GroupHelpers.add_expense(
+            self.group1, self.user1, amount="300", currency="USD"
+        )
         balances = BalanceCalculator.calculateBalances(self.group1)
         self.assertEqual(len(balances), 3)
         self.assertEqual(balances[self.user1][self.user2]["USD"], 100.0)
         self.assertEqual(balances[self.user2][self.user1]["USD"], -100.0)
         self.assertEqual(balances[self.user1][self.user3]["USD"], 100.0)
         self.assertEqual(balances[self.user3][self.user1]["USD"], -100.0)
-        expense2 = GroupHelpers.add_expense(self.group1, self.user1, amount="600", currency="USD")
+        expense2 = GroupHelpers.add_expense(
+            self.group1, self.user1, amount="600", currency="USD"
+        )
         balances = BalanceCalculator.calculateBalances(self.group1)
         self.assertEqual(len(balances), 3)
         self.assertEqual(balances[self.user1][self.user2]["USD"], 300.0)
         self.assertEqual(balances[self.user2][self.user1]["USD"], -300.0)
         self.assertEqual(balances[self.user1][self.user3]["USD"], 300.0)
         self.assertEqual(balances[self.user3][self.user1]["USD"], -300.0)
-        expense3 = GroupHelpers.add_expense(self.group1, self.user1, amount="900", currency="USD")
+        expense3 = GroupHelpers.add_expense(
+            self.group1, self.user1, amount="900", currency="USD"
+        )
         balances = BalanceCalculator.calculateBalances(self.group1)
         self.assertEqual(len(balances), 3)
         self.assertEqual(balances[self.user1][self.user2]["USD"], 600.0)

@@ -1,7 +1,7 @@
 from django.urls import reverse
 from django.test import TestCase
 
-from .helpers import GroupHelpers, UserHelpers
+from ..helpers import GroupHelpers, UserHelpers
 
 
 class GroupDetailViewTests(TestCase):

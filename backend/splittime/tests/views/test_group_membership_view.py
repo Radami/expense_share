@@ -1,7 +1,7 @@
 from django.urls import reverse
 from django.test import TestCase, TransactionTestCase
 
-from .helpers import GroupHelpers, UserHelpers
+from ..helpers import GroupHelpers, UserHelpers
 
 
 class GroupMembershipAddViewTests(TransactionTestCase):
@@ -28,7 +28,9 @@ class GroupMembershipAddViewTests(TransactionTestCase):
         self.assertEqual(response.status_code, 302)
         self.assertEqual(response.url, "/splittime/group/" + str(self.group1.id) + "/")
 
-        response = self.client.get(reverse("splittime:group_details", args=(self.group1.id,)))
+        response = self.client.get(
+            reverse("splittime:group_details", args=(self.group1.id,))
+        )
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, self.user4.username)
 
@@ -47,7 +49,9 @@ class GroupMembershipAddViewTests(TransactionTestCase):
         self.assertEqual(response.status_code, 302)
         self.assertEqual(response.url, "/splittime/group/" + str(self.group1.id) + "/")
 
-        response = self.client.get(reverse("splittime:group_details", args=(self.group1.id,)))
+        response = self.client.get(
+            reverse("splittime:group_details", args=(self.group1.id,))
+        )
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, self.user4.username)
 
@@ -67,7 +71,9 @@ class GroupMembershipAddViewTests(TransactionTestCase):
         self.assertEqual(response.status_code, 302)
         self.assertEqual(response.url, "/splittime/group/" + str(self.group1.id) + "/")
 
-        response = self.client.get(reverse("splittime:group_details", args=(self.group1.id,)))
+        response = self.client.get(
+            reverse("splittime:group_details", args=(self.group1.id,))
+        )
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, self.user1.username)
 
@@ -104,7 +110,9 @@ class GroupMembershipViewsLoginTests(TestCase):
         )
         self.assertEqual(response.status_code, 302)
         self.assertEqual(
-            "/splittime/login?next=/splittime/group/" + str(self.group1.id) + "/add_member",
+            "/splittime/login?next=/splittime/group/"
+            + str(self.group1.id)
+            + "/add_member",
             response.url,
         )
 
@@ -137,7 +145,9 @@ class GroupMembershipDeleteViewTests(TestCase):
 
     def setUp(self):
         self.group1 = GroupHelpers.create_group(creator=self.user1)
-        GroupHelpers.add_user_to_group(self.group1, GroupMembershipDeleteViewTests.user2)
+        GroupHelpers.add_user_to_group(
+            self.group1, GroupMembershipDeleteViewTests.user2
+        )
 
     def test_delete_group_member_as_creator(self):
         self.assertEqual(
@@ -159,7 +169,9 @@ class GroupMembershipDeleteViewTests(TestCase):
         self.assertEqual(response.status_code, 302)
         self.assertEqual(response.url, "/splittime/group/" + str(self.group1.id) + "/")
 
-        response = self.client.get(reverse("splittime:group_details", args=(self.group1.id,)))
+        response = self.client.get(
+            reverse("splittime:group_details", args=(self.group1.id,))
+        )
         self.assertEqual(response.status_code, 200)
         self.assertNotContains(response, self.user2.username)
 
@@ -183,7 +195,9 @@ class GroupMembershipDeleteViewTests(TestCase):
         self.assertEqual(response.status_code, 302)
         self.assertEqual(response.url, "/splittime/group/" + str(self.group1.id) + "/")
 
-        response = self.client.get(reverse("splittime:group_details", args=(self.group1.id,)))
+        response = self.client.get(
+            reverse("splittime:group_details", args=(self.group1.id,))
+        )
         self.assertEqual(response.status_code, 200)
         self.assertNotContains(response, self.user1.username)
 
@@ -207,7 +221,9 @@ class GroupMembershipDeleteViewTests(TestCase):
         self.assertEqual(response.status_code, 302)
         self.assertEqual(response.url, "/splittime/group/" + str(self.group1.id) + "/")
 
-        response = self.client.get(reverse("splittime:group_details", args=(self.group1.id,)))
+        response = self.client.get(
+            reverse("splittime:group_details", args=(self.group1.id,))
+        )
         self.assertEqual(response.status_code, 403)
 
     def test_delete_group_member_as_outsider(self):

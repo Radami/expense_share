@@ -1,8 +1,8 @@
 from django.test import TestCase
 from django.urls import reverse
 
-from .helpers import GroupHelpers, UserHelpers
-from ..models import Expense
+from ..helpers import GroupHelpers, UserHelpers
+from splittime.models import Expense
 
 
 class DeleteExpenseTest(TestCase):
@@ -76,7 +76,9 @@ class DeleteExpenseTest(TestCase):
         )
         response = self.client.post(url)
         self.assertEqual(
-            "/splittime/login?next=/splittime/expense/" + str(self.expense1.id) + "/delete_expense",
+            "/splittime/login?next=/splittime/expense/"
+            + str(self.expense1.id)
+            + "/delete_expense",
             response.url,
         )
         self.assertTrue(Expense.objects.filter(pk=self.expense1.id).exists())

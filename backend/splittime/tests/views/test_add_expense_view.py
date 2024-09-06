@@ -3,8 +3,8 @@ from http import HTTPStatus
 from django.urls import reverse
 from django.test import TestCase
 
-from .helpers import GroupHelpers, UserHelpers
-from ..models import Expense, Debt
+from ..helpers import GroupHelpers, UserHelpers
+from splittime.models import Expense, Debt
 
 
 class AddExpenseTest(TestCase):
@@ -83,8 +83,12 @@ class AddExpenseTest(TestCase):
         # There should be a debt relationship with the other group member
         debt_set = Debt.objects.filter(expense=expense)
         self.assertEqual(len(debt_set), 2)
-        debt1 = Debt(from_user=self.user1, to_user=self.user1, shares=1, expense=expense)
-        debt2 = Debt(from_user=self.user2, to_user=self.user1, shares=1, expense=expense)
+        debt1 = Debt(
+            from_user=self.user1, to_user=self.user1, shares=1, expense=expense
+        )
+        debt2 = Debt(
+            from_user=self.user2, to_user=self.user1, shares=1, expense=expense
+        )
         self.assertIn(debt1, debt_set)
         self.assertIn(debt2, debt_set)
 
@@ -140,11 +144,15 @@ class AddExpenseTest(TestCase):
         # There should be a debt relationship for each expense with the other group member
         debt_set = Debt.objects.filter(expense=expense1)
         self.assertEqual(len(debt_set), 2)
-        debt1 = Debt(from_user=self.user2, to_user=self.user1, shares=1, expense=expense1)
+        debt1 = Debt(
+            from_user=self.user2, to_user=self.user1, shares=1, expense=expense1
+        )
         self.assertIn(debt1, debt_set)
         debt_set = Debt.objects.filter(expense=expense2)
         self.assertEqual(len(debt_set), 2)
-        debt2 = Debt(from_user=self.user1, to_user=self.user2, shares=1, expense=expense2)
+        debt2 = Debt(
+            from_user=self.user1, to_user=self.user2, shares=1, expense=expense2
+        )
         self.assertIn(debt2, debt_set)
 
     def test_add_expense_with_2_group_members(self):
@@ -182,9 +190,15 @@ class AddExpenseTest(TestCase):
         # There should be 2 debt relationships, one with each other group member
         debt_set = Debt.objects.filter(expense=expense)
         self.assertEqual(len(debt_set), 3)
-        debt1 = Debt(from_user=self.user1, to_user=self.user1, shares=1, expense=expense)
-        debt2 = Debt(from_user=self.user2, to_user=self.user1, shares=1, expense=expense)
-        debt3 = Debt(from_user=self.user3, to_user=self.user1, shares=1, expense=expense)
+        debt1 = Debt(
+            from_user=self.user1, to_user=self.user1, shares=1, expense=expense
+        )
+        debt2 = Debt(
+            from_user=self.user2, to_user=self.user1, shares=1, expense=expense
+        )
+        debt3 = Debt(
+            from_user=self.user3, to_user=self.user1, shares=1, expense=expense
+        )
         self.assertIn(debt1, debt_set)
         self.assertIn(debt2, debt_set)
         self.assertIn(debt3, debt_set)
@@ -243,17 +257,29 @@ class AddExpenseTest(TestCase):
         # There should be 3 debt relationships for each expense, one with each other group member
         debt_set = Debt.objects.filter(expense=expense1)
         self.assertEqual(len(debt_set), 3)
-        debt1 = Debt(from_user=self.user1, to_user=self.user1, shares=1, expense=expense1)
-        debt2 = Debt(from_user=self.user2, to_user=self.user1, shares=1, expense=expense1)
-        debt3 = Debt(from_user=self.user3, to_user=self.user1, shares=1, expense=expense1)
+        debt1 = Debt(
+            from_user=self.user1, to_user=self.user1, shares=1, expense=expense1
+        )
+        debt2 = Debt(
+            from_user=self.user2, to_user=self.user1, shares=1, expense=expense1
+        )
+        debt3 = Debt(
+            from_user=self.user3, to_user=self.user1, shares=1, expense=expense1
+        )
         self.assertIn(debt1, debt_set)
         self.assertIn(debt2, debt_set)
         self.assertIn(debt3, debt_set)
         debt_set = Debt.objects.filter(expense=expense2)
         self.assertEqual(len(debt_set), 3)
-        debt1 = Debt(from_user=self.user1, to_user=self.user2, shares=1, expense=expense2)
-        debt2 = Debt(from_user=self.user2, to_user=self.user2, shares=1, expense=expense2)
-        debt3 = Debt(from_user=self.user3, to_user=self.user2, shares=1, expense=expense2)
+        debt1 = Debt(
+            from_user=self.user1, to_user=self.user2, shares=1, expense=expense2
+        )
+        debt2 = Debt(
+            from_user=self.user2, to_user=self.user2, shares=1, expense=expense2
+        )
+        debt3 = Debt(
+            from_user=self.user3, to_user=self.user2, shares=1, expense=expense2
+        )
         self.assertIn(debt1, debt_set)
         self.assertIn(debt2, debt_set)
         self.assertIn(debt3, debt_set)
@@ -279,7 +305,9 @@ class AddExpensePermissionTests(TestCase):
         response = self.client.post(url, data=data)
         self.assertEqual(response.status_code, 302)
         self.assertEqual(
-            "/splittime/login?next=/splittime/group/" + str(self.group1.id) + "/add_expense",
+            "/splittime/login?next=/splittime/group/"
+            + str(self.group1.id)
+            + "/add_expense",
             response.url,
         )
 

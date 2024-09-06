@@ -1,6 +1,6 @@
 from django.test import TestCase
 
-from .helpers import GroupHelpers, UserHelpers
+from ..helpers import GroupHelpers, UserHelpers
 
 
 class GroupModelTests(TestCase):
