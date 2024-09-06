@@ -49,6 +49,7 @@ class GroupIndexAPITest(APITestCase):
         """
         group = GroupHelpers.create_group(days=-5, creator=self.user1)
         response = self.client.get(reverse("splittime:api_index_view"))
+        self.assertEqual(response.status_code, 200)
         self.assertIsNotNone(response.data)
         self.assertEqual(response.data[0], GroupSerializer(group).data)
 
@@ -59,6 +60,20 @@ class GroupIndexAPITest(APITestCase):
         GroupHelpers.create_group(days=-400, creator=self.user1)
         group_recent = GroupHelpers.create_group(days=-5, creator=self.user1)
         response = self.client.get(reverse("splittime:api_index_view"))
+        self.assertEqual(response.status_code, 200)
         self.assertIsNotNone(response.data)
         self.assertEqual(len(response.data), 1)
         self.assertEqual(response.data[0], GroupSerializer(group_recent).data)
+
+    def test_two_recent_groups(self):
+        """
+        The index page might display multiple groups in reverse order of creation
+        """
+        group_first = GroupHelpers.create_group(days=-300, creator=self.user1)
+        group_second = GroupHelpers.create_group(days=-200, creator=self.user1)
+        response = self.client.get(reverse("splittime:api_index_view"))
+        self.assertEqual(response.status_code, 200)
+        self.assertIsNotNone(response.data)
+        self.assertEqual(len(response.data), 2)
+        self.assertIn(GroupSerializer(group_first).data, response.data)
+        self.assertIn(GroupSerializer(group_second).data, response.data)
