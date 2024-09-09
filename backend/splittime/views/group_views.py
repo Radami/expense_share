@@ -45,7 +45,9 @@ class IndexView(LoginRequiredMixin, generic.ListView):
         # latest_group_list = Group.objects.filter(creator=self.request.user).filter(
         #   creation_date__gte=creation_date).order_by("-creation_date")[:5]
         latest_group_list = [
-            gm.group for gm in group_memberships if gm.group.creation_date >= creation_date
+            gm.group
+            for gm in group_memberships
+            if gm.group.creation_date >= creation_date
         ]
         latest_group_list.sort(key=lambda x: x.creation_date, reverse=True)
         context = {"latest_group_list": latest_group_list}
@@ -102,7 +104,9 @@ def add_group(request):
             group = GroupService.add_group(group_data)
         except Exception as e:
             return HttpResponseServerError(e)
-        return HttpResponseRedirect(reverse("splittime:group_details", args=(group.id,)))
+        return HttpResponseRedirect(
+            reverse("splittime:group_details", args=(group.id,))
+        )
     return HttpResponseRedirect(
         reverse(
             "splittime:index",
@@ -137,7 +141,9 @@ def add_group_member(request, group_id):
     except Exception as e:
         if type(e) is DuplicateEntryException:
             # messages.add_message(request, messages.INFO, "Member already added")
-            return HttpResponseRedirect(reverse("splittime:group_details", args=(group.id,)))
+            return HttpResponseRedirect(
+                reverse("splittime:group_details", args=(group.id,))
+            )
         return HttpResponseServerError(e)
     return HttpResponseRedirect(reverse("splittime:group_details", args=(group.id,)))
 
@@ -171,7 +177,9 @@ class GroupIndexView(APIView):
         group_memberships = GroupMembership.objects.filter(member=request.user)
 
         latest_group_list = [
-            gm.group for gm in group_memberships if gm.group.creation_date >= creation_date
+            gm.group
+            for gm in group_memberships
+            if gm.group.creation_date >= creation_date
         ]
 
         latest_group_list.sort(key=lambda x: x.creation_date, reverse=True)
@@ -213,7 +221,6 @@ class DeleteGroupView(APIView):
     permission_classes = [IsAuthenticated]
 
     def post(self, request):
-        print(request.data)
         id = request.data["id"]
         group = get_object_or_404(Group, pk=id)
 
