@@ -3,6 +3,7 @@ import { Route, Routes } from 'react-router-dom';
 import './App.css';
 import Footer from './components/footer';
 import Friends from "./components/friends";
+import GroupDetails from './components/GroupDetails';
 import Header from './components/header';
 import Home from "./components/home";
 
@@ -45,6 +46,7 @@ function App() {
             <Routes>
                 <Route path='/' element={<Home loginParams={loginParams}/>} />
                 <Route path='/friends' element={<Friends loginParams={loginParams}/>} />
+                <Route path='/group/:groupId' element={<GroupDetails loginParams={loginParams}/>} />
             </Routes>
             <Footer/>
         </div> 

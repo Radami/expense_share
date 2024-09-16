@@ -36,3 +36,7 @@
     transform: rotate(360deg);
   }
 }
+
+.custom-tab-margin .nav-link{
+    margin-right: 10px; /* Adjust the margin as needed */
+}
