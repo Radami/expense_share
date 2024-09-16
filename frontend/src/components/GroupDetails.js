@@ -40,6 +40,8 @@ function GroupDetails({ loginParams}) {
 
     return (
         <div className="container col-lg-4 mt-3 text-white">
+        {loginParams.isAuthenticated ? (
+        <>
             <span className="h1">{group["name"]} - </span><span className="h2">{group["description"]}</span>
             
             <Tabs
@@ -52,7 +54,7 @@ function GroupDetails({ loginParams}) {
                     <GroupDetailsExpenses />
                 </Tab>
                 <Tab eventKey="mebmers" title="Members">
-                    <GroupDetailsMembers />
+                    <GroupDetailsMembers members={group["group_members"]} />
                 </Tab>
                 <Tab eventKey="totals" title="Totals">
                     <GroupDetailsTotals />
@@ -61,6 +63,13 @@ function GroupDetails({ loginParams}) {
                     <GroupDetailsBalances />
                 </Tab>
             </Tabs>    
+            </>
+        ): (
+            <p>
+                Please log in
+            </p>
+        )
+        }
         </div>
     );
 }
