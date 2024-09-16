@@ -13,7 +13,7 @@ import GroupDetailsTotals from './GroupDetailsTotals';
 function GroupDetails({ loginParams}) {
 
     const { groupId } = useParams();
-    const [group, setGroup] = useState({});
+    const [group, setGroup] = useState({ group_members: [] });
 
     useEffect(() => {
         const fetchGroupDetails = async () => {
@@ -45,7 +45,7 @@ function GroupDetails({ loginParams}) {
             <span className="h1">{group["name"]} - </span><span className="h2">{group["description"]}</span>
             
             <Tabs
-                defaultActiveKey="expenses"
+                defaultActiveKey="members"
                 id="fill-tab-example"
                 className="mb-3 custom-tab-margin"
                 variant='pills'
@@ -53,8 +53,8 @@ function GroupDetails({ loginParams}) {
                 <Tab eventKey="expenses" title="Expenses">
                     <GroupDetailsExpenses />
                 </Tab>
-                <Tab eventKey="mebmers" title="Members">
-                    <GroupDetailsMembers members={group["group_members"]} />
+                <Tab eventKey="members" title="Members">
+                    <GroupDetailsMembers group_members={group["group_members"]} />
                 </Tab>
                 <Tab eventKey="totals" title="Totals">
                     <GroupDetailsTotals />

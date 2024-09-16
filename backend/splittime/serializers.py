@@ -41,7 +41,10 @@ class GroupDetailsSerializer(serializers.Serializer):
 
     def get_group_members(self, obj):
         group_memberships = GroupMembership.objects.filter(group=obj)
-        return [{"id": gm.member.id, "username": gm.member.username} for gm in group_memberships]
+        return [
+            {"id": gm.member.id, "username": gm.member.username, "email": gm.member.email}
+            for gm in group_memberships
+        ]
 
     def get_expenses(self, obj):
         expenses = Expense.objects.filter(group=obj).order_by("creation_date")
