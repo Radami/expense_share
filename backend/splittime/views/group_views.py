@@ -22,7 +22,7 @@ from rest_framework.views import APIView
 from rest_framework import status
 
 from ..models import Group, GroupMembership, Expense
-from ..serializers import GroupSerializer
+from ..serializers import GroupSerializer, GroupDetailsSerializer
 from ..services.balances import BalanceCalculator
 from ..services.groups import GroupService
 from ..exceptions import DuplicateEntryException
@@ -45,9 +45,7 @@ class IndexView(LoginRequiredMixin, generic.ListView):
         # latest_group_list = Group.objects.filter(creator=self.request.user).filter(
         #   creation_date__gte=creation_date).order_by("-creation_date")[:5]
         latest_group_list = [
-            gm.group
-            for gm in group_memberships
-            if gm.group.creation_date >= creation_date
+            gm.group for gm in group_memberships if gm.group.creation_date >= creation_date
         ]
         latest_group_list.sort(key=lambda x: x.creation_date, reverse=True)
         context = {"latest_group_list": latest_group_list}
@@ -104,9 +102,7 @@ def add_group(request):
             group = GroupService.add_group(group_data)
         except Exception as e:
             return HttpResponseServerError(e)
-        return HttpResponseRedirect(
-            reverse("splittime:group_details", args=(group.id,))
-        )
+        return HttpResponseRedirect(reverse("splittime:group_details", args=(group.id,)))
     return HttpResponseRedirect(
         reverse(
             "splittime:index",
@@ -141,9 +137,7 @@ def add_group_member(request, group_id):
     except Exception as e:
         if type(e) is DuplicateEntryException:
             # messages.add_message(request, messages.INFO, "Member already added")
-            return HttpResponseRedirect(
-                reverse("splittime:group_details", args=(group.id,))
-            )
+            return HttpResponseRedirect(reverse("splittime:group_details", args=(group.id,)))
         return HttpResponseServerError(e)
     return HttpResponseRedirect(reverse("splittime:group_details", args=(group.id,)))
 
@@ -177,9 +171,7 @@ class GroupIndexView(APIView):
         group_memberships = GroupMembership.objects.filter(member=request.user)
 
         latest_group_list = [
-            gm.group
-            for gm in group_memberships
-            if gm.group.creation_date >= creation_date
+            gm.group for gm in group_memberships if gm.group.creation_date >= creation_date
         ]
 
         latest_group_list.sort(key=lambda x: x.creation_date, reverse=True)
@@ -235,3 +227,19 @@ class DeleteGroupView(APIView):
         except Exception as e:
             return Response(e, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         return Response(status=status.HTTP_200_OK)
+
+
+class GroupDetailsAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        try:
+            group = Group.objects.get(pk=request.query_params.get("groupId"))
+            if not group.has_member(request.user):
+                raise Response(
+                    "You are not a member of this group.", status=status.HTTP_401_UNAUTHORIZED
+                )
+            response_serializer = GroupDetailsSerializer(group)
+            return Response(response_serializer.data, status=status.HTTP_200_OK)
+        except ObjectDoesNotExist:
+            raise Response("Group not found", status=status.HTTP_404_NOT_FOUND)
