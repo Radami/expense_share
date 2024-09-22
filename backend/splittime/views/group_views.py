@@ -243,3 +243,30 @@ class GroupDetailsAPIView(APIView):
             return Response(response_serializer.data, status=status.HTTP_200_OK)
         except ObjectDoesNotExist:
             raise Response("Group not found", status=status.HTTP_404_NOT_FOUND)
+
+
+class DeleteGroupMemberAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request):
+        user = get_object_or_404(User, pk=request.data["user_id"])
+        group = get_object_or_404(Group, pk=request.data["group_id"])
+        gm = get_object_or_404(GroupMembership, member=user, group=group)
+
+        if not group.has_member(request.user):
+            return Response(
+                "User does not have permission to delete members in this group",
+                status=status.HTTP_403_FORBIDDEN,
+            )
+
+        if user.id == request.user.id:
+            return Response(
+                "self removal is forbidden for now",
+                status=status.HTTP_403_FORBIDDEN,
+            )
+        try:
+            GroupService.delete_group_member(gm)
+        except Exception as e:
+            return Response(e, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+        return Response(status=status.HTTP_200_OK)
