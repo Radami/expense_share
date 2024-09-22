@@ -33,6 +33,19 @@
     background-color: #964734;
 }
 
+// Style for red-x delete button in GroupDetails
+.btn-red-circle {
+    background-color: transparent;
+    border: none;
+    padding: 0;
+    cursor: pointer;
+    color: $red;
+    font-size: 1rem; /* Adjust the size as needed */
+  }
+
+.btn-red-circle:hover {
+    color: darkred; /* Darker red on hover */
+  }
 
 // Import the rest of Bootstrap
 //@import "../../node_modules/bootstrap/scss/bootstrap";

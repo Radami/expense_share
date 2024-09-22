@@ -22,7 +22,9 @@ function GroupDetailsMembers({ group_members }) {
                         </div>
                         
                         <div className="col-1">
-                            <i className="bi bi-x-circle-fill"></i>
+                            <button className="btn-red-circle">
+                                <i className="bi bi-x-circle-fill"></i>
+                            </button>
                         </div>
                     </div>
                 </div>
