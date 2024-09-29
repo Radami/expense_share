@@ -22,7 +22,7 @@ from rest_framework.views import APIView
 from rest_framework import status
 
 from ..models import Group, GroupMembership, Expense
-from ..serializers import GroupSerializer, GroupDetailsSerializer
+from ..serializers import GroupSerializer, GroupDetailsSerializer, UserSerializer
 from ..services.balances import BalanceCalculator
 from ..services.groups import GroupService
 from ..exceptions import DuplicateEntryException
@@ -270,3 +270,24 @@ class DeleteGroupMemberAPIView(APIView):
             return Response(e, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
         return Response(status=status.HTTP_200_OK)
+
+
+class AddGroupMemberAPIView(APIView):
+
+    def post(self, request):
+        user = get_object_or_404(User, email=request.data["member_email"])
+        group = get_object_or_404(Group, pk=request.data["group_id"])
+
+        if not group.has_member(request.user):
+            return Response(
+                "User does not have permission to delete members in this group",
+                status=status.HTTP_403_FORBIDDEN,
+            )
+
+        try:
+            GroupService.add_group_member(group, user)
+        except Exception as e:
+            return Response(e, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+        response_serializer = UserSerializer(user)
+        return Response(response_serializer.data, status=status.HTTP_201_CREATED)

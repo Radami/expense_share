@@ -42,4 +42,9 @@ urlpatterns = [
         group_views.DeleteGroupMemberAPIView.as_view(),
         name="api_delete_group_member_view",
     ),
+    path(
+        "api/add_group_member",
+        group_views.AddGroupMemberAPIView.as_view(),
+        name="api_add_group_member_view",
+    ),
 ]
