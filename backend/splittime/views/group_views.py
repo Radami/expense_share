@@ -236,13 +236,13 @@ class GroupDetailsAPIView(APIView):
         try:
             group = Group.objects.get(pk=request.query_params.get("groupId"))
             if not group.has_member(request.user):
-                raise Response(
+                return Response(
                     "You are not a member of this group.", status=status.HTTP_401_UNAUTHORIZED
                 )
             response_serializer = GroupDetailsSerializer(group)
             return Response(response_serializer.data, status=status.HTTP_200_OK)
         except ObjectDoesNotExist:
-            raise Response("Group not found", status=status.HTTP_404_NOT_FOUND)
+            return Response("Group not found", status=status.HTTP_404_NOT_FOUND)
 
 
 class DeleteGroupMemberAPIView(APIView):
@@ -267,7 +267,7 @@ class DeleteGroupMemberAPIView(APIView):
         try:
             GroupService.delete_group_member(gm)
         except Exception as e:
-            return Response(e, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            return Response(str(e), status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
         return Response(status=status.HTTP_200_OK)
 
@@ -286,8 +286,10 @@ class AddGroupMemberAPIView(APIView):
 
         try:
             GroupService.add_group_member(group, user)
+        except DuplicateEntryException:
+            return Response("User is already part of the group", status=status.HTTP_400_BAD_REQUEST)
         except Exception as e:
-            return Response(e, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            return Response(str(e), status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
         response_serializer = UserSerializer(user)
         return Response(response_serializer.data, status=status.HTTP_201_CREATED)
