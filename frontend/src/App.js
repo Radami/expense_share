@@ -46,7 +46,7 @@ function App() {
             <Routes>
                 <Route path='/' element={<Home loginParams={loginParams}/>} />
                 <Route path='/friends' element={<Friends loginParams={loginParams}/>} />
-                <Route path='/group/:groupId' element={<GroupDetails loginParams={loginParams}/>} />
+                <Route path='/group/:group_id' element={<GroupDetails loginParams={loginParams}/>} />
             </Routes>
             <Footer/>
         </div> 

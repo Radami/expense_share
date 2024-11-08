@@ -12,7 +12,7 @@ import GroupDetailsTotals from './GroupDetailsTotals';
 
 function GroupDetails({ loginParams}) {
 
-    const { groupId } = useParams();
+    const { group_id } = useParams();
     const [group, setGroup] = useState({ group_members: [] });
 
     useEffect(() => {
@@ -23,7 +23,7 @@ function GroupDetails({ loginParams}) {
                 
                 const response = await axios.get('http://localhost:8000/splittime/api/group_details',
                 {
-                    params: {groupId},
+                    params: {group_id},
                     headers: {
                     'Authorization': `Bearer ${token}`,
                     'Content-Type': 'application/json',
@@ -36,7 +36,7 @@ function GroupDetails({ loginParams}) {
         };
       
         fetchGroupDetails();
-        }, [loginParams.token, groupId]);
+        }, [loginParams.token, group_id]);
 
     return (
         <div className="container col-lg-4 mt-3 text-white">
@@ -54,7 +54,7 @@ function GroupDetails({ loginParams}) {
                     <GroupDetailsExpenses />
                 </Tab>
                 <Tab eventKey="members" title="Members">
-                    <GroupDetailsMembers group_id={groupId} group_members={group["group_members"]} loginParams={loginParams} />
+                    <GroupDetailsMembers group_id={group_id} group_members={group["group_members"]} loginParams={loginParams} />
                 </Tab>
                 <Tab eventKey="totals" title="Totals">
                     <GroupDetailsTotals />

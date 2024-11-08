@@ -42,7 +42,7 @@ class GroupMembershipAddAPITests(APITestCase):
         self.assertEqual(response.data, UserSerializer(self.user4).data)
 
         response = self.client.get(
-            reverse("splittime:api_group_details_view"), data={"groupId": self.group1.id}
+            reverse("splittime:api_group_details_view"), data={"group_id": self.group1.id}
         )
 
         self.assertEqual(response.status_code, 200)
@@ -59,7 +59,7 @@ class GroupMembershipAddAPITests(APITestCase):
         self.assertEqual(response.data, UserSerializer(self.user4).data)
 
         response = self.client.get(
-            reverse("splittime:api_group_details_view"), data={"groupId": self.group1.id}
+            reverse("splittime:api_group_details_view"), data={"group_id": self.group1.id}
         )
 
         self.assertEqual(response.status_code, 200)
@@ -79,7 +79,7 @@ class GroupMembershipAddAPITests(APITestCase):
 
         with transaction.atomic():
             response = self.client.get(
-                reverse("splittime:api_group_details_view"), data={"groupId": self.group1.id}
+                reverse("splittime:api_group_details_view"), data={"group_id": self.group1.id}
             )
 
             self.assertEqual(response.status_code, 200)
@@ -153,7 +153,7 @@ class GroupMembershipDeleteViewTests(APITestCase):
 
         # verify user is not in group anymore
         response = self.client.get(
-            reverse("splittime:api_group_details_view"), data={"groupId": self.group1.id}
+            reverse("splittime:api_group_details_view"), data={"group_id": self.group1.id}
         )
         self.assertEqual(response.status_code, 200)
         self.assertNotContains(response, self.member.username)
@@ -169,7 +169,7 @@ class GroupMembershipDeleteViewTests(APITestCase):
 
         # verify user is not in group anymore
         response = self.client.get(
-            reverse("splittime:api_group_details_view"), data={"groupId": self.group1.id}
+            reverse("splittime:api_group_details_view"), data={"group_id": self.group1.id}
         )
         self.assertEqual(response.status_code, 200)
         self.assertNotContains(response, self.creator.username)

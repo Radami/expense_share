@@ -12,7 +12,6 @@ class GroupIndexAPITest(APITestCase):
         cls.user1 = UserHelpers.create_user(user_name="testuser")
 
     def setUp(self):
-
         self.assertEqual(
             self.client.login(username=self.user1.username, password="glassonion123"),
             True,

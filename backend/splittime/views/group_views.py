@@ -234,7 +234,7 @@ class GroupDetailsAPIView(APIView):
 
     def get(self, request):
         try:
-            group = Group.objects.get(pk=request.query_params.get("groupId"))
+            group = Group.objects.get(pk=request.query_params.get("group_id"))
             if not group.has_member(request.user):
                 return Response(
                     "You are not a member of this group.", status=status.HTTP_401_UNAUTHORIZED
