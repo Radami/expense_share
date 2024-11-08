@@ -47,4 +47,14 @@ urlpatterns = [
         group_views.AddGroupMemberAPIView.as_view(),
         name="api_add_group_member_view",
     ),
+    path(
+        "api/add_group_expense",
+        expense_views.AddExpenseAPIView.as_view(),
+        name="api_add_group_expense_view",
+    ),
+    path(
+        "api/delete_group_expense",
+        expense_views.DeleteExpenseAPIView.as_view(),
+        name="api_delete_group_expense_view",
+    ),
 ]

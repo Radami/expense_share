@@ -26,6 +26,7 @@ class ExpenseService:
                 debt.shares = 1
                 debt.save()
         except Exception as exception:
+            print(exception)
             expense.delete()
             raise exception
         return expense

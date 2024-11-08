@@ -51,7 +51,7 @@ function GroupDetails({ loginParams}) {
                 variant='pills'
             >
                 <Tab eventKey="expenses" title="Expenses">
-                    <GroupDetailsExpenses />
+                    <GroupDetailsExpenses group_expenses={group["expenses"]} group_members={group["group_members"]} group_id={group_id} loginParams={loginParams}/>
                 </Tab>
                 <Tab eventKey="members" title="Members">
                     <GroupDetailsMembers group_id={group_id} group_members={group["group_members"]} loginParams={loginParams} />

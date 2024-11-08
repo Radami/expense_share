@@ -79,4 +79,16 @@ class GroupDetailsSerializer(serializers.Serializer):
         return totals
 
     def get_balances(self, obj):
-        return BalanceCalculator.calculateBalances(obj)
+        return BalanceCalculator.calculateBalancesAPI(obj)
+
+
+class ExpenseSerializer(serializers.ModelSerializer):
+
+    payee = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Expense
+        fields = ["id", "name", "currency", "amount", "group", "creation_date", "payee"]
+
+    def get_payee(self, obj):
+        return obj.payee.username  # Return only the username
