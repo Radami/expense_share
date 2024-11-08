@@ -109,7 +109,7 @@ class GroupMembershipAPILoginTests(APITestCase):
     def test_add_group_member_not_logged_in(self):
         data = {"member_email": self.user3.email, "group_id": self.group1.id}
         response = self.client.post(reverse("splittime:api_add_group_member_view"), data=data)
-        self.assertEqual(response.status_code, 403)
+        self.assertEqual(response.status_code, 401)
 
     def test_delete_group_member_not_logged_in(self):
         data = {"user_id": self.user2.id, "group_id": self.group1.id}

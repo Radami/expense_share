@@ -273,6 +273,7 @@ class DeleteGroupMemberAPIView(APIView):
 
 
 class AddGroupMemberAPIView(APIView):
+    permission_classes = [IsAuthenticated]
 
     def post(self, request):
         user = get_object_or_404(User, email=request.data["member_email"])
