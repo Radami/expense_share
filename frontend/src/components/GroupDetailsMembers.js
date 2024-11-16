@@ -1,7 +1,7 @@
 import axios from 'axios';
 import React, { useEffect, useState } from 'react';
 
-function GroupDetailsMembers({ group_id,  group_members, loginParams }) {
+function GroupDetailsMembers({ group_members, group_id, loginParams }) {
 
     const [members, setMembers] = useState(group_members)
 

@@ -54,12 +54,12 @@ function GroupDetails({ loginParams}) {
                     <GroupDetailsExpenses group_expenses={group["expenses"]} group_members={group["group_members"]} group_id={group_id} loginParams={loginParams}/>
                 </Tab>
                 <Tab eventKey="members" title="Members">
-                    <GroupDetailsMembers group_id={group_id} group_members={group["group_members"]} loginParams={loginParams} />
+                    <GroupDetailsMembers group_members={group["group_members"]} group_id={group_id} loginParams={loginParams} />
                 </Tab>
                 <Tab eventKey="totals" title="Totals">
-                    <GroupDetailsTotals />
+                    <GroupDetailsTotals groupTotals={group["totals"]} groupId={group_id} loginParams={loginParams} />
                 </Tab>
-                <Tab eventKey="balances"  title="Balances">
+                <Tab eventKey="balances" title="Balances">
                     <GroupDetailsBalances />
                 </Tab>
             </Tabs>    
