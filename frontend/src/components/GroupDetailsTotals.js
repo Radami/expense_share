@@ -5,8 +5,7 @@ function GroupDetailsTotals({ groupTotals, groupId, loginParams}) {
     const [totals, setTotals] = useState(groupTotals)
 
     useEffect(() => {
-        setTotals(groupTotals);
-        console.log(groupTotals)
+        setTotals(groupTotals)
     }, [groupTotals]); // This will trigger whenever initialValue changes
 
     return (

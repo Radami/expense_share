@@ -60,7 +60,7 @@ function GroupDetails({ loginParams}) {
                     <GroupDetailsTotals groupTotals={group["totals"]} groupId={group_id} loginParams={loginParams} />
                 </Tab>
                 <Tab eventKey="balances" title="Balances">
-                    <GroupDetailsBalances />
+                    <GroupDetailsBalances groupBalances={group["balances"]} groupMembers={group["group_members"]} groupId={group_id} loginParams={loginParams}/>
                 </Tab>
             </Tabs>    
             </>
