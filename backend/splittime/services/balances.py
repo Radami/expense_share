@@ -45,9 +45,9 @@ class BalanceCalculator:
                     balances[to_user] = {}
                 if from_user not in balances:
                     balances[from_user] = {}
-                if debt.from_user not in balances[to_user]:
+                if debt.from_user.id not in balances[to_user]:
                     balances[to_user][from_user] = {}
-                if debt.to_user not in balances[from_user]:
+                if debt.to_user.id not in balances[from_user]:
                     balances[from_user][to_user] = {}
                 if e.currency not in balances[to_user][from_user]:
                     balances[to_user][from_user][e.currency] = 0
