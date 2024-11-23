@@ -87,25 +87,77 @@ function GroupDetailsExpenses({group_expenses, group_members, group_id, loginPar
             });
     }
 
+    function getMonthFromDate(datetime) {
+
+        const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+        var dt = new Date(datetime);
+        return monthNames[dt.getUTCMonth()];
+    }
+
+    function getDayFromDate(datetime) {
+        var dt = new Date(datetime);
+        return dt.getUTCDate();
+    }
+
     return (
-        <div className="container">
+        <div className="container border border-1">
             {expenses && expenses.length > 0 ? 
                 expenses.map((e) => (
-                <div key={e.id} className="container">
+                <div key={e.id} className="container border border-success">
                     <div className="row">
-                        <div className="d-flex col-5">
-                        {e.name}
+                        <div className="col-6 d-flex align-items-center">
+                            <div className="d-flex flex-column align-items-center justify-content-start">
+                                <span className="fs-4">
+                                    { getDayFromDate(e.creation_date) }
+                                </span>
+                                   
+                                <span className="fs-8">
+                                    { getMonthFromDate(e.creation_date) }
+                                </span>
+                            </div>
+                        
+                            <div className="ps-3">
+                                <span className="fs-3">
+                                    {e.name}
+                                </span>
+                            </div>
                         </div>
-                        <div className="col-1 d-flex justify-content-end">
-                        <button className="btn-red-circle" onClick={() => {deleteExpense(e.id)}}>
-                            <i className="bi bi-x-circle-fill"></i>
-                        </button>
+                        
+                        <div className="col-6 d-flex justify-content-end align-items-center">
+                            <div className="d-flex flex-column align-items-center me-3">
+                                <div>
+                                    <span className="me-1">
+                                        {e.payee}
+                                    </span> 
+                                    <span>
+                                        paid
+                                    </span>                             
+                                </div>
+                                <div>
+                                <span className="fs-8">
+                                    { e.amount } {e.currency}
+                                </span>
+                                </div>
+                            </div>
+
+                            <div className="d-flex flex-column align-items-center me-3">
+                                <div>
+                                    <span>You are owned</span>
+                                </div>
+                                <div>
+                                    <span>100 USD</span>
+                                </div>
+                            </div>
+
+                            <div className="d-flex">
+                                <div className="d-flex justify-content-end">
+                                    <button className="btn-red-circle" onClick={() => {deleteExpense(e.id)}}>
+                                        <i className="bi bi-x-circle-fill"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
                     </div>
-                    </div>
-                    <div className="row">
-                    {e.payee} paid { e.amount } {e.currency}
-                    </div>
-                    
                 </div>
             )): (<p>No expenses found</p>)}
         <div className="container mt-3">

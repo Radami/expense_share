@@ -64,6 +64,7 @@ class GroupDetailsSerializer(serializers.Serializer):
                 "amount": e.amount,
                 "currency": e.currency,
                 "payee": e.payee.username,
+                "creation_date": e.creation_date,
             }
             for e in expenses
         ]

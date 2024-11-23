@@ -4,6 +4,8 @@ function GroupDetailsBalances({ groupBalances, groupMembers, groupId, loginParam
 
     const [balances, setBalances] = useState(groupBalances)
 
+    // TODO: fix undefined in getUsername when group member gets removed
+
     useEffect(() => {
         setBalances(groupBalances)
         console.log(groupBalances)
