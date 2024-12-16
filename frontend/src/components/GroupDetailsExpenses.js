@@ -1,14 +1,24 @@
 import axios from 'axios';
 import React, { useEffect, useState } from 'react';
+import Modal from 'react-bootstrap/Modal';
 
 function GroupDetailsExpenses({group_expenses, group_members, group_id, loginParams}) {
 
     const [expenses, setExpenses] = useState(group_expenses)
+    const [open, setOpen] = React.useState(false);
 
     // Update state when the prop changes
     useEffect(() => {
         setExpenses(group_expenses)
     }, [group_expenses]); // This will trigger whenever initialValue changes
+
+    const handleClose = () => {
+        setOpen(false);
+    };
+ 
+    const handleOpen = () => {
+        setOpen(true);
+    };
 
     function addExpense(e) {
         e.preventDefault(); // Prevent form from reloading the page
@@ -19,6 +29,7 @@ function GroupDetailsExpenses({group_expenses, group_members, group_id, loginPar
         const currency = formData.get("currency")
 
         console.log(formData)
+        
 
         axios.post('http://localhost:8000/splittime/api/add_group_expense',
             {
@@ -52,6 +63,8 @@ function GroupDetailsExpenses({group_expenses, group_members, group_id, loginPar
                     console.log('Error', error.message);
                 }
             });
+
+        handleClose();
     }
 
     function deleteExpense(id) {
@@ -160,42 +173,74 @@ function GroupDetailsExpenses({group_expenses, group_members, group_id, loginPar
                     </div>
                 </div>
             )): (<p>No expenses found</p>)}
-        <div className="container mt-3">
-            <form onSubmit={addExpense}>
-                <div className="row">   
-                    <div className="col-6">
-                        <div className="input-group">
-                                <span className="input-group-text">name</span>
-                                <input className="form-control" placeholder="Enter expense name" type="text" id="name" name="name" />
+            <div>
+                <button className="btn btn-success col-2" type="submit" onClick={handleOpen}><i className="bi bi-person-plus-fill" /><span className="ms-1">Add Expense</span></button>
+            </div>
+            <Modal 
+                show={open}
+                onHide={handleClose}
+                dialogClassName="my-modal">
+                <Modal.Header className="bg-color2 text-white border-0 ">
+                    <Modal.Title>Add Expense</Modal.Title>
+                </Modal.Header>
+                <Modal.Body className="bg-color2 text-white px-0 pt-0">
+                    <form className="d-flex justify-content-center align-items-center" onSubmit={addExpense}>
+                        <div className="col px-3">
+                            <div className="row p-1">   
+                                <div className="input-group">
+                                    <span className="input-group-text">name</span>
+                                    <input className="form-control" placeholder="Enter expense name" type="text" id="name" name="name" />
+                                </div>
+                            </div>
+                            <div className="row p-1"> 
+                                <div className="input-group">
+                                    <div className="input-group">
+                                        <span className="input-group-text">payee</span>
+                                        <select id="payee" className="form-select form-select-sm" name="payee">
+                                            {group_members.map((m) => (
+                                                <option key={m.id} value={m.id}>{m.username}</option>
+                                            ))}
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                            <div className="row p-1"> 
+                                <div className="input-group">
+                                        <span className="input-group-text">amount</span>
+                                        <input className="form-control" placeholder="Amount" type="text" id="amount" name="amount" />
+                                        
+                                            <select id="currency" 
+                                                    className="form-select form-select-md"
+                                                    name="currency"
+                                                    style={{  
+                                                        minWidth: 0, // Allow shrinking below Bootstrap's default min-width from .form-select
+                                                        flex: '0 0 auto', // Prevent flexbox from forcing size to expand to fill available space
+                                                        width: 'auto', // Adjust width to content 
+                                                    }}
+                                            >
+                                                <option value="USD">USD</option>
+                                                <option value="YEN">YEN</option>
+                                                <option value="EUR">EUR</option>
+                                                <option value="GBP">GBP</option>
+                                            </select>                                 
+                                        
+                                </div>
+                            </div>
+                            <div className="d-flex justify-content-end p-1 mt-3"> 
+                                <div className="d-flex mx-2">
+                                    <button className="btn btn-secondary" onClick={handleClose}><span className="ms-1">Close</span></button>
+                                </div>
+                                <div className="d-flex">
+                                    <button className="btn btn-success" type="submit"><i className="bi bi-person-plus-fill" /><span className="ms-1">Add Expense</span></button>
+                                </div>
                             </div>
                         </div>
-                        <div className="input-group">
-                            <div className="input-group">
-                                <span className="input-group-text">payee</span>
-                                <select id="payee" className="form-select form-select-sm" name="payee">
-                                    {group_members.map((m) => (
-                                        <option key={m.id} value={m.id}>{m.username}</option>
-                                    ))}
-                                </select>
-                            </div>
-                        </div>
-                        <div className="input-group">
-                            <div className="input-group">
-                                <span className="input-group-text">amount</span>
-                                <input className="form-control" placeholder="Enter amount" type="text" id="amount" name="amount" />
-                                <select id="currency" className="form-select form-select-sm"  name="currency">
-                                    <option value="USD">USD</option>
-                                    <option value="YEN">YEN</option>
-                                    <option value="EUR">EUR</option>
-                                    <option value="GBP">GBP</option>
-                                </select>
-                            </div>
-                        </div>
-                        <div>
-                            <button className="btn btn-success col-2" type="submit"><i className="bi bi-person-plus-fill" /><span className="ms-1">Add Expense</span></button>
-                        </div>
-                </div>
-            </form>
+                    </form>
+                    
+                </Modal.Body>
+            </Modal>
+            <div className="container mt-3">
+                
             </div>
         </div>
     );

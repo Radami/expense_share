@@ -39,4 +39,9 @@
   color: darkred; /* Darker red on hover */
 }
 
+.my-modal {
+    width: 20vw;    /* Occupy the 90% of the screen width */
+    max-width: 20vw;
+} 
+
 /*# sourceMappingURL=custom.css.map */
