@@ -100,7 +100,7 @@ const Home = ({ loginParams }) => {
 
     return (
         <>
-            <div className="container col-lg-4 mt-3 text-white">
+            <div className="container col-lg-4 mt-3 text-dark">
             {loginParams.isAuthenticated ? (
                 <>
                     <AnimatePresence>
@@ -142,10 +142,10 @@ const Home = ({ loginParams }) => {
                     <Modal 
                         show={open}
                         onHide={handleClose}>
-                        <Modal.Header className="bg-color2 text-white border-0">
+                        <Modal.Header className="bg-color2 border-0">
                             <Modal.Title>Add Group</Modal.Title>
                         </Modal.Header>
-                        <Modal.Body className="bg-color2 text-white">
+                        <Modal.Body className="bg-color2">
                         <Form>
                             <Form.Group className="mb-3" controlId="exampleForm.ControlInput1">
                             <Form.Label>Name</Form.Label>

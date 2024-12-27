@@ -5,13 +5,15 @@ import {
 function Group({group, deleteFunction}) {
 
     return (
-        <div className="row p-1 bg-color2 border border-dark rounded">
-            <div className="d-grid gap-2 col-md-10 mx-auto">
+        <div className="d-flex p-1 bg-color2 border border-dark rounded justify-content-between">
+            <div className="d-grid gap-2">
                 <h3><Link to={`group/${group.id}`}>{ group.name }</Link></h3>
                 <span>You are owed 100 USD</span>
                 <span>User A owes you 100 USD</span>
             </div>
-            <div className="d-grid gap-2 col-md-2 mx-auto">
+        
+        
+            <div className="d-grid gap-2">
                 <button className="btn btn-primary d-flex align-items-center">
                     <i className="bi bi-plus-circle-fill me-1"></i>
                     <span>Expense</span>

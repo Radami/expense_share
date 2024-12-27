@@ -39,7 +39,7 @@ function GroupDetails({ loginParams}) {
         }, [loginParams.token, group_id]);
 
     return (
-        <div className="container col-lg-4 mt-3 text-white">
+        <div className="container col-lg-4 mt-3">
         {loginParams.isAuthenticated ? (
         <>
             <span className="h1">{group["name"]} - </span><span className="h2">{group["description"]}</span>

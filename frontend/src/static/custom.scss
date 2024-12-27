@@ -5,33 +5,35 @@
 @import "../../node_modules/bootstrap/scss/variables";
 @import "../../node_modules/bootstrap/scss/mixins";
 
+@import "theme2.css";
+
 .bg-green {
     background-color: $green-200;
 }
 
-.bg-color1 {
-    background-color: #212A31;
-}
+// .bg-color1 {
+//     background-color: #212A31;
+// }
 
-.bg-color2 {
-    background-color: #2E3944;
-}
+// .bg-color2 {
+//     background-color: #2E3944;
+// }
 
-.bg-color3 {
-    background-color: #124E55;
-}
+// .bg-color3 {
+//     background-color: #124E55;
+// }
 
-.bg-color4 {
-    background-color: #748D92;
-}
+// .bg-color4 {
+//     background-color: #748D92;
+// }
 
-.bg-color5 {
-    background-color: #D3D9D4;
-}
+// .bg-color5 {
+//     background-color: #D3D9D4;
+// }
 
-.bg-color6 {
-    background-color: #964734;
-}
+// .bg-color6 {
+//     background-color: #964734;
+// }
 
 // Style for red-x delete button in GroupDetails
 .btn-red-circle {

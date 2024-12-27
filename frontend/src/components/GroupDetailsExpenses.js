@@ -113,14 +113,14 @@ function GroupDetailsExpenses({group_expenses, group_members, group_id, loginPar
     }
 
     return (
-        <div className="container border border-1">
+        <div className="container px-0">
             {expenses && expenses.length > 0 ? 
-                expenses.map((e) => (
-                <div key={e.id} className="container border border-success">
+                expenses.map((e, index) => (
+                <div key={e.id} className={`container ${index !== expenses.length - 1 ? 'border-bottom' : ''} border-color1`}>
                     <div className="row">
                         <div className="col-6 d-flex align-items-center">
                             <div className="d-flex flex-column align-items-center justify-content-start">
-                                <span className="fs-4">
+                                <span className="fs-6">
                                     { getDayFromDate(e.creation_date) }
                                 </span>
                                    
@@ -130,7 +130,7 @@ function GroupDetailsExpenses({group_expenses, group_members, group_id, loginPar
                             </div>
                         
                             <div className="ps-3">
-                                <span className="fs-3">
+                                <span className="fs-5">
                                     {e.name}
                                 </span>
                             </div>
@@ -173,17 +173,17 @@ function GroupDetailsExpenses({group_expenses, group_members, group_id, loginPar
                     </div>
                 </div>
             )): (<p>No expenses found</p>)}
-            <div>
-                <button className="btn btn-success col-2" type="submit" onClick={handleOpen}><i className="bi bi-person-plus-fill" /><span className="ms-1">Add Expense</span></button>
+            <div className="d-flex justify-content-center mt-3">
+                <button className="btn btn-success" type="submit" onClick={handleOpen}><i className="bi bi-person-plus-fill" /><span className="ms-1">Add Expense</span></button>
             </div>
             <Modal 
                 show={open}
                 onHide={handleClose}
                 dialogClassName="my-modal">
-                <Modal.Header className="bg-color2 text-white border-0 ">
+                <Modal.Header className="bg-color2 border-0 ">
                     <Modal.Title>Add Expense</Modal.Title>
                 </Modal.Header>
-                <Modal.Body className="bg-color2 text-white px-0 pt-0">
+                <Modal.Body className="bg-color2 px-0 pt-0">
                     <form className="d-flex justify-content-center align-items-center" onSubmit={addExpense}>
                         <div className="col px-3">
                             <div className="row p-1">   
