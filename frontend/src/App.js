@@ -1,11 +1,11 @@
 import { useEffect, useState } from 'react';
 import { Route, Routes } from 'react-router-dom';
 import './App.css';
-import Footer from './components/footer';
-import Friends from "./components/friends";
+import Footer from './components/Footer';
+import Friends from "./components/Friends";
 import GroupDetails from './components/GroupDetails';
-import Header from './components/header';
-import Home from "./components/home";
+import Header from './components/Header';
+import Home from "./components/Home";
 
 function App() {
     const [isAuthenticated, setIsAuthenticated] = useState(false);

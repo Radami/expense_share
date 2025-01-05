@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
 import logo from '../assets/logo-compressed.png';
-import NavbarProfile from './navbar_profile';
+import NavbarProfile from './NavbarProfile';
 
 function Header ({loginParams}) {
     return (
