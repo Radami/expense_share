@@ -4,12 +4,14 @@ import Modal from 'react-bootstrap/Modal';
 
 function GroupDetailsExpenses({group_expenses, group_members, group_id, loginParams}) {
 
-    const [expenses, setExpenses] = useState(group_expenses)
+    const [expenses, setExpenses] = useState(group_expenses);
     const [open, setOpen] = React.useState(false);
+    const [headers, setHeaders] = useState([]);
 
     // Update state when the prop changes
     useEffect(() => {
         setExpenses(group_expenses)
+        setHeaders(processMonthHeaders(expenses));
     }, [group_expenses]); // This will trigger whenever initialValue changes
 
     const handleClose = () => {
@@ -20,6 +22,21 @@ function GroupDetailsExpenses({group_expenses, group_members, group_id, loginPar
         setOpen(true);
     };
 
+    function processMonthHeaders(expenses) {
+        if (!expenses || expenses.length === 0)
+            return {};
+        let headersMapping = {};
+        headersMapping[0] = getMonthAndYearFromDate(expenses[0].creation_date);
+        for (let i = 1;i < expenses.length; i++) {
+            if (getMonthFromDate(expenses[i].creation_date) !==
+                getMonthFromDate(expenses[i-1].creation_date)) 
+                {
+                    headersMapping[i] = getMonthAndYearFromDate(expenses[i].creation_date);
+            }
+        }
+        return headersMapping;
+    }
+    
     function addExpense(e) {
         e.preventDefault(); // Prevent form from reloading the page
         const formData = new FormData(e.target); // Use e.target to get the form
@@ -47,8 +64,9 @@ function GroupDetailsExpenses({group_expenses, group_members, group_id, loginPar
             }).then(response => {
                 if (response.status === 201) {
                     console.log("Add expense success", response.data);
-                    const updatedExpenses = [...expenses, response.data]
-                    setExpenses(updatedExpenses)
+                    const updatedExpenses = [...expenses, response.data];
+                    setExpenses(updatedExpenses);
+                    setHeaders(processMonthHeaders(updatedExpenses));
                 }
             }).catch(error => {
                 if (error.response) {
@@ -84,6 +102,7 @@ function GroupDetailsExpenses({group_expenses, group_members, group_id, loginPar
                     console.log("Delete expense success", response.data);
                     const updatedExpenses = expenses.filter(expense => expense.id !== id)
                     setExpenses(updatedExpenses)
+                    setHeaders(processMonthHeaders(updatedExpenses));
                 }
             }).catch(error => {
                 if (error.response) {
@@ -100,9 +119,28 @@ function GroupDetailsExpenses({group_expenses, group_members, group_id, loginPar
             });
     }
 
+    function getMonthAndYearFromDate(datetime) {
+        var dt = new Date(datetime);
+
+        return getMonthFromDate(datetime) + 
+               " " + 
+               dt.getUTCFullYear();
+    }
+
     function getMonthFromDate(datetime) {
 
-        const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+        const monthNames = ["January",
+                            "February",
+                            "March",
+                            "April",
+                            "May",
+                            "June",
+                            "July",
+                            "August",
+                            "September",
+                            "October",
+                            "November",
+                            "December"];
         var dt = new Date(datetime);
         return monthNames[dt.getUTCMonth()];
     }
@@ -116,64 +154,64 @@ function GroupDetailsExpenses({group_expenses, group_members, group_id, loginPar
         <div className="container px-0">
             {expenses && expenses.length > 0 ? 
                 expenses.map((e, index) => (
-                <div key={e.id} className={`container ${index !== expenses.length - 1 ? 'border-bottom' : ''} border-color1`}>
-                    <div className="row">
-                        <div className="col-6 d-flex align-items-center">
-                            <div className="d-flex flex-column align-items-center justify-content-start">
-                                <span className="fs-6">
-                                    { getDayFromDate(e.creation_date) }
-                                </span>
-                                   
-                                <span className="fs-8">
-                                    { getMonthFromDate(e.creation_date) }
-                                </span>
-                            </div>
-                        
-                            <div className="ps-3">
-                                <span className="fs-5">
-                                    {e.name}
-                                </span>
-                            </div>
+                <React.Fragment key={e.id}>
+                    { headers[index] && (
+                        <div className="mt-3 fw-bold text-color6">
+                            {headers[index]}
                         </div>
-                        
-                        <div className="col-6 d-flex justify-content-end align-items-center">
-                            <div className="d-flex flex-column align-items-center me-3">
-                                <div>
-                                    <span className="me-1">
-                                        {e.payee}
-                                    </span> 
-                                    <span>
-                                        paid
-                                    </span>                             
+                    )}
+                    <div key={e.id} className={`container ${index !== expenses.length - 1 ? 'border-bottom' : ''} border-color1`}>
+                        <div className="row">
+                            <div className="col-6 d-flex align-items-center">
+                                <div className="d-flex flex-column align-items-center justify-content-start">
+                                    <span className="fs-6">
+                                        { getDayFromDate(e.creation_date) }
+                                    </span>
                                 </div>
-                                <div>
-                                <span className="fs-8">
-                                    { e.amount } {e.currency}
-                                </span>
-                                </div>
-                            </div>
-
-                            <div className="d-flex flex-column align-items-center me-3">
-                                <div>
-                                    <span>You are owned</span>
-                                </div>
-                                <div>
-                                    <span>100 USD</span>
+                            
+                                <div className="ps-3">
+                                    <span className="fs-5">
+                                        {e.name}
+                                    </span>
                                 </div>
                             </div>
+                            
+                            <div className="col-6 d-flex justify-content-end align-items-center">
+                                <div className="d-flex flex-column align-items-center me-3">
+                                    <div>
+                                        <span className="me-1">
+                                            {e.payee}
+                                        </span>                             
+                                    </div>
+                                    <div>
+                                    <span className="fs-8">
+                                        { e.amount } {e.currency}
+                                    </span>
+                                    </div>
+                                </div>
 
-                            <div className="d-flex">
-                                <div className="d-flex justify-content-end">
-                                    <button className="btn-red-circle" onClick={() => {deleteExpense(e.id)}}>
-                                        <i className="bi bi-x-circle-fill"></i>
-                                    </button>
+                                <div className="d-flex flex-column align-items-center me-3">
+                                    <div>
+                                        <span>You are owned</span>
+                                    </div>
+                                    <div>
+                                        <span>100 USD</span>
+                                    </div>
+                                </div>
+
+                                <div className="d-flex">
+                                    <div className="d-flex justify-content-end">
+                                        <button className="btn-red-circle" onClick={() => {deleteExpense(e.id)}}>
+                                            <i className="bi bi-x-circle-fill"></i>
+                                        </button>
+                                    </div>
                                 </div>
                             </div>
                         </div>
                     </div>
-                </div>
+                </React.Fragment>   
             )): (<p>No expenses found</p>)}
-            <div className="d-flex justify-content-center mt-3">
+            <div  className="d-flex justify-content-center mt-3">
                 <button className="btn btn-success" type="submit" onClick={handleOpen}><i className="bi bi-person-plus-fill" /><span className="ms-1">Add Expense</span></button>
             </div>
             <Modal 
@@ -239,9 +277,6 @@ function GroupDetailsExpenses({group_expenses, group_members, group_id, loginPar
                     
                 </Modal.Body>
             </Modal>
-            <div className="container mt-3">
-                
-            </div>
         </div>
     );
 }
