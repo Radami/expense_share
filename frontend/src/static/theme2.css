@@ -1,44 +1,47 @@
 .bg-color1 {
-    background-color: #EDC7B7;
+  background-color: #EDC7B7;
 }
-  
+
 .bg-color2 {
-    background-color: #EEE2DC;
+  background-color: #EEE2DC;
 }
-  
+
 .bg-color3 {
-    background-color: #BAB2B5;
+  background-color: #BAB2B5;
 }
-  
+
 .bg-color4 {
-    background-color: #123C69;
+  background-color: #123C69;
 }
-  
+
 .bg-color5 {
-    background-color: #AC3B61;
+  background-color: #AC3B61;
 }
-  
+
 .bg-color6 {
-    background-color: #964734;
+  background-color: #964734;
 }
 
-.text-color1{
-    color: #212529;
+.text-color6 {
+  color: #964734;
 }
 
-.border-color1{
-    border-color: #212529 !important;
+.text-color1 {
+  color: #212529;
+}
 
+.border-color1 {
+  border-color: #212529 !important;
 }
 
 .custom-tab-margin .nav-link {
-    color: white; /* Inactive tab text color */
-    background-color: #6c757d; /* Inactive tab background color */
-    border-radius: 5px;
+  color: white; /* Inactive tab text color */
+  background-color: #6c757d; /* Inactive tab background color */
+  border-radius: 5px;
 }
 
 .custom-tab-margin .nav-link.active {
-    color: white; /* Active tab text color */
-    background-color: #123C69; /* Active tab background color */
-    border-color: #123C69;
-}
+  color: white; /* Active tab text color */
+  background-color: #123C69; /* Active tab background color */
+  border-color: #123C69;
+}/*# sourceMappingURL=theme2.css.map */

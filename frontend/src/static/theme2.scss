@@ -1,0 +1,55 @@
+$color1:#EDC7B7;
+$color2:#EEE2DC;
+$color3:#BAB2B5;
+$color4:#123C69;
+$color5:#AC3B61;
+$color6:#964734;
+
+.bg-color1 {
+    background-color: $color1;
+}
+  
+.bg-color2 {
+    background-color: $color2;
+}
+  
+.bg-color3 {
+    background-color: $color3;
+}
+  
+.bg-color4 {
+    background-color: $color4;
+}
+  
+.bg-color5 {
+    background-color: $color5;
+}
+  
+.bg-color6 {
+    background-color: $color6;
+}
+
+.text-color6 {
+    color: $color6;
+}
+
+.text-color1{
+    color: #212529;
+}
+
+.border-color1{
+    border-color: #212529 !important;
+
+}
+
+.custom-tab-margin .nav-link {
+    color: white; /* Inactive tab text color */
+    background-color: #6c757d; /* Inactive tab background color */
+    border-radius: 5px;
+}
+
+.custom-tab-margin .nav-link.active {
+    color: white; /* Active tab text color */
+    background-color: #123C69; /* Active tab background color */
+    border-color: #123C69;
+}
