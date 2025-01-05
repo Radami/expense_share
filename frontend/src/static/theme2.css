@@ -37,11 +37,13 @@
 .custom-tab-margin .nav-link {
   color: white; /* Inactive tab text color */
   background-color: #6c757d; /* Inactive tab background color */
-  border-radius: 5px;
+  border-radius: 20px;
+  margin-right: 5px;
 }
 
 .custom-tab-margin .nav-link.active {
   color: white; /* Active tab text color */
   background-color: #123C69; /* Active tab background color */
   border-color: #123C69;
+  margin-right: 5px;
 }/*# sourceMappingURL=theme2.css.map */
