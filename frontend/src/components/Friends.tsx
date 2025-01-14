@@ -1,8 +1,6 @@
+import { loginParamsType } from '../Types';
 
-function Friends({loginParams}) {
-
-
-
+function Friends(loginParams : loginParamsType) {
     return (
         <>
             <div className="container col-lg-4 mt-3">

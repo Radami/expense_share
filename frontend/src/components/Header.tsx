@@ -1,8 +1,13 @@
 import { Link } from "react-router-dom";
 import logo from '../assets/logo-compressed.png';
+import { loginParamsType } from '../Types';
 import NavbarProfile from './NavbarProfile';
 
-function Header ({loginParams}) {
+interface HeaderProps {
+    loginParams: loginParamsType,
+}
+
+const Header: React.FC<HeaderProps> = ({loginParams}) => {
     return (
         <header>
           <div className="container d-flex col-lg-4 mt-3 ">

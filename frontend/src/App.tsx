@@ -2,38 +2,39 @@ import { useEffect, useState } from 'react';
 import { Route, Routes } from 'react-router-dom';
 import './App.css';
 import Footer from './components/Footer';
-import Friends from "./components/Friends";
+import Friends from './components/Friends';
 import GroupDetails from './components/GroupDetails';
 import Header from './components/Header';
 import Home from "./components/Home";
+import { loginParamsType } from './Types';
 
 function App() {
     const [isAuthenticated, setIsAuthenticated] = useState(false);
-    const [token, setToken] = useState(null);
+    const [token, setToken] = useState<string>("");
     
     useEffect(() => {
-        const storedToken = localStorage.getItem('access_token');
+        const storedToken : string = localStorage.getItem('access_token') ?? "";
         if (storedToken) {
             setIsAuthenticated(true);
             setToken(storedToken);
         }
         else {
             setIsAuthenticated(false);
-            setToken(null)
+            setToken("")
         }
       }, [setIsAuthenticated]);
   
-    const handleLogin = (loginToken) => {
+    const handleLogin = (loginToken : string) => {
         setIsAuthenticated(true);
         setToken(loginToken)
       };
     
     const handleLogout = () => {
         setIsAuthenticated(false);
-        setToken(null);
+        setToken("");
       };
 
-    const loginParams = {
+    const loginParams : loginParamsType = {
         isAuthenticated : isAuthenticated,
         token : token,
         handleLogin : handleLogin,
