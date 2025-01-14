@@ -1,6 +1,10 @@
 import axios from 'axios';
 
-function Logout({ onLogout }) {
+interface LogoutProps {
+    onLogout: () => void;
+}
+
+const Logout: React.FC<LogoutProps> = ({ onLogout }) => {
 
     const handleLogout = () => {
         localStorage.removeItem('access_token');

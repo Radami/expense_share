@@ -1,9 +1,14 @@
 // src/components/Profile.js
 import axios from 'axios';
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
+import { ProfileType } from '../Types';
 
-const Profile = ({ token }) => {
-  const [profile, setProfile] = useState(null);
+interface ProfileProps {
+    token: string,
+}
+
+const Profile: React.FC<ProfileProps> = ({ token }) => {
+  const [profile, setProfile] = useState<ProfileType>(null);
 
   useEffect(() => {
     const fetchProfile = async () => {

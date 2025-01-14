@@ -1,8 +1,13 @@
-import Login from "./Login";
-import Logout from "./Logout";
-import Profile from "./Profile";
+import { LoginParamsType } from '../Types';
+import Login from './Login';
+import Logout from './Logout';
+import Profile from './Profile';
 
-function NavbarProfile({ loginParams }) {
+interface NavbarProfileProps {
+    loginParams: LoginParamsType,
+}
+
+const NavbarProfile: React.FC<NavbarProfileProps> = ({ loginParams }) => {
 
     return (
         <li className="nav-item dropdown">

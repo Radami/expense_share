@@ -6,23 +6,29 @@ import Tabs from 'react-bootstrap/Tabs';
 import {
     useParams
 } from "react-router-dom";
+import { BalancesType, ExpenseType, GroupMemberType, LoginParamsType } from '../Types';
 import GroupDetailsBalances from './GroupDetailsBalances';
 import GroupDetailsExpenses from './GroupDetailsExpenses';
 import GroupDetailsMembers from './GroupDetailsMembers';
 import GroupDetailsTotals from './GroupDetailsTotals';
 
-function GroupDetails({ loginParams}) {
+interface GroupDetailsProps {
+    login_params: LoginParamsType
+}
 
-    const { group_id } = useParams();
+const GroupDetails:React.FC<GroupDetailsProps> = ({ login_params}) => {
+
+    // "" is used to make the type "string" instead of "string | undefined"
+    const { group_id = "" } = useParams<string>(); 
     const [isAddExpenseModalOpen, setIsAddExpenseModalOpen] = React.useState(false);
     const [isAddMemberModalOpen, setIsAddMemberModalOpen] = React.useState(false);
 
     const [groupName, setGroupName] = useState("");
     const [groupDescription, setGroupDescription] = useState("");
-    const [groupExpenses, setGroupExpenses] = useState([]);
-    const [groupMembers, setGroupMembers] = useState([]);
-    const [groupTotals, setGroupTotals] = useState([]);
-    const [groupBalances, setGroupBalances] = useState([]);
+    const [groupExpenses, setGroupExpenses] = useState<ExpenseType[]>([]);
+    const [groupMembers, setGroupMembers] = useState<GroupMemberType[]>([]);
+    const [groupTotals, setGroupTotals] = useState<Record<string, number>>({});
+    const [groupBalances, setGroupBalances] = useState<BalancesType>({});
 
     useEffect(() => {
         const fetchGroupDetails = async () => {
@@ -51,7 +57,7 @@ function GroupDetails({ loginParams}) {
         };
       
         fetchGroupDetails();
-        }, [loginParams.token, group_id]);
+        }, [login_params.token, group_id]);
 
     const handleAddExpenseModalOpen = () => {
         setIsAddExpenseModalOpen(true);
@@ -61,9 +67,9 @@ function GroupDetails({ loginParams}) {
         setIsAddExpenseModalOpen(false);
     }
 
-    function addExpense(e) {
+    function addExpense(e : React.FormEvent<HTMLFormElement>) {
         e.preventDefault(); // Prevent form from reloading the page
-        const formData = new FormData(e.target); // Use e.target to get the form
+        const formData = new FormData(e.target as HTMLFormElement); // Use e.target to get the form
         const name = formData.get("name")
         const payee = formData.get("payee")
         const amount = formData.get("amount")
@@ -82,7 +88,7 @@ function GroupDetails({ loginParams}) {
             },
             {
                 headers: {
-                'Authorization': `Bearer ${loginParams.token}`,
+                'Authorization': `Bearer ${login_params.token}`,
                 'Content-Type': 'application/json',
                 }
             }).then(response => {
@@ -119,7 +125,7 @@ function GroupDetails({ loginParams}) {
 
     return (
         <div className="container col-lg-4 mt-3">
-        {loginParams.isAuthenticated ? (
+        {login_params.isAuthenticated ? (
         <>
             <div>
                 <div className="d-flex justify-content-between align-items-center">
@@ -139,17 +145,17 @@ function GroupDetails({ loginParams}) {
                 variant='pills'
             >
                 <Tab eventKey="expenses" title="Expenses">
-                    <GroupDetailsExpenses group_expenses={groupExpenses} group_members={groupMembers} group_id={group_id} loginParams={loginParams}/>
+                    <GroupDetailsExpenses group_expenses={groupExpenses} group_members={groupMembers} group_id={group_id} loginParams={login_params}/>
                 </Tab>
                 <Tab eventKey="members" title="Members">
-                    <GroupDetailsMembers group_members={groupMembers} group_id={group_id} loginParams={loginParams} />
+                    <GroupDetailsMembers group_members={groupMembers} group_id={group_id} loginParams={login_params} />
                 </Tab>
                 <Tab eventKey="totals" title="Totals">
-                    <GroupDetailsTotals groupTotals={groupTotals} groupId={group_id} loginParams={loginParams} />
+                    <GroupDetailsTotals groupTotals={groupTotals} loginParams={login_params} />
                 </Tab>
                 
                 <Tab eventKey="balances" title="Balances">
-                    <GroupDetailsBalances groupBalances={groupBalances} groupMembers={groupMembers} groupId={group_id} loginParams={loginParams}/>
+                    <GroupDetailsBalances group_balances={groupBalances} group_members={groupMembers} group_id={group_id} login_params={login_params}/>
                 </Tab>
             </Tabs>
 

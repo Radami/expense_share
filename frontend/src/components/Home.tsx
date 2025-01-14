@@ -4,11 +4,17 @@ import React, { useEffect, useState } from 'react';
 import Button from 'react-bootstrap/Button';
 import Form from 'react-bootstrap/Form';
 import Modal from 'react-bootstrap/Modal';
+import { GroupType, LoginParamsType } from '../Types';
 import Group from './Group';
 
-const Home = ({ loginParams }) => {
 
-    const [groups, setGroups] = useState([]);
+interface HomeProps {
+    login_params: LoginParamsType
+}
+
+const Home: React.FC<HomeProps> = ({ login_params }) => {
+
+    const [groups, setGroups] = useState<GroupType[]>([]);
     const [open, setOpen] = React.useState(false);
     const [groupName, setGroupName] = useState('');
     const [groupDescription, setGroupDescription] = useState('');
@@ -37,7 +43,7 @@ const Home = ({ loginParams }) => {
           };
       
           fetchGroups();
-        }, [loginParams.token]);
+        }, [login_params.token]);
 
     const addGroup = () => {
         axios.post('http://localhost:8000/splittime/api/add_group', 
@@ -47,7 +53,7 @@ const Home = ({ loginParams }) => {
             },
             {
                 headers: {
-                'Authorization': `Bearer ${loginParams.token}`,
+                'Authorization': `Bearer ${login_params.token}`,
                 'Content-Type': 'application/json',
                 }
             }).then(response => {
@@ -65,14 +71,14 @@ const Home = ({ loginParams }) => {
         handleClose();
     }
 
-    const deleteGroup = (group_id) => {
+    const deleteGroup = (group_id: string) => {
         axios.post('http://localhost:8000/splittime/api/delete_group', 
             {
                 id: group_id,
             },
             {
                 headers: {
-                'Authorization': `Bearer ${loginParams.token}`,
+                'Authorization': `Bearer ${login_params.token}`,
                 'Content-Type': 'application/json',
                 }
             }).then(response=> {
@@ -101,7 +107,7 @@ const Home = ({ loginParams }) => {
     return (
         <>
             <div className="container col-lg-4 mt-3 text-dark">
-            {loginParams.isAuthenticated ? (
+            {login_params.isAuthenticated ? (
                 <>
                     <AnimatePresence>
                         {groups.map((group) => (
@@ -118,7 +124,7 @@ const Home = ({ loginParams }) => {
                               }}>
                                 <Group key={group.id} 
                                    group={group}
-                                   deleteFunction={() => deleteGroup(group.id)} />
+                                   delete_function={() => deleteGroup(group.id)} />
                             </motion.div>
                         ))}
 

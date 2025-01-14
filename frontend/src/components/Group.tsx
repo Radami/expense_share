@@ -1,8 +1,13 @@
-import {
-    Link
-} from "react-router-dom";
+import { Link } from "react-router-dom";
+import { GroupType } from '../Types';
 
-function Group({group, deleteFunction}) {
+
+interface GroupProps {
+    group : GroupType,
+    delete_function: Function,
+}
+
+const Group: React.FC<GroupProps> = ({group, delete_function}) => {
 
     return (
         <div className="d-flex p-1 bg-color2 border border-dark rounded justify-content-between">
@@ -22,7 +27,7 @@ function Group({group, deleteFunction}) {
                     <i className="bi bi-pencil-fill me-1"></i>
                     <span>Members</span>
                 </button>
-                <button className="btn btn-danger d-flex align-items-center" onClick={deleteFunction}>
+                <button className="btn btn-danger d-flex align-items-center" onClick={() => delete_function(group.id)}>
                     <i className="bi bi-x-circle-fill me-1"></i>
                     <span>Group</span>
                 </button>

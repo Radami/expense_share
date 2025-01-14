@@ -1,12 +1,14 @@
+import { LoginParamsType } from '../Types';
 
-function Friends({loginParams}) {
+interface FriendsProps {
+    login_params: LoginParamsType,
+}
 
-
-
+const Friends: React.FC<FriendsProps> = ({ login_params }) => {
     return (
         <>
             <div className="container col-lg-4 mt-3">
-            {loginParams.isAuthenticated ? ( 
+            {login_params.isAuthenticated ? ( 
                 <p>Friends</p>
             ) : (
                 <p>

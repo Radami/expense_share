@@ -1,7 +1,12 @@
 import React, { useEffect, useState } from 'react';
+import { LoginParamsType } from '../Types';
 
-function GroupDetailsTotals({ groupTotals, groupId, loginParams}) {
+interface GroupDetailsTotalsProps {
+    groupTotals: Record<string, number>,
+    loginParams: LoginParamsType
+}
 
+const GroupDetailsTotals: React.FC<GroupDetailsTotalsProps> = ({ groupTotals, loginParams}) => {
     const [totals, setTotals] = useState(groupTotals)
 
     useEffect(() => {

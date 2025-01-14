@@ -1,11 +1,15 @@
 import axios from 'axios';
 import React, { useState } from 'react';
 
-const Login = ({ onLogin }) => {
+interface LoginProps {
+    onLogin: (loginToken: string) => void;
+}
+
+const Login: React.FC<LoginProps> = ({ onLogin }) => {
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
 
-    const handleLogin = (e) => {
+    const handleLogin = (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
         axios.post('http://localhost:8000/users/api/token/', {
             username,

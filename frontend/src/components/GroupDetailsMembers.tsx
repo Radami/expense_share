@@ -1,7 +1,16 @@
 import axios from 'axios';
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 
-function GroupDetailsMembers({ group_members, group_id, loginParams }) {
+import { GroupMemberType, LoginParamsType } from '../Types';
+
+interface GroupDetailsMembersProps {
+    group_members: GroupMemberType[],
+    group_id: string,
+    loginParams: LoginParamsType
+
+}
+
+const GroupDetailsMembers: React.FC<GroupDetailsMembersProps> = ({ group_members, group_id, loginParams }) => {
 
     const [members, setMembers] = useState(group_members)
 
@@ -10,7 +19,7 @@ function GroupDetailsMembers({ group_members, group_id, loginParams }) {
         setMembers(group_members);
     }, [group_members]); // This will trigger whenever initialValue changes
 
-    const deleteGroupMember = (group_member_id) => {
+    const deleteGroupMember = (group_member_id: string) => {
         axios.post('http://localhost:8000/splittime/api/delete_group_member',
         {
             user_id : group_member_id,
@@ -43,9 +52,9 @@ function GroupDetailsMembers({ group_members, group_id, loginParams }) {
         
     };
 
-    function addGroup(e) {
+    function addGroup(e : React.FormEvent<HTMLFormElement>) { // e is typed as a form event
         e.preventDefault(); // Prevent form from reloading the page
-        const formData = new FormData(e.target); // Use e.target to get the form
+        const formData = new FormData(e.target as HTMLFormElement); // Use e.target to get the form
         const member_email = formData.get("member_email");
 
         axios.post('http://localhost:8000/splittime/api/add_group_member',

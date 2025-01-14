@@ -1,18 +1,33 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 
-function GroupDetailsBalances({ groupBalances, groupMembers, groupId, loginParams}) {
+import { BalancesType, GroupMemberType, LoginParamsType } from '../Types';
 
-    const [balances, setBalances] = useState(groupBalances)
+interface GroupDetailsBalancesProps {
+    group_balances: BalancesType,
+    group_members: GroupMemberType[],
+    group_id: string,
+    login_params: LoginParamsType,
+}
+
+const GroupDetailsBalances: React.FC<GroupDetailsBalancesProps> = ({ group_balances, group_members, group_id, login_params}) => {
+
+    const [balances, setBalances] = useState(group_balances)
 
     // TODO: fix undefined in getUsername when group member gets removed
 
     useEffect(() => {
-        setBalances(groupBalances)
-        console.log(groupBalances)
-    }, [groupBalances]); // This will trigger whenever initialValue changes
+        setBalances(group_balances)
+        console.log(group_balances)
+    }, [group_balances]); // This will trigger whenever initialValue changes
 
-    function getUsername(user_id) {
-        return groupMembers.find((user) => user.id === parseInt(user_id,10)).username
+    function getUsername(user_id: string) {
+        const user = group_members.find((user) => user.id === user_id)
+
+        if (user) {
+            return user.username;
+        }
+        // Optionally, return a default value if no user is found
+        return "Unknown User";
     }
 
     return (
