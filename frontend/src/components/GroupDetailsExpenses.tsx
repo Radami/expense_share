@@ -1,11 +1,20 @@
 import axios from 'axios';
 import React, { useEffect, useState } from 'react';
 
-function GroupDetailsExpenses({group_expenses, group_members, group_id, loginParams}) {
+import { Expense, GroupMember, loginParamsType } from '../Types';
+
+interface GroupDetailsExpensesProps {
+    group_expenses: Expense[],
+    group_members: GroupMember[],
+    group_id: number,
+    loginParams: loginParamsType
+}
+
+const GroupDetailsExpenses: React.FC<GroupDetailsExpensesProps> = ({group_expenses, group_members, group_id, loginParams}) => {
 
     const [expenses, setExpenses] = useState(group_expenses);
     const [open, setOpen] = React.useState(false);
-    const [headers, setHeaders] = useState([]);
+    const [headers, setHeaders] = useState<Record<number, string>>({});
 
     // Update state when the prop changes
     useEffect(() => {
@@ -13,10 +22,10 @@ function GroupDetailsExpenses({group_expenses, group_members, group_id, loginPar
         setHeaders(processMonthHeaders(expenses));
     }, [group_expenses]); // This will trigger whenever initialValue changes
 
-    function processMonthHeaders(expenses) {
+    function processMonthHeaders(expenses: Expense[]) : Record<number, string> {
         if (!expenses || expenses.length === 0)
             return {};
-        let headersMapping = {};
+        let headersMapping: Record<number, string> = {};
         headersMapping[0] = getMonthAndYearFromDate(expenses[0].creation_date);
         for (let i = 1;i < expenses.length; i++) {
             if (getMonthFromDate(expenses[i].creation_date) !==
@@ -28,7 +37,7 @@ function GroupDetailsExpenses({group_expenses, group_members, group_id, loginPar
         return headersMapping;
     }
     
-    function deleteExpense(id) {
+    function deleteExpense(id: number) {
 
 
         axios.post('http://localhost:8000/splittime/api/delete_group_expense',
@@ -62,7 +71,7 @@ function GroupDetailsExpenses({group_expenses, group_members, group_id, loginPar
             });
     }
 
-    function getMonthAndYearFromDate(datetime) {
+    function getMonthAndYearFromDate(datetime: string) {
         var dt = new Date(datetime);
 
         return getMonthFromDate(datetime) + 
@@ -70,7 +79,7 @@ function GroupDetailsExpenses({group_expenses, group_members, group_id, loginPar
                dt.getUTCFullYear();
     }
 
-    function getMonthFromDate(datetime) {
+    function getMonthFromDate(datetime: string) {
 
         const monthNames = ["January",
                             "February",
@@ -88,7 +97,7 @@ function GroupDetailsExpenses({group_expenses, group_members, group_id, loginPar
         return monthNames[dt.getUTCMonth()];
     }
 
-    function getDayFromDate(datetime) {
+    function getDayFromDate(datetime: string) {
         var dt = new Date(datetime);
         return dt.getUTCDate();
     }
