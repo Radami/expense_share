@@ -1,68 +1,40 @@
 {
-  "name": "frontend",
-  "version": "0.1.0",
-  "private": true,
-  "dependencies": {
-    "@testing-library/react": "^16.0.1",
-    "@testing-library/user-event": "^13.5.0",
-    "@types/jest": "^29.5.14",
-    "@types/node": "^22.10.5",
-    "@types/react": "^19.0.2",
-    "@types/react-dom": "^19.0.2",
-    "axios": "^1.7.2",
-    "bootstrap": "^5.3.3",
-    "bootstrap-icons": "^1.11.3",
-    "framer-motion": "^11.3.31",
-    "react": "^18.3.1",
-    "react-bootstrap": "^2.10.4",
-    "react-dom": "^18.3.1",
-    "react-router-dom": "^6.26.1",
-    "react-scripts": "5.0.1",
-    "tsx": "^4.19.2",
-    "typescript": "^5.7.2",
-    "web-vitals": "^2.1.4"
-  },
-  "scripts": {
-    "start": "react-scripts start",
-    "build": "react-scripts build",
-    "test": "react-scripts test --coverage",
-    "eject": "react-scripts eject"
-  },
-  "eslintConfig": {
-    "extends": [
-      "react-app",
-      "react-app/jest"
-    ]
-  },
-  "browserslist": {
-    "production": [
-      ">0.2%",
-      "not dead",
-      "not op_mini all"
-    ],
-    "development": [
-      "last 1 chrome version",
-      "last 1 firefox version",
-      "last 1 safari version"
-    ]
-  },
-  "devDependencies": {
-    "@babel/core": "^7.25.2",
-    "@babel/preset-env": "^7.25.4",
-    "@babel/preset-react": "^7.24.7",
-    "@eslint/js": "^9.9.1",
-    "@testing-library/jest-dom": "^6.5.0",
-    "babel-jest": "^29.7.0",
-    "eslint": "^8.57.0",
-    "eslint-plugin-react": "^7.35.0",
-    "globals": "^15.9.0",
-    "jest": "^27.5.1",
-    "jest-axe": "^9.0.0",
-    "jest-environment-jsdom": "^29.7.0"
-  },
-  "jest": {
-    "transformIgnorePatterns": [
-      "node_modules/(?!axios)/"
-    ]
-  }
+    "name": "expense_share",
+    "private": true,
+    "type": "module",
+    "scripts": {
+        "dev": "vite",
+        "build": "tsc && vite build",
+        "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
+        "preview": "vite preview",
+        "typecheck": "tsc --noEmit"
+    },
+    "dependencies": {
+        "axios": "^1.8.4",
+        "bootstrap": "^5.3.5",
+        "bootstrap-icons": "^1.11.3",
+        "framer-motion": "^12.12.2",
+        "isbot": "^5.1.17",
+        "react": "^19.0.0",
+        "react-bootstrap": "^2.10.9",
+        "react-dom": "^19.0.0",
+        "react-router-bootstrap": "^0.26.3",
+        "react-router-dom": "^7.6.1"
+    },
+    "devDependencies": {
+        "@tailwindcss/vite": "^4.0.0",
+        "@types/node": "^20",
+        "@types/react": "^19.0.1",
+        "@types/react-dom": "^19.0.1",
+        "@typescript-eslint/eslint-plugin": "^7.0.0",
+        "@typescript-eslint/parser": "^7.0.0",
+        "@vitejs/plugin-react": "^4.5.0",
+        "eslint": "^8.0.0",
+        "eslint-plugin-react-hooks": "^4.6.0",
+        "eslint-plugin-react-refresh": "^0.4.5",
+        "tailwindcss": "^4.0.0",
+        "typescript": "^5.7.2",
+        "vite": "^5.4.11",
+        "vite-tsconfig-paths": "^5.1.4"
+    }
 }

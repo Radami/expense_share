@@ -3,8 +3,9 @@ from rest_framework.response import Response
 from rest_framework import status
 from accounts.serializers import UserSerializer
 from rest_framework.permissions import IsAuthenticated
-from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
+from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView, TokenBlacklistView
 from rest_framework_simplejwt.exceptions import InvalidToken, TokenError
+from rest_framework_simplejwt.tokens import RefreshToken
 from django.http import JsonResponse
 
 
@@ -77,8 +78,47 @@ class CookieTokenRefreshView(TokenRefreshView):
             key="access_token",
             value=access,
             httponly=True,
-            secure=True,
+            secure=False,
             samesite="Lax",
-            max_age=60 * 60,
+            max_age=60 * 60 * 24 * 7,
         )
+        return response
+
+
+class CookieTokenInvalidateView(TokenBlacklistView):
+    def post(self, request, *args, **kwargs):
+        response = JsonResponse({"message": "Logged out successfully"})
+
+        # Get refresh token from cookies
+        refresh_token_str = request.COOKIES.get("refresh_token")
+
+        if refresh_token_str:
+            try:
+                # Only blacklist the refresh token
+                refresh_token = RefreshToken(refresh_token_str)
+                refresh_token.blacklist()
+            except (TokenError, InvalidToken) as e:
+                print(f"Error blacklisting refresh token: {e}")
+        else:
+            print("No refresh token found in cookies for logout.")
+
+        # Always clear both cookies regardless of blacklist success
+        response.set_cookie(
+            key="access_token",
+            value="",
+            httponly=True,
+            secure=False,  # Match your cookie settings
+            samesite="Lax",
+            max_age=0,  # Expire immediately
+        )
+
+        response.set_cookie(
+            key="refresh_token",
+            value="",
+            httponly=True,
+            secure=False,  # Match your cookie settings
+            samesite="Lax",
+            max_age=0,  # Expire immediately
+        )
+
         return response
