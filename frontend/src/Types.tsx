@@ -12,7 +12,7 @@ export type ProfileType = {
 } | null
 
 export type GroupMemberType = {
-    id: string,
+    id: number,
     username: string,
     email: string,
 }
