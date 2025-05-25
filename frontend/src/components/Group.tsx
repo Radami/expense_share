@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import type { GroupType } from '../Types';
+import type { GroupType } from '../../src/Types';
 
 
 interface GroupProps {

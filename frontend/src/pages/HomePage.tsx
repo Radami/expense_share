@@ -2,8 +2,8 @@ import axios from 'axios';
 import { AnimatePresence, motion } from 'framer-motion';
 import React, { useEffect, useState } from 'react';
 import { Link, type MetaFunction } from "react-router";
-import type { GroupType, LoginParamsType } from '../../src/Types';
 import Group from '../components/Group';
+import type { GroupType, LoginParamsType } from '../Types';
 import type * as Route from "./+types.home";
 
 interface HomeProps {
@@ -17,7 +17,7 @@ export const meta: MetaFunction = () => {
     ];
   };
 
-export default function Index({ loaderData }: Route.ComponentProps) {
+export default function HomePage({ loaderData }: Route.ComponentProps) {
 
     const [groups, setGroups] = useState<GroupType[]>([]);
     const [open, setOpen] = React.useState(false);

@@ -1,7 +1,7 @@
 import axios from 'axios';
 import { useEffect, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
-import type * as Route from "./+types.LoginClient";
+import type * as Route from "./+types.Login";
 
 
 

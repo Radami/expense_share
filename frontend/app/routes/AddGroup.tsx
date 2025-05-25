@@ -1,7 +1,7 @@
 import axios from 'axios';
 import React, { useState } from 'react';
 import Form from 'react-bootstrap/Form';
-import type { LoginParamsType } from '../Types';
+import type { LoginParamsType } from '../../src/Types';
 
 
 
