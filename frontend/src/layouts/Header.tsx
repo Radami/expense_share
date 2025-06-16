@@ -8,7 +8,7 @@ interface HeaderProps {
 const Header: React.FC<HeaderProps> = () => {
     return (
         <header>
-          <div className="container d-flex col-lg-4 mt-3 ">
+          <div>
             <nav className="navbar navbar-expand-lg w-100">
                 <div className="container-fluid">
                     <a className="navbar-brand fs-2 align-text-center title-color1" href="/">

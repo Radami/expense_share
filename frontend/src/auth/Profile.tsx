@@ -33,7 +33,7 @@ const Profile: React.FC<ProfileProps> = () => {
     return (
         <div>
             {profile ? (
-                <div className="container d-flex col-lg-4 mt-3">
+                <div>
                     <div className="row">
                         <div className="">
                             <h2>{profile.username}</h2>

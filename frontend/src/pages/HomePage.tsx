@@ -74,7 +74,7 @@ export default function HomePage({ loaderData }: Route.ComponentProps) {
 
     return (
         <>
-            <div className="container col-lg-4 mt-3 text-dark">
+            <div className="text-dark">
                 {isAuth ? (
                     <>
                         <AnimatePresence>
