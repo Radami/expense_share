@@ -1,12 +1,9 @@
-import axios from 'axios';
 import { useEffect, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
+import api from '../utils/axios';
 import type * as Route from "./+types.Login";
 
-
-
-export default function LoginClient({actionData}: Route.ComponentProps) {
-   
+export default function Login({actionData}: Route.ComponentProps) {
     const [error, setError] = useState("");
     const navigate = useNavigate();
     const [isHydrated, setIsHydrated] = useState(false);
@@ -14,7 +11,7 @@ export default function LoginClient({actionData}: Route.ComponentProps) {
 
     useEffect(() => {
         setIsHydrated(true);
-      }, []);
+    }, []);
 
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
@@ -23,27 +20,23 @@ export default function LoginClient({actionData}: Route.ComponentProps) {
         const password = formData.get("password")?.toString();
         
         if (!username || !password) {
-            throw { error: "Username and password are required" };
+            setError("Username and password are required");
+            return;
         }
         
-        // Check the user's credentials
         try {
-            const response = await axios.post('http://localhost:8000/users/api/token/', {
+            const response = await api.post('/users/api/token/', {
                 username,
                 password
-              }, {
-                withCredentials: true
-              });
+            });
 
             console.log("Login successful:", response);
             const redirectTo = searchParams.get("redirectTo") || "/";
-            console.log(redirectTo)
             navigate(redirectTo);
         } catch (err: any) {
             setError(err.response?.data?.detail || "Login failed");
         }
     }
-
 
     return (
         <form onSubmit={handleSubmit} >
@@ -59,4 +52,4 @@ export default function LoginClient({actionData}: Route.ComponentProps) {
             <button className="btn btn-primary my-1" type="submit">Login</button>
         </form>
     );
-};
+}
