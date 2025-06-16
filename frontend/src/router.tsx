@@ -4,6 +4,8 @@ import Login from "./auth/Login";
 import Logout from "./auth/Logout";
 import Profile from "./auth/Profile";
 import RootLayout from "./layouts/RootLayout"; // Your main layout component (e.g., has <Outlet />)
+import AddGroupPage from "./pages/AddGroupPage";
+import GroupDetailsPage from "./pages/GroupDetailsPage";
 import HomePage from "./pages/HomePage";
 import NotFoundPage from "./pages/NotFoundPage";
 
@@ -17,6 +19,14 @@ const routes: RouteObject[] = [
             index: true, // This makes HomePage the default child of '/'
             element: <HomePage />,
             },
+            {
+                path: "add_group",
+                element: <AddGroupPage />,
+            },
+            {
+                path: "group/:group_id",
+                element: <GroupDetailsPage />
+            }
         ],
 
     },

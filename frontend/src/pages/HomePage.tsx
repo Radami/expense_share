@@ -1,6 +1,6 @@
 import { AnimatePresence, motion } from 'framer-motion';
-import React, { useEffect, useState } from 'react';
-import { Link, type MetaFunction } from "react-router";
+import { useEffect, useState } from 'react';
+import { Link, useNavigate, type MetaFunction } from "react-router";
 import Group from '../components/Group';
 import type { GroupType, LoginParamsType } from '../Types';
 import api from '../utils/axios';
@@ -19,18 +19,10 @@ export const meta: MetaFunction = () => {
 
 export default function HomePage({ loaderData }: Route.ComponentProps) {
     const [groups, setGroups] = useState<GroupType[]>([]);
-    const [open, setOpen] = React.useState(false);
-    const [groupName, setGroupName] = useState('');
-    const [groupDescription, setGroupDescription] = useState('');
-    const [isAuth, setIsAuth] = useState(false);
 
-    const handleClose = () => {
-        setOpen(false);
-    };
- 
-    const handleOpen = () => {
-        setOpen(true);
-    };
+    // TODO: remove isAuth
+    const [isAuth, setIsAuth] = useState(false);
+    const navigate = useNavigate();
 
     useEffect(() => {
         const fetchGroups = async () => {
@@ -107,7 +99,10 @@ export default function HomePage({ loaderData }: Route.ComponentProps) {
                                     scale: { duration: 0.2 }
                                 }}>    
                                 <div className="container d-flex justify-content-center mt-3">
-                                    <button className="btn btn-success d-flex align-items-center" onClick={handleOpen}>
+                                    <button 
+                                        className="btn btn-success d-flex align-items-center" 
+                                        onClick={() => navigate('/add_group')}
+                                    >
                                         <i className="bi bi-people-fill"></i>
                                         <span>Add Group</span>
                                     </button>
