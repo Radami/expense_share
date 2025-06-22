@@ -7,9 +7,7 @@ from rest_framework import status
 class CreateUsersTest(APITestCase):
     def setUp(self):
         # We want to go ahead and originally create a user.
-        self.test_user = User.objects.create_user(
-            "testuser", "test@example.com", "testpassword"
-        )
+        self.test_user = User.objects.create_user("testuser", "test@example.com", "testpassword")
 
         # URL for creating an account.
         self.create_url = reverse("users:account_create")
@@ -122,9 +120,7 @@ class CreateUsersTest(APITestCase):
 class LoginUsersTests(APITestCase):
     def setUp(self):
         # We want to go ahead and originally create a user.
-        self.test_user = User.objects.create_user(
-            "testuser", "test@example.com", "testpassword"
-        )
+        self.test_user = User.objects.create_user("testuser", "test@example.com", "testpassword")
         self.invalid_user = "invalid_user"
         self.invalid_pass = "invalid_pass"
         self.invalid_token = "abc"
@@ -140,8 +136,8 @@ class LoginUsersTests(APITestCase):
             format="json",
         )
         self.assertEqual(resp.status_code, status.HTTP_200_OK)
-        self.assertTrue("access" in resp.data)
-        self.assertTrue("refresh" in resp.data)
+        self.assertTrue("access_token" in resp.cookies)
+        self.assertTrue("refresh_token" in resp.cookies)
 
     def test_verify_token_on_login_user(self):
         resp = self.client.post(
@@ -150,10 +146,10 @@ class LoginUsersTests(APITestCase):
             format="json",
         )
         self.assertEqual(resp.status_code, status.HTTP_200_OK)
-        self.assertTrue("access" in resp.data)
-        self.assertTrue("refresh" in resp.data)
-        access_token = resp.data["access"]
-        refresh_token = resp.data["refresh"]
+        self.assertTrue("access_token" in resp.cookies)
+        self.assertTrue("refresh_token" in resp.cookies)
+        access_token = resp.cookies["access_token"].value
+        refresh_token = resp.cookies["refresh_token"].value
 
         resp = self.client.post(
             self.token_verify_url,

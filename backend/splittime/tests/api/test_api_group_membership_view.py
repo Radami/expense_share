@@ -10,30 +10,15 @@ class GroupMembershipAddAPITests(APITestCase):
 
     @classmethod
     def setUpTestData(cls):
-        cls.user1 = UserHelpers.create_user(user_name="user1")  # creator
-        cls.user2 = UserHelpers.create_user(user_name="user2")  # member
-        cls.user3 = UserHelpers.create_user(user_name="user3")  # outsider
-        cls.user4 = UserHelpers.create_user(user_name="user4")  # user to be added
+        cls.user1 = UserHelpers.create_user(user_name="user1_membership")
+        cls.user2 = UserHelpers.create_user(user_name="user2_membership")
+        cls.user3 = UserHelpers.create_user(user_name="user3_membership")
+        cls.user4 = UserHelpers.create_user(user_name="user4_membership")
         cls.group1 = GroupHelpers.create_group(creator=cls.user1)
         GroupHelpers.add_user_to_group(cls.group1, cls.user2)
 
-    def login(self, user):
-        self.assertEqual(
-            self.client.login(username=user.username, password="glassonion123"),
-            True,
-        )
-        response = self.client.post(
-            reverse("users:token_obtain"),
-            {"username": user.username, "password": "glassonion123"},
-        )
-        self.assertEqual(response.status_code, 200)
-        token = response.data.get("access")
-        self.assertIsNotNone(token)
-        self.client.credentials(HTTP_AUTHORIZATION=f"Bearer {token}")
-
     def test_add_group_member_as_creator(self):
-        # login as creator
-        self.login(self.user1)
+        UserHelpers.login_user(self.client, self.user1)
 
         # test begins
         data = {"member_email": self.user4.email, "group_id": self.group1.id}
@@ -49,8 +34,7 @@ class GroupMembershipAddAPITests(APITestCase):
         self.assertContains(response, self.user4.username)
 
     def test_add_group_member_as_member(self):
-        # login as member
-        self.login(self.user2)
+        UserHelpers.login_user(self.client, self.user2)
 
         # test begins
         data = {"member_email": self.user4.email, "group_id": self.group1.id}
@@ -67,8 +51,7 @@ class GroupMembershipAddAPITests(APITestCase):
 
     @transaction.atomic
     def test_add_group_member_self(self):
-        # login as creator
-        self.login(self.user1)
+        UserHelpers.login_user(self.client, self.user1)
 
         # test begins
         data = {"member_email": self.user1.email, "group_id": self.group1.id}
@@ -86,8 +69,7 @@ class GroupMembershipAddAPITests(APITestCase):
             self.assertContains(response, self.user1.username)
 
     def test_add_group_member_as_outsider(self):
-        # login as outsider
-        self.login(self.user4)
+        UserHelpers.login_user(self.client, self.user4)
 
         # test begins
         data = {"member_email": self.user4.email, "group_id": self.group1.id}
@@ -98,9 +80,9 @@ class GroupMembershipAddAPITests(APITestCase):
 class GroupMembershipAPILoginTests(APITestCase):
     @classmethod
     def setUpTestData(cls):
-        cls.user1 = UserHelpers.create_user(user_name="user1")  # creator
-        cls.user2 = UserHelpers.create_user(user_name="user2")  # member
-        cls.user3 = UserHelpers.create_user(user_name="user3")  # outsider
+        cls.user1 = UserHelpers.create_user(user_name="user1_membership_login")
+        cls.user2 = UserHelpers.create_user(user_name="user2_membership_login")
+        cls.user3 = UserHelpers.create_user(user_name="user3_membership_login")
 
     def setUp(self):
         self.group1 = GroupHelpers.create_group(creator=self.user1)
@@ -120,31 +102,16 @@ class GroupMembershipAPILoginTests(APITestCase):
 class GroupMembershipDeleteViewTests(APITestCase):
     @classmethod
     def setUpTestData(cls):
-        cls.creator = UserHelpers.create_user(user_name="user1")  # creator
-        cls.member = UserHelpers.create_user(user_name="user2")  # member
-        cls.outsider = UserHelpers.create_user(user_name="user3")  # outsider
+        cls.creator = UserHelpers.create_user(user_name="user1_membership_del")
+        cls.member = UserHelpers.create_user(user_name="user2_membership_del")
+        cls.outsider = UserHelpers.create_user(user_name="user3_membership_del")
 
     def setUp(self):
         self.group1 = GroupHelpers.create_group(creator=self.creator)
         GroupHelpers.add_user_to_group(self.group1, self.member)
 
-    def login(self, user):
-        self.assertEqual(
-            self.client.login(username=user.username, password="glassonion123"),
-            True,
-        )
-        response = self.client.post(
-            reverse("users:token_obtain"),
-            {"username": user.username, "password": "glassonion123"},
-        )
-        self.assertEqual(response.status_code, 200)
-        token = response.data.get("access")
-        self.assertIsNotNone(token)
-        self.client.credentials(HTTP_AUTHORIZATION=f"Bearer {token}")
-
     def test_delete_group_member_as_creator(self):
-        # login as creator
-        self.login(self.creator)
+        UserHelpers.login_user(self.client, self.creator)
 
         # test begins
         data = {"user_id": self.member.id, "group_id": self.group1.id}
@@ -159,8 +126,7 @@ class GroupMembershipDeleteViewTests(APITestCase):
         self.assertNotContains(response, self.member.username)
 
     def test_delete_group_member_as_member(self):
-        # login as member
-        self.login(self.member)
+        UserHelpers.login_user(self.client, self.member)
 
         # test begins
         data = {"user_id": self.creator.id, "group_id": self.group1.id}
@@ -175,8 +141,7 @@ class GroupMembershipDeleteViewTests(APITestCase):
         self.assertNotContains(response, self.creator.username)
 
     def test_delete_group_member_self(self):
-        # login
-        self.login(self.member)
+        UserHelpers.login_user(self.client, self.member)
 
         # test begins
         data = {"user_id": self.member.id, "group_id": self.group1.id}
@@ -184,8 +149,7 @@ class GroupMembershipDeleteViewTests(APITestCase):
         self.assertEqual(response.status_code, 403)
 
     def test_delete_group_member_as_outsider(self):
-        # login
-        self.login(self.outsider)
+        UserHelpers.login_user(self.client, self.outsider)
 
         # test begins
         data = {"user_id": self.member.id, "group_id": self.group1.id}

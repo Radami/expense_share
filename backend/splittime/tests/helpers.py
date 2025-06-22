@@ -1,6 +1,7 @@
 import datetime
 from django.utils import timezone
 from django.contrib.auth.models import User
+from django.urls import reverse
 
 from splittime.services.groups import GroupService
 
@@ -88,3 +89,24 @@ class UserHelpers:
         return User.objects.create_user(
             username=user_name, email=user_email, password="glassonion123"
         )
+
+    @staticmethod
+    def login_user(client, user):
+        """
+        Login a user and set the authentication cookies on the test client.
+        """
+        response = client.post(
+            reverse("users:token_obtain"),
+            {"username": user.username, "password": "glassonion123"},
+        )
+        assert response.status_code == 200, "Failed to obtain token"
+
+        access_token = response.cookies.get("access_token")
+        refresh_token = response.cookies.get("refresh_token")
+
+        assert access_token is not None, "Access token not found in cookies"
+        assert refresh_token is not None, "Refresh token not found in cookies"
+
+        client.cookies["access_token"] = access_token
+        client.cookies["refresh_token"] = refresh_token
+        return client

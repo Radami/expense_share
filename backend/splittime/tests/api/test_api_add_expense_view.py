@@ -16,18 +16,7 @@ class AddExpenseAPITestView(APITestCase):
         self.group = GroupHelpers.create_group(creator=self.user1)
 
     def setUp(self):
-        self.assertEqual(
-            self.client.login(username=self.user1.username, password="glassonion123"),
-            True,
-        )
-        response = self.client.post(
-            reverse("users:token_obtain"),
-            {"username": self.user1.username, "password": "glassonion123"},
-        )
-        self.assertEqual(response.status_code, 200)
-        token = response.data.get("access")
-        self.assertIsNotNone(token)
-        self.client.credentials(HTTP_AUTHORIZATION=f"Bearer {token}")
+        UserHelpers.login_user(self.client, self.user1)
 
     def test_add_expense_with_only_creator(self):
         """
@@ -222,24 +211,14 @@ class AddExpenseAPITestView(APITestCase):
 class AddExpenseAPIPermissionTests(APITestCase):
 
     @classmethod
-    def setUp(self):
-        self.user1 = UserHelpers.create_user()
-        self.user2 = UserHelpers.create_user()
-        self.group = GroupHelpers.create_group(creator=self.user1)
+    def setUpTestData(cls):
+        cls.user1 = UserHelpers.create_user(user_name="user1_perm")
+        cls.user2 = UserHelpers.create_user(user_name="user2_perm")
+        cls.group = GroupHelpers.create_group(creator=cls.user1)
 
-    def login(self, user):
-        self.assertEqual(
-            self.client.login(username=user.username, password="glassonion123"),
-            True,
-        )
-        response = self.client.post(
-            reverse("users:token_obtain"),
-            {"username": user.username, "password": "glassonion123"},
-        )
-        self.assertEqual(response.status_code, 200)
-        token = response.data.get("access")
-        self.assertIsNotNone(token)
-        self.client.credentials(HTTP_AUTHORIZATION=f"Bearer {token}")
+    def setUp(self):
+        # By default, no user is logged in for permission tests
+        pass
 
     def test_add_expense_user_not_logged_in(self):
         data = {
@@ -251,8 +230,10 @@ class AddExpenseAPIPermissionTests(APITestCase):
         }
         response = self.client.post(reverse("splittime:api_add_group_expense_view"), data=data)
         self.assertEqual(response.status_code, 401)
+        self.assertEqual(Expense.objects.count(), 0)
 
     def test_add_expense_user_not_a_member(self):
+        UserHelpers.login_user(self.client, self.user2)
         data = {
             "group_id": self.group.id,
             "name": "permission_test_2_expense_1",
@@ -261,4 +242,4 @@ class AddExpenseAPIPermissionTests(APITestCase):
             "payee": self.user2.id,
         }
         response = self.client.post(reverse("splittime:api_add_group_expense_view"), data=data)
-        self.assertEqual(response.status_code, 401)
+        self.assertEqual(response.status_code, 403)

@@ -12,18 +12,7 @@ class GroupIndexAPITest(APITestCase):
         cls.user1 = UserHelpers.create_user(user_name="testuser")
 
     def setUp(self):
-        self.assertEqual(
-            self.client.login(username=self.user1.username, password="glassonion123"),
-            True,
-        )
-        response = self.client.post(
-            reverse("users:token_obtain"),
-            {"username": self.user1.username, "password": "glassonion123"},
-        )
-        self.assertEqual(response.status_code, 200)
-        token = response.data.get("access")
-        self.assertIsNotNone(token)
-        self.client.credentials(HTTP_AUTHORIZATION=f"Bearer {token}")
+        UserHelpers.login_user(self.client, self.user1)
 
     def test_no_group(self):
         """
@@ -139,25 +128,11 @@ class GroupPermissionsTests(APITestCase):
     def setUp(self):
         pass
 
-    def login(self, username):
-        self.assertEqual(
-            self.client.login(username=username, password="glassonion123"),
-            True,
-        )
-        response = self.client.post(
-            reverse("users:token_obtain"),
-            {"username": username, "password": "glassonion123"},
-        )
-        self.assertEqual(response.status_code, 200)
-        token = response.data.get("access")
-        self.assertIsNotNone(token)
-        self.client.credentials(HTTP_AUTHORIZATION=f"Bearer {token}")
-
     def test_index_with_1_group_as_creator(self):
         """
         Index view with creator and 1 group should return that group and nothing else
         """
-        self.login(self.user1.username)
+        UserHelpers.login_user(self.client, self.user1)
 
         response = self.client.get(reverse("splittime:api_index_view"))
         self.assertEqual(response.status_code, 200)
@@ -169,7 +144,7 @@ class GroupPermissionsTests(APITestCase):
         """
         Index view with 2 groups as creator should return both groups and nothing else
         """
-        self.login(self.user2.username)
+        UserHelpers.login_user(self.client, self.user2)
 
         response = self.client.get(reverse("splittime:api_index_view"))
         self.assertEqual(response.status_code, 200)
@@ -183,7 +158,7 @@ class GroupPermissionsTests(APITestCase):
         Index view with 2 groups (one as creator and one as member) should return both groups
         and nothing else
         """
-        self.login(self.user3.username)
+        UserHelpers.login_user(self.client, self.user3)
 
         response = self.client.get(reverse("splittime:api_index_view"))
         self.assertEqual(response.status_code, 200)
@@ -196,7 +171,7 @@ class GroupPermissionsTests(APITestCase):
         """
         Delete group should work for a group where the user is the creator
         """
-        self.login(self.user1.username)
+        UserHelpers.login_user(self.client, self.user1)
         response = self.client.post(
             reverse(
                 "splittime:api_delete_group",
@@ -209,7 +184,7 @@ class GroupPermissionsTests(APITestCase):
         """
         Delete group should return 403 for groups where the user is not the creator
         """
-        self.login(self.user1.username)
+        UserHelpers.login_user(self.client, self.user1)
         response = self.client.post(
             reverse(
                 "splittime:api_delete_group",
@@ -222,7 +197,7 @@ class GroupPermissionsTests(APITestCase):
         """
         Delete group should return 403 for a group where the user is just member
         """
-        self.login(self.user3.username)
+        UserHelpers.login_user(self.client, self.user3)
         response = self.client.post(
             reverse(
                 "splittime:api_delete_group",

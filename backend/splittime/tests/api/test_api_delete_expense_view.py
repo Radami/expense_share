@@ -9,31 +9,17 @@ from splittime.models import Expense
 class AddExpenseAPITestView(APITestCase):
 
     @classmethod
-    def setUpTestData(self):
-        self.user1 = UserHelpers.create_user()
-        self.user2 = UserHelpers.create_user()
-        self.user3 = UserHelpers.create_user()
-        self.group1 = GroupHelpers.create_group(creator=self.user1)
-        GroupHelpers.add_user_to_group(self.group1, self.user2)
-        self.expense1 = GroupHelpers.add_expense(self.group1, self.user1)
-        self.expense2 = GroupHelpers.add_expense(self.group1, self.user1)
-
-    def login(self, user):
-        self.assertEqual(
-            self.client.login(username=user.username, password="glassonion123"),
-            True,
-        )
-        response = self.client.post(
-            reverse("users:token_obtain"),
-            {"username": user.username, "password": "glassonion123"},
-        )
-        self.assertEqual(response.status_code, 200)
-        token = response.data.get("access")
-        self.assertIsNotNone(token)
-        self.client.credentials(HTTP_AUTHORIZATION=f"Bearer {token}")
+    def setUpTestData(cls):
+        cls.user1 = UserHelpers.create_user(user_name="user1_del_exp")
+        cls.user2 = UserHelpers.create_user(user_name="user2_del_exp")
+        cls.user3 = UserHelpers.create_user(user_name="user3_del_exp")
+        cls.group1 = GroupHelpers.create_group(creator=cls.user1)
+        GroupHelpers.add_user_to_group(cls.group1, cls.user2)
+        cls.expense1 = GroupHelpers.add_expense(cls.group1, cls.user1)
+        cls.expense2 = GroupHelpers.add_expense(cls.group1, cls.user1)
 
     def test_delete_expense_creator(self):
-        self.login(self.user1)
+        UserHelpers.login_user(self.client, self.user1)
         data = {"expense_id": self.expense1.id}
 
         response = self.client.post(reverse("splittime:api_delete_group_expense_view"), data=data)
@@ -43,7 +29,7 @@ class AddExpenseAPITestView(APITestCase):
         self.assertTrue(Expense.objects.filter(pk=self.expense2.id).exists())
 
     def test_delete_expense_participant(self):
-        self.login(self.user2)
+        UserHelpers.login_user(self.client, self.user2)
         data = {"expense_id": self.expense1.id}
 
         response = self.client.post(reverse("splittime:api_delete_group_expense_view"), data=data)
@@ -53,7 +39,7 @@ class AddExpenseAPITestView(APITestCase):
         self.assertTrue(Expense.objects.filter(pk=self.expense2.id).exists())
 
     def test_delete_expense_outsider(self):
-        self.login(self.user3)
+        UserHelpers.login_user(self.client, self.user3)
         data = {"expense_id": self.expense1.id}
 
         response = self.client.post(reverse("splittime:api_delete_group_expense_view"), data=data)

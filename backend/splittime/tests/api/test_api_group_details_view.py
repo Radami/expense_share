@@ -8,25 +8,14 @@ class GroupDetailsAPITest(APITestCase):
 
     @classmethod
     def setUpTestData(cls):
-        cls.creator = UserHelpers.create_user(user_name="creator")  # creator
-        cls.member = UserHelpers.create_user(user_name="member")  # member
+        cls.creator = UserHelpers.create_user(user_name="creator_details")
+        cls.member = UserHelpers.create_user(user_name="member_details")
         cls.old_group = GroupHelpers.create_group(days=-400, creator=cls.creator)
         cls.new_group = GroupHelpers.create_group(days=-5, creator=cls.creator)
         GroupHelpers.add_user_to_group(cls.old_group, cls.member)
 
     def setUp(self):
-        self.assertEqual(
-            self.client.login(username=self.creator.username, password="glassonion123"),
-            True,
-        )
-        response = self.client.post(
-            reverse("users:token_obtain"),
-            {"username": self.creator.username, "password": "glassonion123"},
-        )
-        self.assertEqual(response.status_code, 200)
-        token = response.data.get("access")
-        self.assertIsNotNone(token)
-        self.client.credentials(HTTP_AUTHORIZATION=f"Bearer {token}")
+        UserHelpers.login_user(self.client, self.creator)
 
     def test_no_group(self):
         data = {"group_id": 1234}
@@ -58,23 +47,9 @@ class GroupDetailsAPITest(APITestCase):
 class GroupDetailsAPIViewPermissionTests(APITestCase):
     @classmethod
     def setUpTestData(cls):
-        cls.creator = UserHelpers.create_user(user_name="creator")  # creator
-        cls.outsider = UserHelpers.create_user(user_name="outsider")  # outsider
+        cls.creator = UserHelpers.create_user(user_name="creator_details_perm")
+        cls.outsider = UserHelpers.create_user(user_name="outsider_details_perm")
         cls.group = GroupHelpers.create_group(creator=cls.creator)
-
-    def login(self, user):
-        self.assertEqual(
-            self.client.login(username=user.username, password="glassonion123"),
-            True,
-        )
-        response = self.client.post(
-            reverse("users:token_obtain"),
-            {"username": user.username, "password": "glassonion123"},
-        )
-        self.assertEqual(response.status_code, 200)
-        token = response.data.get("access")
-        self.assertIsNotNone(token)
-        self.client.credentials(HTTP_AUTHORIZATION=f"Bearer {token}")
 
     def test_group_details_login_required(self):
         data = {"group_id": self.group.id}
@@ -82,7 +57,7 @@ class GroupDetailsAPIViewPermissionTests(APITestCase):
         self.assertEqual(response.status_code, 401)
 
     def test_group_details_permission_as_outsider(self):
-        self.login(self.outsider)
+        UserHelpers.login_user(self.client, self.outsider)
         data = {"group_id": self.group.id}
         response = self.client.get(reverse("splittime:api_group_details_view"), data=data)
         self.assertEqual(response.status_code, 401)
