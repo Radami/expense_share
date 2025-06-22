@@ -69,7 +69,7 @@ export default function GroupDetailPage() {
                     <span className="h1">{groupName}</span>
                 
                 <div className="d-flex justify-content-end">
-                    <button className="btn btn-success h-75 me-2" type="submit" onClick={() => navigate('/add_expense/' + group_id)}><i className="bi bi-cash-stack" /><span className="ms-1">Add Expense</span></button>
+                    <button className="btn btn-success h-75 me-2" type="button" onClick={() => navigate('/add_expense/' + group_id)}><i className="bi bi-cash-stack" /><span className="ms-1">Add Expense</span></button>
                     <button className="btn btn-success h-75" type="submit"><i className="bi bi-person-plus-fill" /><span className="ms-1">Add Member</span></button>
                 </div>
                 </div>
