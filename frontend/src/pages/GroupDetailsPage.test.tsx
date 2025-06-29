@@ -5,7 +5,6 @@ vi.mock('react-router-dom', async () => {
     return {
       ...actual,
       useParams: () => ({ group_id: '1' }),
-      // useNavigate: () => vi.fn(), // Removed to allow real navigation
     };
   });
 
@@ -51,7 +50,7 @@ describe('GroupDetailPage component', () => {
     };
 
     // Reset mocks before each test to ensure they are clean
-    beforeEach(() => {
+    beforeEach(() => {      // useNavigate: () => vi.fn(), // Removed to allow real navigation
         vi.clearAllMocks();
     });
 
@@ -91,6 +90,11 @@ describe('GroupDetailPage component', () => {
             await waitFor(() => {
                 expect(screen.getByText('Mocked Expenses Content')).toBeInTheDocument();
             });
+
+            expect(screen.getByRole('tab', { name: 'Expenses' })).toHaveClass('active');
+            expect(screen.getByRole('tab', { name: 'Totals' })).not.toHaveClass('active');
+            expect(screen.getByRole('tab', { name: 'Balances' })).not.toHaveClass('active');
+            expect(screen.getByRole('tab', { name: 'Members' })).not.toHaveClass('active');
         });
 
         it('navigates to the add expense page when the button is clicked', async () => {
@@ -122,7 +126,24 @@ describe('GroupDetailPage component', () => {
 
             // Check that the 'Members' tab is now the active one
             expect(membersTab).toHaveClass('active');
+            expect(screen.getByRole('tab', { name: 'Totals' })).not.toHaveClass('active');
+            expect(screen.getByRole('tab', { name: 'Balances' })).not.toHaveClass('active');
             expect(screen.getByRole('tab', { name: 'Expenses' })).not.toHaveClass('active');
+        });
+
+        it('switched to the totals tab and displays its content on clock', async() =>{
+            renderComponent();
+            await waitFor(() => {
+                expect(screen.getByText('Summer Trip')).toBeInTheDocument();
+            });
+
+            const totalsTab = screen.getByRole('tab', {name: 'Totals'});
+            fireEvent.click(totalsTab);
+
+            expect(totalsTab).toHaveClass('active');
+            expect(screen.getByRole('tab', { name: 'Expenses' })).not.toHaveClass('active');
+            expect(screen.getByRole('tab', { name: 'Members' })).not.toHaveClass('active');
+            expect(screen.getByRole('tab', { name: 'Balances' })).not.toHaveClass('active');
         });
     });
 
