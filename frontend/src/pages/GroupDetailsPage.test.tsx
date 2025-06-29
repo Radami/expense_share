@@ -1,8 +1,22 @@
+// ✅ First: Place this mock at the very top
+vi.mock('react-router-dom', async () => {
+    const actual = await vi.importActual<typeof import('react-router-dom')>('react-router-dom');
+  
+    return {
+      ...actual,
+      useParams: () => ({ group_id: '1' }),
+      // useNavigate: () => vi.fn(), // Removed to allow real navigation
+    };
+  });
+
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import { type Mock, vi } from 'vitest';
 import api from '../utils/axios';
 import GroupDetailPage from './GroupDetailsPage';
+
+
+
 
 // 1. Mock Child Components to isolate the GroupDetailsPage
 vi.mock('./GroupDetailsExpenses', () => ({
@@ -21,14 +35,7 @@ vi.mock('./GroupDetailsBalances', () => ({
 // 2. Mock API and Router Hooks
 vi.mock('../utils/axios');
 
-// Only mock useParams. We will test navigation using MemoryRouter.
-vi.mock('react-router-dom', async () => {
-    const actual = await vi.importActual('react-router-dom');
-    return {
-        ...actual,
-        useParams: () => ({ group_id: '1' }),
-    };
-});
+
 
 describe('GroupDetailPage component', () => {
     const mockApi = api.get as Mock;
