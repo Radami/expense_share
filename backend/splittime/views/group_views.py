@@ -13,6 +13,7 @@ from rest_framework import status
 from ..models import Group, GroupMembership
 from ..serializers import GroupSerializer, GroupDetailsSerializer, UserSerializer
 from ..services.groups import GroupService
+from ..services.balances import BalanceCalculator
 from ..exceptions import DuplicateEntryException
 
 
@@ -31,9 +32,35 @@ class GroupIndexView(APIView):
             gm.group for gm in group_memberships if gm.group.creation_date >= creation_date
         ]
 
+        owes = {}
+        is_owed = {}
+        for group in latest_group_list:
+            group_balance = BalanceCalculator.calculateBalancesAPI(group)
+            for to_user in group_balance:
+                if to_user == request.user.id:
+                    # calculated all that request user is owed
+
+                    for from_user in group_balance[to_user]:
+                        for currency in group_balance[to_user][from_user]:
+                            if currency not in is_owed:
+                                is_owed[currency] = 0
+                            is_owed[currency] = (
+                                is_owed[currency] + group_balance[to_user][from_user][currency]
+                            )
+                else:
+                    for from_user in group_balance[to_user]:
+                        if to_user == request.user.id:
+                            for currency in group_balance[to_user][from_user]:
+                                if currency not in owes:
+                                    owes[currency] = 0
+                                owes[currency] = (
+                                    owes[currency] + group_balance[to_user][from_user][currency]
+                                )
+                    # find if this user owes anything
+
         latest_group_list.sort(key=lambda x: x.creation_date, reverse=True)
 
-        serializer = GroupSerializer(latest_group_list, many=True)
+        serializer = GroupSerializer(latest_group_list, many=True, context={"request": request})
         return Response(serializer.data)
 
 
@@ -44,7 +71,6 @@ class AddGroupView(APIView):
         serializer.save(creator=self.request.user)
 
     def post(self, request):
-        print(request.data)
         serializer = GroupSerializer(data=request.data)
         if serializer.is_valid():
             # Extract validated data from serializer
@@ -60,7 +86,7 @@ class AddGroupView(APIView):
             group = GroupService.add_group(group_data)
 
             # Serialize the created group to return as response
-            response_serializer = GroupSerializer(group)
+            response_serializer = GroupSerializer(group, context={"request": request})
             return Response(response_serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
@@ -93,7 +119,8 @@ class GroupDetailsAPIView(APIView):
             group = Group.objects.get(pk=request.query_params.get("group_id"))
             if not group.has_member(request.user):
                 return Response(
-                    "You are not a member of this group.", status=status.HTTP_401_UNAUTHORIZED
+                    "You are not a member of this group.",
+                    status=status.HTTP_401_UNAUTHORIZED,
                 )
             response_serializer = GroupDetailsSerializer(group)
             return Response(response_serializer.data, status=status.HTTP_200_OK)
