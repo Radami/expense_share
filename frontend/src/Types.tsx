@@ -38,4 +38,6 @@ export type GroupType = {
     expenses: ExpenseType[],
     totals: Record<string, number>,
     balances: BalancesType,
+    user_is_owed: string,
+    user_owes: string,
 }

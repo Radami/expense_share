@@ -19,10 +19,32 @@ class GroupSerializer(serializers.ModelSerializer):
     name = serializers.CharField(max_length=100)
     description = serializers.CharField(max_length=100)
     creation_date = serializers.DateTimeField(read_only=True)
+    user_is_owed = serializers.SerializerMethodField()
+    user_owes = serializers.SerializerMethodField()
 
     class Meta:
         model = Group
-        fields = ["id", "creator", "name", "description", "creation_date"]
+        fields = [
+            "id",
+            "creator",
+            "name",
+            "description",
+            "creation_date",
+            "user_is_owed",
+            "user_owes",
+        ]
+
+    def get_user_is_owed(self, obj):
+        pair = BalanceCalculator.calculateUserIsOwed(obj.id, self.context["request"].user.id, True)
+        if pair[0] == "XYZ" or pair[1] < 0:
+            return "Nothing"
+        return str(pair[0]) + " " + str("{0:.2f}".format(pair[1]))
+
+    def get_user_owes(self, obj):
+        pair = BalanceCalculator.calculateUserOwes(obj.id, self.context["request"].user.id, True)
+        if pair[0] == "XYZ" or pair[1] < 0:
+            return "Nothing"
+        return str(pair[0]) + " " + str("{0:.2f}".format(pair[1]))
 
 
 class GroupDetailsSerializer(serializers.Serializer):
@@ -51,7 +73,11 @@ class GroupDetailsSerializer(serializers.Serializer):
     def get_group_members(self, obj):
         group_memberships = GroupMembership.objects.filter(group=obj)
         return [
-            {"id": gm.member.id, "username": gm.member.username, "email": gm.member.email}
+            {
+                "id": gm.member.id,
+                "username": gm.member.username,
+                "email": gm.member.email,
+            }
             for gm in group_memberships
         ]
 

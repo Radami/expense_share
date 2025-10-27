@@ -1,5 +1,6 @@
 from django.urls import reverse
 from rest_framework.test import APITestCase
+from rest_framework.test import APIRequestFactory
 
 from ..helpers import GroupHelpers, UserHelpers
 from splittime.serializers import GroupSerializer
@@ -13,6 +14,13 @@ class GroupIndexAPITest(APITestCase):
 
     def setUp(self):
         UserHelpers.login_user(self.client, self.user1)
+
+    def get_serializer_context(self):
+        """Helper method to create serializer context with request"""
+        factory = APIRequestFactory()
+        request = factory.get("/")
+        request.user = self.user1
+        return {"request": request}
 
     def test_no_group(self):
         """
@@ -39,7 +47,9 @@ class GroupIndexAPITest(APITestCase):
         response = self.client.get(reverse("splittime:api_index_view"))
         self.assertEqual(response.status_code, 200)
         self.assertIsNotNone(response.data)
-        self.assertEqual(response.data[0], GroupSerializer(group).data)
+        self.assertEqual(
+            response.data[0], GroupSerializer(group, context=self.get_serializer_context()).data
+        )
 
     def test_old_and_recent_group(self):
         """
@@ -51,7 +61,10 @@ class GroupIndexAPITest(APITestCase):
         self.assertEqual(response.status_code, 200)
         self.assertIsNotNone(response.data)
         self.assertEqual(len(response.data), 1)
-        self.assertEqual(response.data[0], GroupSerializer(group_recent).data)
+        self.assertEqual(
+            response.data[0],
+            GroupSerializer(group_recent, context=self.get_serializer_context()).data,
+        )
 
     def test_two_recent_groups(self):
         """
@@ -63,8 +76,12 @@ class GroupIndexAPITest(APITestCase):
         self.assertEqual(response.status_code, 200)
         self.assertIsNotNone(response.data)
         self.assertEqual(len(response.data), 2)
-        self.assertIn(GroupSerializer(group_first).data, response.data)
-        self.assertIn(GroupSerializer(group_second).data, response.data)
+        self.assertIn(
+            GroupSerializer(group_first, context=self.get_serializer_context()).data, response.data
+        )
+        self.assertIn(
+            GroupSerializer(group_second, context=self.get_serializer_context()).data, response.data
+        )
 
 
 class GroupIndexViewNotLoggedInTests(APITestCase):
@@ -128,6 +145,13 @@ class GroupPermissionsTests(APITestCase):
     def setUp(self):
         pass
 
+    def get_serializer_context(self, user):
+        """Helper method to create serializer context with request"""
+        factory = APIRequestFactory()
+        request = factory.get("/")
+        request.user = user
+        return {"request": request}
+
     def test_index_with_1_group_as_creator(self):
         """
         Index view with creator and 1 group should return that group and nothing else
@@ -138,7 +162,10 @@ class GroupPermissionsTests(APITestCase):
         self.assertEqual(response.status_code, 200)
         self.assertIsNotNone(response.data)
         self.assertEqual(len(response.data), 1)
-        self.assertIn(GroupSerializer(self.group1).data, response.data)
+        self.assertIn(
+            GroupSerializer(self.group1, context=self.get_serializer_context(self.user1)).data,
+            response.data,
+        )
 
     def test_index_with_2_groups_as_creator(self):
         """
@@ -150,8 +177,14 @@ class GroupPermissionsTests(APITestCase):
         self.assertEqual(response.status_code, 200)
         self.assertIsNotNone(response.data)
         self.assertEqual(len(response.data), 2)
-        self.assertIn(GroupSerializer(self.group2).data, response.data)
-        self.assertIn(GroupSerializer(self.group2_1).data, response.data)
+        self.assertIn(
+            GroupSerializer(self.group2, context=self.get_serializer_context(self.user2)).data,
+            response.data,
+        )
+        self.assertIn(
+            GroupSerializer(self.group2_1, context=self.get_serializer_context(self.user2)).data,
+            response.data,
+        )
 
     def test_index_with_2_groups_as_creator_and_member(self):
         """
@@ -164,8 +197,14 @@ class GroupPermissionsTests(APITestCase):
         self.assertEqual(response.status_code, 200)
         self.assertIsNotNone(response.data)
         self.assertEqual(len(response.data), 2)
-        self.assertIn(GroupSerializer(self.group3).data, response.data)
-        self.assertIn(GroupSerializer(self.group2).data, response.data)
+        self.assertIn(
+            GroupSerializer(self.group3, context=self.get_serializer_context(self.user3)).data,
+            response.data,
+        )
+        self.assertIn(
+            GroupSerializer(self.group2, context=self.get_serializer_context(self.user3)).data,
+            response.data,
+        )
 
     def test_delete_grpup_as_creator(self):
         """
