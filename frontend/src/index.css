@@ -120,3 +120,8 @@
     gap: 0.75rem !important;
   }
 }
+
+.month-heading {
+  min-width: 120px;
+  text-align: center;
+}

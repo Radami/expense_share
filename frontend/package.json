@@ -20,7 +20,8 @@
         "react-bootstrap": "^2.10.9",
         "react-dom": "^19.0.0",
         "react-router-bootstrap": "^0.26.3",
-        "react-router-dom": "^7.6.1"
+        "react-router-dom": "^7.6.1",
+        "recharts": "^3.6.0"
     },
     "devDependencies": {
         "@tailwindcss/vite": "^4.0.0",

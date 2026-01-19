@@ -1,10 +1,7 @@
 import { useEffect, useState } from 'react';
 import Tab from 'react-bootstrap/Tab';
 import Tabs from 'react-bootstrap/Tabs';
-import { useNavigate } from "react-router-dom";
-import {
-    useParams
-} from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { type BalancesType, type ExpenseType, type GroupMemberType } from '../Types';
 import api from '../utils/axios';
 import GroupDetailsBalances from './GroupDetailsBalances';
@@ -88,7 +85,7 @@ export default function GroupDetailPage() {
                     <GroupDetailsMembers group_members={groupMembers} group_id={group_id} />
                 </Tab>
                 <Tab eventKey="totals" title="Totals">
-                    <GroupDetailsTotals groupTotals={groupTotals} />
+                    <GroupDetailsTotals groupExpenses={groupExpenses} groupMembers={groupMembers} />
                 </Tab>
                 
                 <Tab eventKey="balances" title="Balances">
