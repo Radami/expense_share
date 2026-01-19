@@ -40,14 +40,16 @@ INSTALLED_APPS = [
     "django.contrib.contenttypes",
     "django.contrib.sessions",
     "django.contrib.messages",
-    "rest_framework_simplejwt.token_blacklist",
     "django.contrib.staticfiles",
+    "debug_toolbar",
+    "rest_framework_simplejwt.token_blacklist",
     "rest_framework",
     "rest_framework_simplejwt",
     "corsheaders",
 ]
 
 MIDDLEWARE = [
+    "debug_toolbar.middleware.DebugToolbarMiddleware",
     "django.middleware.security.SecurityMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "corsheaders.middleware.CorsMiddleware",
