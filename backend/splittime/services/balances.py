@@ -46,6 +46,36 @@ class BalanceCalculator:
 
         return balances
 
+    def _computeGrossPositions(balances, user_id):
+        """
+        Returns (credits, debits) as {currency: amount} dicts for user_id.
+        credits: gross amounts owed to user_id (positive outgoing edges).
+        debits:  gross amounts user_id owes to others (negative outgoing edges, stored positive).
+        Both are derived from the same single pass over balances[user_id].
+        """
+        credits = {}
+        debits = {}
+        for currencies in balances.get(user_id, {}).values():
+            for currency, amount in currencies.items():
+                if amount > 0:
+                    credits[currency] = credits.get(currency, 0) + amount
+                elif amount < 0:
+                    debits[currency] = debits.get(currency, 0) - amount
+        return credits, debits
+
+    def _computeNetPositions(balances):
+        """
+        Returns {user_id: {currency: net_amount}} by summing all outgoing edges per user.
+        Positive net = creditor (owed money); negative net = debtor (owes money).
+        """
+        net = {}
+        for user_id, counterparties in balances.items():
+            net[user_id] = {}
+            for currencies in counterparties.values():
+                for currency, amount in currencies.items():
+                    net[user_id][currency] = net[user_id].get(currency, 0) + amount
+        return net
+
     """
     calculateUserIsOwed returns the (currency, amount) pair representing the largest amount
     the user is owed across all counterparties.
@@ -67,17 +97,10 @@ class BalanceCalculator:
         if user_id not in balances:
             return ("XYZ", 0)
 
-        for other_user in balances[user_id]:
-            for currency in balances[user_id][other_user]:
-                amount = balances[user_id][other_user][currency]
-                if simplify is True:
-                    if currency not in currencies:
-                        currencies[currency] = 0
-                    currencies[currency] += amount
-                elif amount > 0:
-                    if currency not in currencies:
-                        currencies[currency] = 0
-                    currencies[currency] += amount
+        if simplify is True:
+            currencies = BalanceCalculator._computeNetPositions(balances).get(user_id, {})
+        else:
+            currencies, _ = BalanceCalculator._computeGrossPositions(balances, user_id)
 
         if len(currencies.items()) == 0:
             return ("XYZ", 0)
@@ -106,19 +129,14 @@ class BalanceCalculator:
         balances = BalanceCalculator.calculateBalancesAPI(group)
         currencies = {}
 
-        for other_user in balances:
-            if user_id not in balances[other_user]:
-                continue
-            for currency in balances[other_user][user_id]:
-                amount = balances[other_user][user_id][currency]
-                if simplify is True:
-                    if currency not in currencies:
-                        currencies[currency] = 0
-                    currencies[currency] += amount
-                elif amount > 0:
-                    if currency not in currencies:
-                        currencies[currency] = 0
-                    currencies[currency] += amount
+        if simplify is True:
+            net = BalanceCalculator._computeNetPositions(balances)
+            if user_id not in net:
+                return ("XYZ", 0)
+            # Outgoing edges give the creditor perspective; negate for the debtor perspective.
+            currencies = {currency: -amount for currency, amount in net[user_id].items()}
+        else:
+            _, currencies = BalanceCalculator._computeGrossPositions(balances, user_id)
 
         if len(currencies.items()) == 0:
             return ("XYZ", 0)
@@ -152,14 +170,7 @@ class BalanceCalculator:
     def calculateMinimizedDebts(group):
         balances = BalanceCalculator.calculateBalancesAPI(group)
 
-        # Sum all edges per user to get net position per currency.
-        # Positive = creditor (owed money); negative = debtor (owes money).
-        net = {}
-        for user_id, counterparties in balances.items():
-            net[user_id] = {}
-            for currencies in counterparties.values():
-                for currency, amount in currencies.items():
-                    net[user_id][currency] = net[user_id].get(currency, 0) + amount
+        net = BalanceCalculator._computeNetPositions(balances)
 
         all_currencies = {c for user in net.values() for c in user}
         transactions = []
