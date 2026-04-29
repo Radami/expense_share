@@ -1,57 +1,61 @@
+import heapq
+
 from ..models import Expense, Debt, Group
 
 
 class BalanceCalculator:
     """
-    Balances is building the graph relationship constructed by taking users as nodes, and debts as
-    directed edges.
+    Builds a balance graph where users are nodes and debts are directed edges.
 
-    Each entry represents a debt from the from_user to the to_user in the respective currency and
-    for the respective amount. The value can be positive if there is a debt or negative if there is
-    a surplus.
+    Structure: balances[creditor][debtor][currency] = amount
+    - A positive amount means the creditor is owed that amount by the debtor.
+    - Each edge has a corresponding negative mirror: balances[debtor][creditor][currency] = -amount.
 
-    To check the balance between 2 users, both entries need to be checked and the one with the
-    positive value will indicate the direction of the debt
-
+    To find the net position of a user, sum all their outgoing edges across all counterparties.
+    Positive sum = net creditor; negative sum = net debtor.
     """
 
     def calculateBalancesAPI(group):
         balances = {}
         expenses = Expense.objects.filter(group=group).order_by("creation_date")
-        for e in expenses:
-            debt_set = Debt.objects.filter(expense=e)
+        for expense in expenses:
+            debt_set = Debt.objects.filter(expense=expense)
+            total_shares = sum(d.shares for d in debt_set)
             for debt in debt_set:
-                to_user = debt.to_user.id
-                from_user = debt.from_user.id
-                if to_user == from_user:
+                creditor = debt.to_user.id
+                debtor = debt.from_user.id
+                if creditor == debtor:
                     continue
-                shares = sum([d.shares for d in debt_set])
-                if to_user not in balances:
-                    balances[to_user] = {}
-                if from_user not in balances:
-                    balances[from_user] = {}
-                if debt.from_user.id not in balances[to_user]:
-                    balances[to_user][from_user] = {}
-                if debt.to_user.id not in balances[from_user]:
-                    balances[from_user][to_user] = {}
-                if e.currency not in balances[to_user][from_user]:
-                    balances[to_user][from_user][e.currency] = 0
-                if e.currency not in balances[from_user][to_user]:
-                    balances[from_user][to_user][e.currency] = 0
-                balances[to_user][from_user][e.currency] += debt.shares / shares * e.amount
-                balances[from_user][to_user][e.currency] -= debt.shares / shares * e.amount
+                amount = debt.shares / total_shares * expense.amount
+
+                if creditor not in balances:
+                    balances[creditor] = {}
+                if debtor not in balances:
+                    balances[debtor] = {}
+                if debtor not in balances[creditor]:
+                    balances[creditor][debtor] = {}
+                if creditor not in balances[debtor]:
+                    balances[debtor][creditor] = {}
+                if expense.currency not in balances[creditor][debtor]:
+                    balances[creditor][debtor][expense.currency] = 0
+                if expense.currency not in balances[debtor][creditor]:
+                    balances[debtor][creditor][expense.currency] = 0
+
+                balances[creditor][debtor][expense.currency] += amount
+                balances[debtor][creditor][expense.currency] -= amount
+
         return balances
 
     """
-    calculateUserIsOwed returns the maximum absolute value and the currency that the user is owed.
-    It uses Balances and calculates the maximum by setting the from_user to the current user and
-    summing up every value, by currency
+    calculateUserIsOwed returns the (currency, amount) pair representing the largest amount
+    the user is owed across all counterparties.
 
-    If simplify is True, the balance will take add both positive and negative debts. If it is
-    false, it will only add positive ones. For example, if a user owes 100 USD to user A and
-    is owed 100 USD by user B, with simplify, the user is owed 0 but without, they owe 100.
+    With simplify=True, positive and negative edges are summed together, so debts the user
+    owes to others cancel against debts owed to them — giving a net position.
+    With simplify=False, only positive edges are summed — the gross amount owed to the user,
+    ignoring what they owe in return.
 
-    ("XYZ", 0) is the return value for the user not being owed anything
+    Returns ("XYZ", 0) when the user is not owed anything.
     """
 
     def calculateUserIsOwed(group_id: int, user_id: int, simplify: bool):
@@ -63,20 +67,18 @@ class BalanceCalculator:
         if user_id not in balances:
             return ("XYZ", 0)
 
-        for from_user in balances[user_id]:
-            for currency in balances[user_id][from_user]:
+        for other_user in balances[user_id]:
+            for currency in balances[user_id][other_user]:
+                amount = balances[user_id][other_user][currency]
                 if simplify is True:
                     if currency not in currencies:
                         currencies[currency] = 0
-                    currencies[currency] = (
-                        currencies[currency] + balances[user_id][from_user][currency]
-                    )
-                elif balances[user_id][from_user][currency] > 0:
+                    currencies[currency] += amount
+                elif amount > 0:
                     if currency not in currencies:
                         currencies[currency] = 0
-                    currencies[currency] = (
-                        currencies[currency] + balances[user_id][from_user][currency]
-                    )
+                    currencies[currency] += amount
+
         if len(currencies.items()) == 0:
             return ("XYZ", 0)
 
@@ -89,15 +91,14 @@ class BalanceCalculator:
             return max(currencies.items(), key=lambda item: abs(item[1]))
 
     """
-    calculateUserOwes returns the maximum absolute value and the currency that the user owes. It
-    uses Balances to go through each individual user and sets the from_user as the current user.
-    It then sums up everything by currency
+    calculateUserOwes returns the (currency, amount) pair representing the largest amount
+    the user owes across all counterparties.
 
-    If simplify is True, the balance will take add both positive and negative debts. If it is
-    false, it will only add positive ones. For example, if a user owes 100 USD to user A and
-    is owed 100 USD by user B, with simplify, the user owes 0 but without, they owe 100.
+    With simplify=True, positive and negative edges cancel — giving the user's net debt position.
+    With simplify=False, only edges where the user is the debtor are summed — the gross amount
+    they owe, ignoring what others owe them in return.
 
-    ("XYZ", 0) is the return value for the user not owing anything
+    Returns ("XYZ", 0) when the user owes nothing.
     """
 
     def calculateUserOwes(group_id: int, user_id: int, simplify: bool):
@@ -105,22 +106,19 @@ class BalanceCalculator:
         balances = BalanceCalculator.calculateBalancesAPI(group)
         currencies = {}
 
-        for to_user in balances:
-            if user_id not in balances[to_user]:
+        for other_user in balances:
+            if user_id not in balances[other_user]:
                 continue
-            for currency in balances[to_user][user_id]:
+            for currency in balances[other_user][user_id]:
+                amount = balances[other_user][user_id][currency]
                 if simplify is True:
                     if currency not in currencies:
                         currencies[currency] = 0
-                    currencies[currency] = (
-                        currencies[currency] + balances[to_user][user_id][currency]
-                    )
-                elif balances[to_user][user_id][currency] > 0:
+                    currencies[currency] += amount
+                elif amount > 0:
                     if currency not in currencies:
                         currencies[currency] = 0
-                    currencies[currency] = (
-                        currencies[currency] + balances[to_user][user_id][currency]
-                    )
+                    currencies[currency] += amount
 
         if len(currencies.items()) == 0:
             return ("XYZ", 0)
@@ -132,3 +130,72 @@ class BalanceCalculator:
             return max(currencies.items(), key=lambda item: item[1])
         else:
             return max(currencies.items(), key=lambda item: abs(item[1]))
+
+    """
+    calculateMinimizedDebts returns the smallest possible list of payment transactions that
+    fully settles all debts in the group.
+
+    It works in two steps:
+      1. Compute each user's net position per currency by summing all their edges in the balance
+         graph. A positive net means the user is a creditor (owed money); negative means debtor.
+      2. For each currency, greedily match the largest creditor with the largest debtor. Each
+         match produces one transaction and eliminates at least one party. The remainder is pushed
+         back and matched in the next round.
+
+    Because it operates on net positions rather than individual edges, intermediate users whose
+    debts cancel out are automatically bypassed — their net is zero, so they never appear in
+    either heap and no transactions are generated for them.
+
+    Returns a list of dicts: [{"from_user": int, "to_user": int, "currency": str, "amount": float}]
+    """
+
+    def calculateMinimizedDebts(group):
+        balances = BalanceCalculator.calculateBalancesAPI(group)
+
+        # Sum all edges per user to get net position per currency.
+        # Positive = creditor (owed money); negative = debtor (owes money).
+        net = {}
+        for user_id, counterparties in balances.items():
+            net[user_id] = {}
+            for currencies in counterparties.values():
+                for currency, amount in currencies.items():
+                    net[user_id][currency] = net[user_id].get(currency, 0) + amount
+
+        all_currencies = {c for user in net.values() for c in user}
+        transactions = []
+
+        for currency in all_currencies:
+            # Max-heaps implemented via Python's min-heap with negated values.
+            # Tiebreaking by user_id ensures deterministic output.
+            creditors = []  # (-amount, user_id)
+            debtors = []    # (amount, user_id)  —  amount is negative; most negative pops first
+
+            for user_id, user_net in net.items():
+                amount = user_net.get(currency, 0)
+                if amount > 0.005:
+                    heapq.heappush(creditors, (-amount, user_id))
+                elif amount < -0.005:
+                    heapq.heappush(debtors, (amount, user_id))
+
+            while creditors and debtors:
+                neg_credit, creditor = heapq.heappop(creditors)
+                credit = -neg_credit
+                neg_debt, debtor = heapq.heappop(debtors)
+                debt = -neg_debt  # absolute value of what the debtor owes
+
+                settled = min(credit, debt)
+                transactions.append({
+                    "from_user": debtor,
+                    "to_user": creditor,
+                    "currency": currency,
+                    "amount": round(settled, 2),
+                })
+
+                remainder_credit = credit - settled
+                remainder_debt = debt - settled
+                if remainder_credit > 0.005:
+                    heapq.heappush(creditors, (-remainder_credit, creditor))
+                if remainder_debt > 0.005:
+                    heapq.heappush(debtors, (-remainder_debt, debtor))
+
+        return transactions
