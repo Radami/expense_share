@@ -29,6 +29,13 @@ export type ExpenseType = {
 
 export type BalancesType = Record<number, Record<number, Record<string, number>>>
 
+export type MinimizedDebtType = {
+    from_user: number,
+    to_user: number,
+    currency: string,
+    amount: number,
+}
+
 export type GroupType = {
     id: string,
     name: string,
@@ -38,6 +45,8 @@ export type GroupType = {
     expenses: ExpenseType[],
     totals: Record<string, number>,
     balances: BalancesType,
+    minimized_balances: MinimizedDebtType[],
+    minimize_balances_setting: boolean,
     user_is_owed: string,
     user_owes: string,
 }

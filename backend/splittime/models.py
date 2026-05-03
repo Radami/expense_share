@@ -16,6 +16,7 @@ class Group(models.Model):
     name = models.CharField(max_length=100)
     description = models.CharField(max_length=100)
     creation_date = models.DateTimeField("creation date")
+    minimize_balances_setting = models.BooleanField(default=False)
 
     def __str__(self):
         return self.name

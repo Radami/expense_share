@@ -155,6 +155,21 @@ class DeleteGroupMemberAPIView(APIView):
         return Response(status=status.HTTP_200_OK)
 
 
+class UpdateGroupSettingsAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request):
+        group = get_object_or_404(Group, pk=request.data.get("group_id"))
+        if not group.has_member(request.user):
+            return Response(
+                "You are not a member of this group.",
+                status=status.HTTP_403_FORBIDDEN,
+            )
+        group.minimize_balances_setting = request.data.get("minimize_balances_setting")
+        group.save()
+        return Response(status=status.HTTP_200_OK)
+
+
 class AddGroupMemberAPIView(APIView):
     permission_classes = [IsAuthenticated]
 
