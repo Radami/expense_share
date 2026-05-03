@@ -14,28 +14,32 @@ describe('Group component', () => {
     expenses: [],
     totals: {},
     balances: {},
+    minimized_balances: [],
+    minimize_balances_setting: false,
+    user_is_owed: 'Nothing',
+    user_owes: 'Nothing',
   };
 
   it('renders the group name', () => {
-    const delete_function = vi.fn();
+    const deleteGroup = vi.fn();
     render(
       <BrowserRouter>
-        <Group group={mockGroup} delete_function={delete_function} />
+        <Group group={mockGroup} deleteGroup={deleteGroup} />
       </BrowserRouter>
     );
     expect(screen.getByText('Test Group')).toBeInTheDocument();
   });
 
   it('calls the delete function when the delete button is clicked', () => {
-    const delete_function = vi.fn();
+    const deleteGroup = vi.fn();
     render(
       <BrowserRouter>
-        <Group group={mockGroup} delete_function={delete_function} />
+        <Group group={mockGroup} deleteGroup={deleteGroup} />
       </BrowserRouter>
     );
 
     const deleteButton = screen.getByRole('button', { name: /Group/i });
     fireEvent.click(deleteButton);
-    expect(delete_function).toHaveBeenCalledWith(mockGroup.id);
+    expect(deleteGroup).toHaveBeenCalledWith(mockGroup.id);
   });
 }); 

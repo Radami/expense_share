@@ -1,8 +1,8 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import Tab from 'react-bootstrap/Tab';
 import Tabs from 'react-bootstrap/Tabs';
 import { useNavigate, useParams } from "react-router-dom";
-import { type BalancesType, type ExpenseType, type GroupMemberType } from '../Types';
+import { type BalancesType, type ExpenseType, type GroupMemberType, type MinimizedDebtType } from '../Types';
 import api from '../utils/axios';
 import GroupDetailsBalances from './GroupDetailsBalances';
 import GroupDetailsExpenses from './GroupDetailsExpenses';
@@ -28,34 +28,35 @@ export default function GroupDetailPage() {
     const [groupMembers, setGroupMembers] = useState<GroupMemberType[]>([]);
     const [groupTotals, setGroupTotals] = useState<Record<string, number>>({});
     const [groupBalances, setGroupBalances] = useState<BalancesType>({});
+    const [groupMinimizedBalances, setGroupMinimizedBalances] = useState<MinimizedDebtType[]>([]);
+    const [groupMinimizeBalancesSetting, setGroupMinimizeBalancesSetting] = useState<boolean>(false);
 
     const navigate = useNavigate();
 
-    useEffect(() => {
-        const fetchGroupDetails = async () => {
-            
-            try {
-                
-                const response = await api.get('http://localhost:8000/splittime/api/group_details',
-                {
-                    params: {group_id},
-                });
-                setGroupName(response.data.name);
-                setGroupDescription(response.data.groupDescription)
-                setGroupExpenses(response.data.expenses);
-                setGroupMembers(response.data.group_members);
-                setGroupTotals(response.data.totals);
-                setGroupBalances(response.data.balances);
-                setIsAuth(true);
-
-            } catch (error) {
-                console.error('Error fetching profile', error);
-                setIsAuth(false);
-            }
-        };
-      
-        fetchGroupDetails();
+    const fetchGroupDetails = useCallback(async () => {
+        try {
+            const response = await api.get('http://localhost:8000/splittime/api/group_details',
+            {
+                params: {group_id},
+            });
+            setGroupName(response.data.name);
+            setGroupDescription(response.data.groupDescription)
+            setGroupExpenses(response.data.expenses);
+            setGroupMembers(response.data.group_members);
+            setGroupTotals(response.data.totals);
+            setGroupBalances(response.data.balances);
+            setGroupMinimizedBalances(response.data.minimized_balances);
+            setGroupMinimizeBalancesSetting(response.data.minimize_balances_setting);
+            setIsAuth(true);
+        } catch (error) {
+            console.error('Error fetching profile', error);
+            setIsAuth(false);
+        }
     }, [group_id]);
+
+    useEffect(() => {
+        fetchGroupDetails();
+    }, [fetchGroupDetails]);
 
     return (
         <div>
@@ -89,7 +90,14 @@ export default function GroupDetailPage() {
                 </Tab>
                 
                 <Tab eventKey="balances" title="Balances">
-                    <GroupDetailsBalances group_balances={groupBalances} group_members={groupMembers} group_id={group_id} />
+                    <GroupDetailsBalances
+                        group_balances={groupBalances}
+                        group_minimized_balances={groupMinimizedBalances}
+                        minimize_balances_setting={groupMinimizeBalancesSetting}
+                        group_members={groupMembers}
+                        group_id={group_id}
+                        onRefresh={fetchGroupDetails}
+                    />
                 </Tab>
             </Tabs>
         </>

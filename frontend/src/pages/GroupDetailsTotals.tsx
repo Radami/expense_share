@@ -1,84 +1,160 @@
 import React, { useEffect, useState } from 'react';
+import {
+    Bar,
+    BarChart,
+    CartesianGrid,
+    Cell,
+    LabelList,
+    ResponsiveContainer,
+    XAxis,
+    YAxis,
+} from 'recharts';
+
 import type { ExpenseType, GroupMemberType } from '../Types';
 
 interface GroupDetailsTotalsProps {
     groupExpenses: ExpenseType[],
-    groupMembers: GroupMemberType[]
+    groupMembers: GroupMemberType[],
 }
 
+const BAR_COLORS = [
+    '#0d6efd', '#6610f2', '#1d5525', '#d63384',
+    '#dc3545', '#fd7e14', '#198754', '#20c997', '#0dcaf0',
+];
+
+const months = [
+    'January', 'February', 'March', 'April', 'May', 'June',
+    'July', 'August', 'September', 'October', 'November', 'December',
+];
+
 const GroupDetailsTotals: React.FC<GroupDetailsTotalsProps> = ({ groupExpenses, groupMembers }) => {
-    
-    const [expenses, setExpenses] = useState(groupExpenses)
-    const [totals, setGroupMembers] = useState(groupMembers)
-    
-
-    const months = ['January', 'February', 'March', 'April', 'May', 'June', 
-                       'July', 'August', 'September', 'October', 'November', 'December']
-
-    const [selectedMonth, setSelectedMonth] = useState(new Date().getMonth())
-    const [selectedYear, setSelectedYear] = useState(new Date().getFullYear())
+    const [selectedMonth, setSelectedMonth] = useState(new Date().getMonth());
+    const [selectedYear, setSelectedYear] = useState(new Date().getFullYear());
     const [selectedCurrency, setSelectedCurrency] = useState('');
 
+    const currencies = [...new Set(groupExpenses.map(e => e.currency))];
+
     useEffect(() => {
-        setExpenses(groupExpenses)
-        setGroupMembers(groupMembers)
-    }, [groupMembers]); // This will trigger whenever initialValue changes
+        if (currencies.length > 0 && !currencies.includes(selectedCurrency)) {
+            setSelectedCurrency(currencies[0]);
+        }
+    }, [groupExpenses]);
 
-    function getCurrencies(): Array<string> {
-        if (expenses.length == 0)
-            return ["No expenses"]
-        return [...new Set(expenses.map(expense => expense.currency))];
+    const filtered = groupExpenses
+        .filter(e => e.currency === selectedCurrency)
+        .filter(e => {
+            const d = new Date(e.creation_date);
+            return d.getMonth() === selectedMonth && d.getFullYear() === selectedYear;
+        });
+
+    const total = filtered.reduce((sum, e) => sum + e.amount, 0);
+
+    const byPayee: Record<string, number> = {};
+    for (const member of groupMembers) {
+        byPayee[member.username] = 0;
+    }
+    for (const e of filtered) {
+        byPayee[e.payee] = (byPayee[e.payee] ?? 0) + e.amount;
     }
 
-    function getTotalExpenseByDate(): number {
-        return expenses.filter(expense => expense.currency == selectedCurrency)
-                       .filter(expense => { 
-                            const d = new Date(expense.creation_date);
-                            return d.getMonth() === selectedMonth && d.getFullYear() === selectedYear
-                        })
-                        .reduce((sum,expense) => sum + expense.amount, 0);
-    }
+    const chartData = Object.entries(byPayee).map(([name, amount]) => ({
+        name,
+        amount,
+        percentage: total > 0 ? (amount / total) * 100 : 0,
+    }));
 
     return (
         <div>
-            <div className="d-flex gap-5">
-                <div className="d-flex">
-                    <select 
-                        id="currencySelect"
-                        className="form-select" 
+            <div className="d-flex flex-wrap gap-3 mb-4">
+                {currencies.length > 0 && (
+                    <select
+                        className="form-select w-auto"
                         value={selectedCurrency}
-                        onChange={(e) => setSelectedCurrency(e.target.value)}
+                        onChange={e => setSelectedCurrency(e.target.value)}
                     >
-                            {getCurrencies().map(currency => (
-                        <option key={currency} value={currency}>{currency}</option>
-                    ))}
+                        {currencies.map(c => <option key={c} value={c}>{c}</option>)}
                     </select>
+                )}
+                <div className="d-flex align-items-center gap-1">
+                    <button
+                        className="btn btn-sm btn-outline-secondary"
+                        onClick={() => {
+                            if (selectedMonth === 0) {
+                                setSelectedMonth(11)
+                                setSelectedYear(y => y - 1)
+                            } else {
+                                setSelectedMonth(m => m - 1)}}
+                            }
+                    >&lt;</button>
+                    <span className="mx-2 fw-semibold text-center" style={{ width: '90px', display: 'inline-block' }}>{months[selectedMonth]}</span>
+                    <button
+                        className="btn btn-sm btn-outline-secondary"
+                        onClick={() => {
+                            if (selectedMonth === 11) {
+                                setSelectedMonth(0)
+                                setSelectedYear(y => y + 1)
+                            } else {
+                                setSelectedMonth(m => m + 1)
+                            }
+                        }}
+                    >&gt;</button>
                 </div>
-                <div className="d-flex" id="monthYearHeading">
-                    <div className="d-flex">
-                        <button className="btn btn-sm btn-outline-secondary m-1" id="prevYear" onClick={() => {selectedMonth == 0 ? setSelectedMonth(11) : setSelectedMonth(selectedMonth-1)}}>&lt;</button>
-                        <h5 className="mt-2 month-heading" id="currentYear">{months[selectedMonth]}</h5>
-                        <button className="btn btn-sm btn-outline-secondary m-1" id="nextYear" onClick={() => {selectedMonth == 11 ? setSelectedMonth(0) : setSelectedMonth(selectedMonth+1)}}>&gt;</button>
-                    </div>
-                    <div className="d-flex">
-                        <button className="btn btn-sm btn-outline-secondary m-1" id="prevYear" onClick={() => {setSelectedYear(selectedYear-1)}}>&lt;</button>
-                        <h5 className="mt-2" id="currentYear">{selectedYear}</h5>
-                        <button className="btn btn-sm btn-outline-secondary m-1" id="nextYear" onClick={() => {setSelectedYear(selectedYear+1)}}>&gt;</button>
-                    </div>
+                <div className="d-flex align-items-center gap-1">
+                    <button
+                        className="btn btn-sm btn-outline-secondary"
+                        onClick={() => setSelectedYear(y => y - 1)}
+                    >&lt;</button>
+                    <span className="mx-2 fw-semibold">{selectedYear}</span>
+                    <button
+                        className="btn btn-sm btn-outline-secondary"
+                        onClick={() => setSelectedYear(y => y + 1)}
+                    >&gt;</button>
                 </div>
             </div>
-            <div>
-                <div className="card shadow-sm">
-                    <div className="card-body">
-                        <h5 className="card-title mb-4">
-                            <i className="bi bi-receipt-cutoff me-2"></i>
-                            {getTotalExpenseByDate()}
-                        </h5>
-                    </div>
-                </div>
-            </div>
+
+            {total > 0 ? (
+                <>
+                    <p className="text-muted mb-3">
+                        Total: <strong>{selectedCurrency} {total.toFixed(2)}</strong>
+                    </p>
+                    <ResponsiveContainer width="100%" height={320}>
+                        <BarChart data={chartData} margin={{ top: 28, right: 20, left: 10, bottom: 5 }}>
+                            <CartesianGrid strokeDasharray="3 3" vertical={false} />
+                            <XAxis dataKey="name" />
+                            <YAxis
+                                tickFormatter={v => `${selectedCurrency} ${v}`}
+                                width={90}
+                            />
+                            <Bar dataKey="amount" radius={[4, 4, 0, 0]}>
+                                {chartData.map((_entry, i) => (
+                                    <Cell key={i} fill={BAR_COLORS[i % BAR_COLORS.length]} />
+                                ))}
+                                <LabelList
+                                    dataKey="amount"
+                                    position="insideTop"
+                                    fill="white"
+                                    formatter={((v: unknown) => {
+                                        const n = Number(v);
+                                        return n > 0 ? `${selectedCurrency} ${n.toFixed(2)}` : '';
+                                    }) as never}
+                                />
+                                <LabelList
+                                    dataKey="percentage"
+                                    position="top"
+                                    formatter={((v: unknown) => {
+                                        const n = Number(v);
+                                        return n > 0 ? `${n.toFixed(1)}%` : '';
+                                    }) as never}
+                                />
+                            </Bar>
+                        </BarChart>
+                    </ResponsiveContainer>
+                </>
+            ) : (
+                <p className="text-muted">No expenses for this period.</p>
+            )}
         </div>
     );
-}
+};
 
 export default GroupDetailsTotals;

@@ -51,11 +51,13 @@ class GroupDetailsSerializer(serializers.Serializer):
     name = serializers.CharField(max_length=100)
     description = serializers.CharField(max_length=100)
     creation_date = serializers.DateTimeField(read_only=True)
+    minimize_balances_setting = serializers.BooleanField(read_only=True)
 
     group_members = serializers.SerializerMethodField()
     expenses = serializers.SerializerMethodField()
     totals = serializers.SerializerMethodField()
     balances = serializers.SerializerMethodField()
+    minimized_balances = serializers.SerializerMethodField()
 
     class Meta:
         model = Group
@@ -64,10 +66,12 @@ class GroupDetailsSerializer(serializers.Serializer):
             "name",
             "description",
             "creation_date",
+            "minimize_balances_setting",
             "group_members",
             "expenses",
             "totals",
             "balances",
+            "minimized_balances",
         ]
 
     def get_group_members(self, obj):
@@ -107,6 +111,9 @@ class GroupDetailsSerializer(serializers.Serializer):
 
     def get_balances(self, obj):
         return BalanceCalculator.calculateBalancesAPI(obj)
+
+    def get_minimized_balances(self, obj):
+        return BalanceCalculator.calculateMinimizedDebts(obj)
 
 
 class ExpenseSerializer(serializers.ModelSerializer):
