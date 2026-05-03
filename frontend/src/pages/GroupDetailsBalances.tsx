@@ -12,6 +12,13 @@ interface GroupDetailsBalancesProps {
     onRefresh: () => void,
 }
 
+type DebtEntry = {
+    from_user: number;
+    to_user: number;
+    currency: string;
+    amount: number;
+};
+
 const GroupDetailsBalances: React.FC<GroupDetailsBalancesProps> = ({
     group_balances,
     group_minimized_balances,
@@ -38,8 +45,32 @@ const GroupDetailsBalances: React.FC<GroupDetailsBalancesProps> = ({
         }
     }
 
-    const hasRawBalances = group_balances && Object.keys(group_balances).length >= 1;
-    const hasMinimizedBalances = group_minimized_balances && group_minimized_balances.length >= 1;
+    function getRawDebts(): DebtEntry[] {
+        const debts: DebtEntry[] = [];
+        for (const [creditor_id, debtors] of Object.entries(group_balances)) {
+            for (const [debtor_id, amounts] of Object.entries(debtors)) {
+                for (const [currency, amount] of Object.entries(amounts)) {
+                    if (amount > 0) {
+                        debts.push({
+                            from_user: Number(debtor_id),
+                            to_user: Number(creditor_id),
+                            currency,
+                            amount,
+                        });
+                    }
+                }
+            }
+        }
+        return debts;
+    }
+
+    const debts: DebtEntry[] = minimize_balances_setting ? group_minimized_balances : getRawDebts();
+
+    const byCurrency: Record<string, DebtEntry[]> = {};
+    for (const debt of debts) {
+        if (!byCurrency[debt.currency]) byCurrency[debt.currency] = [];
+        byCurrency[debt.currency].push(debt);
+    }
 
     return (
         <div>
@@ -53,48 +84,25 @@ const GroupDetailsBalances: React.FC<GroupDetailsBalancesProps> = ({
                 />
             </div>
 
-            {minimize_balances_setting ? (
-                hasMinimizedBalances ? (
-                    <ul className="list-unstyled">
-                        {group_minimized_balances.map((t, i) => (
-                            <li key={i} className="mb-1">
-                                <strong>{getUsername(t.from_user)}</strong>
-                                {' → '}
-                                <strong>{getUsername(t.to_user)}</strong>
-                                {': '}
-                                {t.currency} {t.amount.toFixed(2)}
-                            </li>
-                        ))}
-                    </ul>
-                ) : (
-                    <p>All settled up!</p>
-                )
+            {Object.keys(byCurrency).length === 0 ? (
+                <p>All settled up!</p>
             ) : (
-                hasRawBalances ? (
-                    <ul>
-                        {Object.entries(group_balances).map(([to_user, list_of_debts]) => (
-                            <li key={to_user}>
-                                {getUsername(to_user)} is owed:
-                                <ul>
-                                    {Object.entries(list_of_debts).map(([from_user, amounts]) => (
-                                        <li key={from_user}>
-                                            by {getUsername(from_user)}:
-                                            <ul>
-                                                {Object.entries(amounts).map(([currency, amount]) => (
-                                                    amount > 0 && (
-                                                        <li key={currency}>{currency}: {amount.toFixed(2)}</li>
-                                                    )
-                                                ))}
-                                            </ul>
-                                        </li>
-                                    ))}
-                                </ul>
-                            </li>
-                        ))}
-                    </ul>
-                ) : (
-                    <p>All settled up!</p>
-                )
+                Object.entries(byCurrency).map(([currency, entries]) => (
+                    <div key={currency} className="mb-3">
+                        <h6 className="text-muted text-uppercase mb-2">{currency}</h6>
+                        <ul className="list-unstyled mb-0">
+                            {entries.map((debt, i) => (
+                                <li key={i} className="mb-1">
+                                    <strong>{getUsername(debt.from_user)}</strong>
+                                    {' → '}
+                                    <strong>{getUsername(debt.to_user)}</strong>
+                                    {': '}
+                                    {debt.amount.toFixed(2)}
+                                </li>
+                            ))}
+                        </ul>
+                    </div>
+                ))
             )}
         </div>
     );
