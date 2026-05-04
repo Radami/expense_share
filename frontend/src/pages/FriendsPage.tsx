@@ -141,68 +141,66 @@ function FriendCard({ friend, defaultOpen = false, onNavigate }: {
 export default function FriendsPage() {
     const [friends, setFriends] = useState<FriendType[]>([]);
     const [isLoading, setIsLoading] = useState(true);
-    const [isAuth, setIsAuth] = useState(false);
+    const [isError, setIsError] = useState(false);
     const navigate = useNavigate();
 
     useEffect(() => {
         api.get('/splittime/api/friends')
-            .then(res => { setFriends(res.data); setIsAuth(true); })
-            .catch(() => setIsAuth(false))
+            .then(res => setFriends(res.data))
+            .catch(() => setIsError(true))
             .finally(() => setIsLoading(false));
     }, []);
 
-    if (isLoading) {
-        return (
-            <div className="d-flex justify-content-center py-5">
-                <div className="spinner-border text-success" role="status">
-                    <span className="visually-hidden">Loading...</span>
-                </div>
-            </div>
-        );
-    }
-
-    if (!isAuth) {
-        return (
-            <div className="container d-flex justify-content-center mt-4">
-                <a className="btn btn-outline-primary" href="/auth/login">Login</a>
-            </div>
-        );
-    }
-
     return (
         <div className="py-4">
-            <div className="mb-4">
-                <div className="member-form-label text-uppercase fw-bold d-flex align-items-center gap-1 mb-1">
-                    <i className="bi bi-people"></i> Your people
-                </div>
-                <h1 className="fw-bold mb-0">Friends</h1>
-            </div>
-
-            {friends.length > 0 ? (
-                <AnimatePresence>
-                    <div className="d-flex flex-column gap-2">
-                        {friends.map((friend, i) => (
-                            <motion.div
-                                key={friend.id}
-                                initial={{ opacity: 0, y: -16 }}
-                                animate={{ opacity: 1, y: 0 }}
-                                transition={{ opacity: { duration: 0.2 }, delay: i * 0.04 }}
-                            >
-                                <FriendCard
-                                    friend={friend}
-                                    defaultOpen={false}
-                                    onNavigate={id => navigate(`/group/${id}`)}
-                                />
-                            </motion.div>
-                        ))}
+            {isLoading ? (
+                <div className="d-flex justify-content-center py-5">
+                    <div className="spinner-border text-success" role="status">
+                        <span className="visually-hidden">Loading...</span>
                     </div>
-                </AnimatePresence>
-            ) : (
-                <div className="text-center py-5 text-muted">
-                    <i className="bi bi-people display-4 text-light mb-3 d-block"></i>
-                    <p className="fs-5 fw-medium mb-1">No friends yet</p>
-                    <small className="text-muted d-block">Join or create a group to get started</small>
                 </div>
+            ) : isError ? (
+                <div className="text-center py-5 text-secondary">
+                    <i className="bi bi-exclamation-circle display-4 d-block mb-3 opacity-50"></i>
+                    <p className="fs-5 fw-medium mb-1">Something went wrong</p>
+                    <small>Please try again later</small>
+                </div>
+            ) : (
+                <>
+                    <div className="mb-4">
+                        <div className="member-form-label text-uppercase fw-bold d-flex align-items-center gap-1 mb-1">
+                            <i className="bi bi-people"></i> Your people
+                        </div>
+                        <h1 className="fw-bold mb-0">Friends</h1>
+                    </div>
+
+                    {friends.length > 0 ? (
+                        <AnimatePresence>
+                            <div className="d-flex flex-column gap-2">
+                                {friends.map((friend, i) => (
+                                    <motion.div
+                                        key={friend.id}
+                                        initial={{ opacity: 0, y: -16 }}
+                                        animate={{ opacity: 1, y: 0 }}
+                                        transition={{ opacity: { duration: 0.2 }, delay: i * 0.04 }}
+                                    >
+                                        <FriendCard
+                                            friend={friend}
+                                            defaultOpen={false}
+                                            onNavigate={id => navigate(`/group/${id}`)}
+                                        />
+                                    </motion.div>
+                                ))}
+                            </div>
+                        </AnimatePresence>
+                    ) : (
+                        <div className="text-center py-5 text-muted">
+                            <i className="bi bi-people display-4 text-light mb-3 d-block"></i>
+                            <p className="fs-5 fw-medium mb-1">No friends yet</p>
+                            <small className="text-muted d-block">Join or create a group to get started</small>
+                        </div>
+                    )}
+                </>
             )}
         </div>
     );

@@ -17,21 +17,17 @@ export const meta: MetaFunction = () => {
 export default function HomePage() {
     const [groups, setGroups] = useState<GroupType[]>([]);
     const [isLoading, setIsLoading] = useState(true);
-
-    // TODO: remove isAuth
-    const [isAuth, setIsAuth] = useState(false);
+    const [isError, setIsError] = useState(false);
     const navigate = useNavigate();
 
     useEffect(() => {
         const fetchGroups = async () => {
             try {
                 const response = await api.get('/splittime/api/group_index');
-                console.log("i am getting groups");
                 setGroups(response.data);
-                setIsAuth(true);
             } catch (error) {
                 console.error('Error fetching groups', error);
-                setIsAuth(false);
+                setIsError(true);
             } finally {
                 setIsLoading(false);
             }
@@ -43,7 +39,19 @@ export default function HomePage() {
     return (
         <>
             <div className="py-4">
-                {isAuth ? (
+                {isLoading ? (
+                    <div className="d-flex justify-content-center py-5">
+                        <div className="spinner-border text-success" role="status">
+                            <span className="visually-hidden">Loading...</span>
+                        </div>
+                    </div>
+                ) : isError ? (
+                    <div className="text-center py-5 text-secondary">
+                        <i className="bi bi-exclamation-circle display-4 d-block mb-3 opacity-50"></i>
+                        <p className="fs-5 fw-medium mb-1">Something went wrong</p>
+                        <small>Please try again later</small>
+                    </div>
+                ) : (
                     <>
                         <div className="d-flex justify-content-between align-items-center mb-4">
                             <div>
@@ -82,7 +90,7 @@ export default function HomePage() {
                                     <i className="bi bi-people display-4 text-light mb-3 d-block"></i>
                                     <p className="fs-5 fw-medium mb-1">No groups yet</p>
                                     <small className="text-muted d-block mb-3">Create your first group to get started</small>
-                                    <button 
+                                    <button
                                         className="btn btn-success d-inline-flex align-items-center gap-2"
                                         onClick={() => navigate('/add_group')}
                                     >
@@ -93,16 +101,6 @@ export default function HomePage() {
                             )}
                         </AnimatePresence>
                     </>
-                ) : isLoading ? (
-                    <div className="d-flex justify-content-center py-5">
-                        <div className="spinner-border text-success" role="status">
-                            <span className="visually-hidden">Loading...</span>
-                        </div>
-                    </div>
-                ) : (
-                    <div className="container d-flex justify-content-center mt-4">
-                        <a className="btn btn-outline-primary" href="/auth/login">Login</a>
-                    </div>
                 )}
             </div>
         </>
