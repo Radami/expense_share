@@ -6,6 +6,7 @@ from ..exceptions import DuplicateEntryException
 
 
 class GroupService:
+    @staticmethod
     def add_group(group_data):
         group = Group(
             name=group_data["name"],
@@ -29,6 +30,7 @@ class GroupService:
             raise Exception(e)
         return group
 
+    @staticmethod
     def delete_group(group):
         try:
             group.delete()
@@ -36,6 +38,7 @@ class GroupService:
             print(e)
             raise Exception(e)
 
+    @staticmethod
     def add_group_member(group, user):
         gm = GroupMembership(group=group, member=user)
         try:
@@ -45,6 +48,7 @@ class GroupService:
                 raise DuplicateEntryException
             raise Exception(e)
 
+    @staticmethod
     def delete_group_member(group_membership):
         try:
             group_membership.delete()

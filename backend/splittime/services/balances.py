@@ -15,6 +15,7 @@ class BalanceCalculator:
     Positive sum = net creditor; negative sum = net debtor.
     """
 
+    @staticmethod
     def calculateBalancesAPI(group):
         balances = {}
         expenses = Expense.objects.filter(group=group).order_by("creation_date")
@@ -46,6 +47,7 @@ class BalanceCalculator:
 
         return balances
 
+    @staticmethod
     def _computeGrossPositions(balances, user_id):
         """
         Returns (credits, debits) as {currency: amount} dicts for user_id.
@@ -63,6 +65,7 @@ class BalanceCalculator:
                     debits[currency] = debits.get(currency, 0) - amount
         return credits, debits
 
+    @staticmethod
     def _computeNetPositions(balances):
         """
         Returns {user_id: {currency: net_amount}} by summing all outgoing edges per user.
@@ -76,25 +79,23 @@ class BalanceCalculator:
                     net[user_id][currency] = net[user_id].get(currency, 0) + amount
         return net
 
-    """
-    calculateUserIsOwed returns the (currency, amount) pair representing the largest amount
-    the user is owed across all counterparties.
-
-    With simplify=True, positive and negative edges are summed together, so debts the user
-    owes to others cancel against debts owed to them — giving a net position.
-    With simplify=False, only positive edges are summed — the gross amount owed to the user,
-    ignoring what they owe in return.
-
-    Returns ("XYZ", 0) when the user is not owed anything.
-    """
-
+    @staticmethod
     def calculateUserIsOwed(group_id: int, user_id: int, simplify: bool, balances=None):
+        """
+        Returns the (currency, amount) pair representing the largest amount the user is owed.
+
+        With simplify=True, positive and negative edges are summed together, so debts the user
+        owes to others cancel against debts owed to them — giving a net position.
+        With simplify=False, only positive edges are summed — the gross amount owed to the user,
+        ignoring what they owe in return.
+
+        Returns ("XYZ", 0) when the user is not owed anything.
+        """
         if balances is None:
             group = Group.objects.get(id=group_id)
             balances = BalanceCalculator.calculateBalancesAPI(group)
         currencies = {}
 
-        # TODO: Fix edge case where user is not in balances
         if user_id not in balances:
             return ("XYZ", 0)
 
@@ -114,18 +115,17 @@ class BalanceCalculator:
         else:
             return max(currencies.items(), key=lambda item: abs(item[1]))
 
-    """
-    calculateUserOwes returns the (currency, amount) pair representing the largest amount
-    the user owes across all counterparties.
-
-    With simplify=True, positive and negative edges cancel — giving the user's net debt position.
-    With simplify=False, only edges where the user is the debtor are summed — the gross amount
-    they owe, ignoring what others owe them in return.
-
-    Returns ("XYZ", 0) when the user owes nothing.
-    """
-
+    @staticmethod
     def calculateUserOwes(group_id: int, user_id: int, simplify: bool, balances=None):
+        """
+        Returns the (currency, amount) pair representing the largest amount the user owes.
+
+        With simplify=True, positive and negative edges cancel — giving the user's net debt position.
+        With simplify=False, only edges where the user is the debtor are summed — the gross amount
+        they owe, ignoring what others owe them in return.
+
+        Returns ("XYZ", 0) when the user owes nothing.
+        """
         if balances is None:
             group = Group.objects.get(id=group_id)
             balances = BalanceCalculator.calculateBalancesAPI(group)
@@ -151,25 +151,19 @@ class BalanceCalculator:
         else:
             return max(currencies.items(), key=lambda item: abs(item[1]))
 
-    """
-    calculateMinimizedDebts returns the smallest possible list of payment transactions that
-    fully settles all debts in the group.
-
-    It works in two steps:
-      1. Compute each user's net position per currency by summing all their edges in the balance
-         graph. A positive net means the user is a creditor (owed money); negative means debtor.
-      2. For each currency, greedily match the largest creditor with the largest debtor. Each
-         match produces one transaction and eliminates at least one party. The remainder is pushed
-         back and matched in the next round.
-
-    Because it operates on net positions rather than individual edges, intermediate users whose
-    debts cancel out are automatically bypassed — their net is zero, so they never appear in
-    either heap and no transactions are generated for them.
-
-    Returns a list of dicts: [{"from_user": int, "to_user": int, "currency": str, "amount": float}]
-    """
-
+    @staticmethod
     def calculateMinimizedDebts(group, balances=None):
+        """
+        Returns the smallest possible list of payment transactions that fully settles all debts.
+
+        Works in two steps:
+          1. Compute each user's net position per currency by summing all their edges in the
+             balance graph. Positive net = creditor; negative net = debtor.
+          2. For each currency, greedily match the largest creditor with the largest debtor.
+             Each match produces one transaction and eliminates at least one party.
+
+        Returns a list of dicts: [{"from_user": int, "to_user": int, "currency": str, "amount": float}]
+        """
         if balances is None:
             balances = BalanceCalculator.calculateBalancesAPI(group)
 

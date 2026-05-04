@@ -4,6 +4,7 @@ from ..models import Expense, GroupMembership, Debt
 
 class ExpenseService:
 
+    @staticmethod
     def add_expense(expense_data):
         # Add an expense with the data from the POST request
         expense = Expense(
@@ -31,5 +32,6 @@ class ExpenseService:
             raise exception
         return expense
 
+    @staticmethod
     def delete_expense(expense, user):
         expense.delete()
