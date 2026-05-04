@@ -32,7 +32,4 @@ class ExpenseService:
         return expense
 
     def delete_expense(expense, user):
-        try:
-            expense.delete()
-        except Exception as exception:
-            raise exception
+        expense.delete()
