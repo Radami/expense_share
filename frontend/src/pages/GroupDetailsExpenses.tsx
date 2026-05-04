@@ -1,13 +1,11 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { type ExpenseType, type GroupMemberType } from '../Types';
+import { type ExpenseType } from '../Types';
 import api from '../utils/axios';
 import { getAvatarBgClass } from '../utils/avatar';
 import { MONTH_NAMES } from '../utils/constants';
 
 interface GroupDetailsExpensesProps {
     group_expenses: ExpenseType[],
-    group_members: GroupMemberType[],
-    group_id: string,
 }
 
 const GroupDetailsExpenses: React.FC<GroupDetailsExpensesProps> = ({ group_expenses }) => {

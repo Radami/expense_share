@@ -104,7 +104,7 @@ export default function GroupDetailPage() {
                         variant="pills"
                     >
                         <Tab eventKey="expenses" title="Expenses">
-                            <GroupDetailsExpenses group_expenses={groupExpenses} group_members={groupMembers} group_id={group_id} />
+                            <GroupDetailsExpenses group_expenses={groupExpenses} />
                         </Tab>
                         <Tab eventKey="members" title="Members">
                             <GroupDetailsMembers group_members={groupMembers} group_id={group_id} />
