@@ -1,6 +1,6 @@
 from django.urls import path
 
-from .views import expense_views, group_views, user_views
+from .views import expense_views, friend_views, group_views, user_views
 
 app_name = "splittime"
 urlpatterns = [
@@ -39,5 +39,10 @@ urlpatterns = [
         "api/delete_group_expense",
         expense_views.DeleteExpenseAPIView.as_view(),
         name="api_delete_group_expense_view",
+    ),
+    path(
+        "api/friends",
+        friend_views.FriendsAPIView.as_view(),
+        name="api_friends_view",
     ),
 ]

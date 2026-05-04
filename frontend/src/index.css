@@ -265,6 +265,18 @@
   display: inline-block;
 }
 
+/* ── Friend group row ───────────────────────────────── */
+.friend-group-row {
+  background-color: var(--surface-2);
+  border: 1px solid var(--border);
+  transition: background-color 0.13s, border-color 0.13s;
+}
+
+.friend-group-row:hover {
+  background-color: var(--bg-alt);
+  border-color: #c8bfb0;
+}
+
 /* ── Avatar colors ──────────────────────────────────── */
 :root {
   --av-color-amber:    oklch(62% 0.13  50);

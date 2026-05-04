@@ -8,6 +8,7 @@ import AddExpensePage from "./pages/AddExpensePage";
 import AddGroupPage from "./pages/AddGroupPage";
 import AddMemberPage from "./pages/AddMemberPage";
 import EditGroupPage from "./pages/EditGroupPage";
+import FriendsPage from "./pages/FriendsPage";
 import GroupDetailsPage from "./pages/GroupDetailsPage";
 import HomePage from "./pages/HomePage";
 import NotFoundPage from "./pages/NotFoundPage";
@@ -41,6 +42,10 @@ const routes: RouteObject[] = [
             {
                 path: "edit_group/:group_id",
                 element: <EditGroupPage />
+            },
+            {
+                path: "friends",
+                element: <FriendsPage />
             }
         ],
 
