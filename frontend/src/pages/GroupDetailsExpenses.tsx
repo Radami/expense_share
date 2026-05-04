@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { type ExpenseType } from '../Types';
-import api from '../utils/axios';
 import { getAvatarBgClass } from '../utils/avatar';
+import api from '../utils/axios';
 import { MONTH_NAMES } from '../utils/constants';
 
 interface GroupDetailsExpensesProps {
@@ -43,9 +43,9 @@ const GroupDetailsExpenses: React.FC<GroupDetailsExpensesProps> = ({ group_expen
     }
 
     function deleteExpense(id: string) {
-        api.post('/splittime/api/delete_group_expense', { expense_id: id })
+        api.delete(`/splittime/api/expenses/${id}/`)
             .then(response => {
-                if (response.status === 200) {
+                if (response.status === 204) {
                     setExpenses(expenses.filter(e => e.id !== id));
                 }
             })

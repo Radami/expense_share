@@ -51,7 +51,7 @@ export default function EditGroupPage() {
 
     const handleDelete = async () => {
         try {
-            await api.post('/splittime/api/delete_group', { id: group_id });
+            await api.delete(`/splittime/api/groups/${group_id}/`);
             navigate('/');
         } catch (err: any) {
             setError(err.response?.data || 'Failed to delete group');

@@ -94,13 +94,12 @@ class AddGroupView(APIView):
 class DeleteGroupView(APIView):
     permission_classes = [IsAuthenticated]
 
-    def post(self, request):
-        id = request.data["id"]
-        group = get_object_or_404(Group, pk=id)
+    def delete(self, request, group_id):
+        group = get_object_or_404(Group, pk=group_id)
 
         if group.creator.id != request.user.id:
             return Response(
-                "User doesn not have permission to delete the group",
+                "User does not have permission to delete the group",
                 status=status.HTTP_403_FORBIDDEN,
             )
 
@@ -108,7 +107,7 @@ class DeleteGroupView(APIView):
             GroupService.delete_group(group)
         except Exception as e:
             return Response(e, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-        return Response(status=status.HTTP_200_OK)
+        return Response(status=status.HTTP_204_NO_CONTENT)
 
 
 class GroupDetailsAPIView(APIView):
@@ -131,9 +130,9 @@ class GroupDetailsAPIView(APIView):
 class DeleteGroupMemberAPIView(APIView):
     permission_classes = [IsAuthenticated]
 
-    def post(self, request):
-        user = get_object_or_404(User, pk=request.data["user_id"])
-        group = get_object_or_404(Group, pk=request.data["group_id"])
+    def delete(self, request, group_id, user_id):
+        group = get_object_or_404(Group, pk=group_id)
+        user = get_object_or_404(User, pk=user_id)
         gm = get_object_or_404(GroupMembership, member=user, group=group)
 
         if not group.has_member(request.user):
@@ -152,7 +151,7 @@ class DeleteGroupMemberAPIView(APIView):
         except Exception as e:
             return Response(str(e), status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
-        return Response(status=status.HTTP_200_OK)
+        return Response(status=status.HTTP_204_NO_CONTENT)
 
 
 class UpdateGroupSettingsAPIView(APIView):

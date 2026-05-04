@@ -17,9 +17,9 @@ const GroupDetailsMembers: React.FC<GroupDetailsMembersProps> = ({ group_members
     }, [group_members]);
 
     const deleteGroupMember = (id: number) => {
-        api.post('/splittime/api/delete_group_member', { user_id: id, group_id })
+        api.delete(`/splittime/api/groups/${group_id}/members/${id}/`)
             .then(response => {
-                if (response.status === 200) {
+                if (response.status === 204) {
                     setMembers(ms => ms.filter(m => m.id !== id));
                 }
             })
