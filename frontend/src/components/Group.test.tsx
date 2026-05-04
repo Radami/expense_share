@@ -1,6 +1,5 @@
-import { fireEvent, render, screen } from '@testing-library/react';
+import { render, screen } from '@testing-library/react';
 import { BrowserRouter } from 'react-router-dom';
-import { vi } from 'vitest';
 import type { GroupType } from '../../src/Types';
 import Group from './Group';
 
@@ -21,25 +20,11 @@ describe('Group component', () => {
   };
 
   it('renders the group name', () => {
-    const deleteGroup = vi.fn();
     render(
       <BrowserRouter>
-        <Group group={mockGroup} deleteGroup={deleteGroup} />
+        <Group group={mockGroup} />
       </BrowserRouter>
     );
     expect(screen.getByText('Test Group')).toBeInTheDocument();
-  });
-
-  it('calls the delete function when the delete button is clicked', () => {
-    const deleteGroup = vi.fn();
-    render(
-      <BrowserRouter>
-        <Group group={mockGroup} deleteGroup={deleteGroup} />
-      </BrowserRouter>
-    );
-
-    const deleteButton = screen.getByRole('button', { name: /Group/i });
-    fireEvent.click(deleteButton);
-    expect(deleteGroup).toHaveBeenCalledWith(mockGroup.id);
   });
 }); 

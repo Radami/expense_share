@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { useNavigate, useParams } from "react-router-dom";
+import { useNavigate, useParams, useSearchParams } from "react-router-dom";
 import { type GroupMemberType, type GroupType } from '../Types';
 import api from '../utils/axios';
 
@@ -10,184 +10,153 @@ export default function AddExpensePage() {
     const [error, setError] = useState<string>('');
     const navigate = useNavigate();
     const { group_id: paramGroupId } = useParams<{ group_id: string }>();
+    const [searchParams] = useSearchParams();
+    const returnTab = searchParams.get('return_tab') ?? 'expenses';
 
-    // Fetch all groups
     useEffect(() => {
-        // When the component loads up for the first time, we fetch all groups.
-        // We then check if we got a group id and select that group. Othertwise take the first one.
-        // With that group, fetch all members.
-        
-        // TODO: handle empty cases
-        
         const fetchGroups = async () => {
             try {
                 const response = await api.get('/splittime/api/group_index');
-                console.log("i am getting groups", response.data);
                 setGroups(response.data);
-                
-                // If we have a group_id in the URL, select that group
                 if (paramGroupId) {
                     setSelectedGroupId(paramGroupId);
                 } else if (response.data.length > 0) {
-                    // Otherwise select the first group
                     setSelectedGroupId(response.data[0].id);
                 }
-            } catch (error) {
-                console.error('Error fetching groups', error);
+            } catch (err) {
+                console.error('Error fetching groups', err);
                 setError('Failed to load groups');
             }
         };
-
         fetchGroups();
     }, [paramGroupId]);
 
-    // Fetch group members when selected group changes
     useEffect(() => {
         const fetchGroupDetails = async () => {
             if (!selectedGroupId) return;
-
             try {
                 const response = await api.get('/splittime/api/group_details', {
-                    params: { group_id: selectedGroupId }
+                    params: { group_id: selectedGroupId },
                 });
                 setGroupMembers(response.data.group_members);
-
-
-            } catch (error) {
-                console.error('Error fetching group details', error);
+            } catch (err) {
+                console.error('Error fetching group details', err);
                 setError('Failed to load group members');
             }
         };
-
         fetchGroupDetails();
     }, [selectedGroupId]);
-
-    const handleGroupChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-        setSelectedGroupId(e.target.value);
-    };
 
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
         setError('');
-
         const formData = new FormData(e.currentTarget);
         const expenseData = {
             group_id: selectedGroupId,
             name: formData.get('name'),
             payee: formData.get('payee'),
             amount: formData.get('amount'),
-            currency: formData.get('currency')
+            currency: formData.get('currency'),
         };
-
         try {
             const response = await api.post('/splittime/api/add_group_expense', expenseData);
             if (response.status === 201) {
-                // Navigate to the group details page
-                navigate(`/group/${selectedGroupId}`);
+                navigate(`/group/${selectedGroupId}?tab=${returnTab}`);
             }
-        } catch (error: any) {
-            setError(error.response?.data?.detail || 'Failed to add expense');
+        } catch (err: any) {
+            setError(err.response?.data?.detail || 'Failed to add expense');
         }
     };
 
-    if (error) {
-        return <div className="alert alert-danger">{error}</div>;
-    }
-
-
     return (
-        <>
-            <h2>Add New Expense</h2>
-            <form className="d-flex justify-content-center align-items-center" onSubmit={handleSubmit}>
-                <div className="col px-3">
-                    <div className="row p-1">   
-                        <div className="input-group">
-                        <label htmlFor="group" className="input-group-text">group</label>
-                        <select 
-                            id="group" 
-                            className="form-select" 
-                            value={selectedGroupId}
-                            onChange={handleGroupChange}
-                        >
-                            {groups.map((group) => (
-                                <option key={group.id} value={group.id}>
-                                    {group.name}
-                                </option>
-                            ))}
-                        </select>
-                        </div>
-                    </div>
+        <div className="py-4">
+            <div style={{ maxWidth: 600, margin: '0 auto' }}>
+                <div className="mb-4">
+                    <h1 className="fw-bold mb-1">Add Expense</h1>
+                    <p className="text-secondary small mb-0">Record a new shared expense for the selected group</p>
+                </div>
 
-                    <div className="row p-1"> 
-                        <div className="input-group">
-                            <label className="input-group-text">payee</label>
-                            <select 
-                                id="payee" 
-                                className="form-select form-select-sm" 
-                                name="payee"
-                                required
-                            >
-                                {groupMembers.map((m) => (
-                                    <option key={m.id} value={m.id}>
-                                        {m.username}
-                                    </option>
-                                ))}
-                            </select>
-                        </div>
-                    </div>
-
-                    <div className="row p-1">   
-                        <div className="input-group">
-                            <label className="input-group-text">name</label>
-                            <input 
-                                type="text" 
-                                className="form-control" 
-                                placeholder="Enter expense name" 
-                                id="name" 
-                                name="name" 
-                                required
-                            />
-                        </div>
-                    </div>
-
-                    <div className="row p-1"> 
-                        <div className="input-group">
-                            <label className="input-group-text">amount</label>
-                            <input 
-                                type="number"
-                                className="form-control" 
-                                placeholder="Amount" 
-                                id="amount" 
-                                name="amount"
-                                step="0.01"
-                                required />
-                            
-                                <select 
-                                    id="currency" 
-                                    className="form-select form-select-md"
-                                    name="currency"
-                                    style={{  
-                                        minWidth: 0, // Allow shrinking below Bootstrap's default min-width from .form-select
-                                        flex: '0 0 auto', // Prevent flexbox from forcing size to expand to fill available space
-                                        width: 'auto', // Adjust width to content 
-                                    }}
+                <div className="card border shadow-sm rounded-3">
+                    <div className="card-body p-4">
+                        {error && <div className="alert alert-danger small py-2">{error}</div>}
+                        <form onSubmit={handleSubmit}>
+                            <div className="mb-3">
+                                <label htmlFor="group" className="member-form-label text-uppercase fw-bold d-block mb-1">Group</label>
+                                <select
+                                    id="group"
+                                    className="form-select"
+                                    value={selectedGroupId}
+                                    onChange={e => setSelectedGroupId(e.target.value)}
                                 >
-                                    <option value="USD">USD</option>
-                                    <option value="YEN">YEN</option>
-                                    <option value="EUR">EUR</option>
-                                    <option value="GBP">GBP</option>
-                                </select>                                 
-                                
-                        </div>
-                    </div>
-                    <div className="d-flex justify-content-end p-1 mt-3"> 
-                        <button className="btn btn-success" type="submit">
-                            <i className="bi bi-person-plus-fill me-1" />
-                            Add Expense
-                        </button>
-                        
+                                    {groups.map(g => (
+                                        <option key={g.id} value={g.id}>{g.name}</option>
+                                    ))}
+                                </select>
+                            </div>
+
+                            <div className="mb-3">
+                                <label htmlFor="name" className="member-form-label text-uppercase fw-bold d-block mb-1">Description</label>
+                                <input
+                                    type="text"
+                                    className="form-control"
+                                    id="name"
+                                    name="name"
+                                    placeholder="e.g. Dinner at Mario's"
+                                    required
+                                />
+                            </div>
+
+                            <div className="d-flex gap-3 mb-3">
+                                <div className="flex-grow-1">
+                                    <label htmlFor="amount" className="member-form-label text-uppercase fw-bold d-block mb-1">Amount</label>
+                                    <input
+                                        type="number"
+                                        className="form-control"
+                                        id="amount"
+                                        name="amount"
+                                        placeholder="0.00"
+                                        step="0.01"
+                                        min="0"
+                                        required
+                                    />
+                                </div>
+                                <div style={{ width: 120 }}>
+                                    <label htmlFor="currency" className="member-form-label text-uppercase fw-bold d-block mb-1">Currency</label>
+                                    <select className="form-select" id="currency" name="currency">
+                                        <option value="USD">USD</option>
+                                        <option value="EUR">EUR</option>
+                                        <option value="GBP">GBP</option>
+                                        <option value="RON">RON</option>
+                                        <option value="YEN">YEN</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div className="mb-4">
+                                <label htmlFor="payee" className="member-form-label text-uppercase fw-bold d-block mb-1">Paid by</label>
+                                <select className="form-select" id="payee" name="payee" required>
+                                    {groupMembers.map(m => (
+                                        <option key={m.id} value={m.id}>{m.username}</option>
+                                    ))}
+                                </select>
+                            </div>
+
+                            <div className="d-flex justify-content-end gap-2">
+                                <button
+                                    className="btn btn-outline-secondary btn-sm"
+                                    type="button"
+                                    onClick={() => navigate(-1)}
+                                >
+                                    Cancel
+                                </button>
+                                <button className="btn btn-success btn-sm d-flex align-items-center gap-2" type="submit">
+                                    <i className="bi bi-plus-lg"></i> Add expense
+                                </button>
+                            </div>
+                        </form>
                     </div>
                 </div>
-            </form>
-    </>);
+            </div>
+        </div>
+    );
 }

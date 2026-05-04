@@ -4,11 +4,11 @@ import Header from "./Header";
 
 function RootLayout() {
   return (
-    <div className="d-flex flex-column min-vh-100 bg-color1">
-        <div className="container col-lg-6 mt-3 ">    
-            <Header />
+    <div className="d-flex flex-column min-vh-100 bg-color">
+        <Header />
+        <div className="container col-lg-6">
             <main>
-                <Outlet /> {/* This is where nested routes will render */}
+                <Outlet />
             </main>
         </div>
         <Footer />

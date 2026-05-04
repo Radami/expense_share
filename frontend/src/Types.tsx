@@ -23,7 +23,8 @@ export type ExpenseType = {
     amount: number,
     currency: string,
     payee: string,
-    creation_date: string
+    creation_date: string,
+    you_owe: number,
 }
 
 
@@ -34,6 +35,26 @@ export type MinimizedDebtType = {
     to_user: number,
     currency: string,
     amount: number,
+}
+
+export type FriendBalanceEntry = {
+    currency: string;
+    amount: number;
+}
+
+export type FriendGroupEntry = {
+    id: number;
+    name: string;
+    you_owe: FriendBalanceEntry[];
+    owed_to: FriendBalanceEntry[];
+}
+
+export type FriendType = {
+    id: number;
+    username: string;
+    email: string;
+    net: FriendBalanceEntry[];  // positive amount = they owe you, negative = you owe them
+    groups: FriendGroupEntry[];
 }
 
 export type GroupType = {
