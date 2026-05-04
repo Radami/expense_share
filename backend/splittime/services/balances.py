@@ -88,9 +88,10 @@ class BalanceCalculator:
     Returns ("XYZ", 0) when the user is not owed anything.
     """
 
-    def calculateUserIsOwed(group_id: int, user_id: int, simplify: bool):
-        group = Group.objects.get(id=group_id)
-        balances = BalanceCalculator.calculateBalancesAPI(group)
+    def calculateUserIsOwed(group_id: int, user_id: int, simplify: bool, balances=None):
+        if balances is None:
+            group = Group.objects.get(id=group_id)
+            balances = BalanceCalculator.calculateBalancesAPI(group)
         currencies = {}
 
         # TODO: Fix edge case where user is not in balances
@@ -124,9 +125,10 @@ class BalanceCalculator:
     Returns ("XYZ", 0) when the user owes nothing.
     """
 
-    def calculateUserOwes(group_id: int, user_id: int, simplify: bool):
-        group = Group.objects.get(id=group_id)
-        balances = BalanceCalculator.calculateBalancesAPI(group)
+    def calculateUserOwes(group_id: int, user_id: int, simplify: bool, balances=None):
+        if balances is None:
+            group = Group.objects.get(id=group_id)
+            balances = BalanceCalculator.calculateBalancesAPI(group)
         currencies = {}
 
         if simplify is True:
@@ -167,8 +169,9 @@ class BalanceCalculator:
     Returns a list of dicts: [{"from_user": int, "to_user": int, "currency": str, "amount": float}]
     """
 
-    def calculateMinimizedDebts(group):
-        balances = BalanceCalculator.calculateBalancesAPI(group)
+    def calculateMinimizedDebts(group, balances=None):
+        if balances is None:
+            balances = BalanceCalculator.calculateBalancesAPI(group)
 
         net = BalanceCalculator._computeNetPositions(balances)
 
