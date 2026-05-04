@@ -68,10 +68,13 @@ export default function GroupDetailPage() {
                                 : <span className="badge rounded-pill bg-danger-subtle text-danger-emphasis fw-semibold px-3 py-2">You owe {userOwes}</span>
                             }
                             <div className="d-flex gap-2 ms-auto">
-                                <button className="btn btn-outline-secondary btn-sm d-flex align-items-center gap-2" type="button" onClick={() => navigate(`/add_member/${group_id}?return_tab=${activeTab}`)}>
+                                <button className="btn btn-outline-secondary btn-sm d-flex align-items-center gap-2" type="button" onClick={() => navigate(`/edit_group/${group_id}?return_tab=${activeTab}`)}>
+                                    <i className="bi bi-pencil-square"></i> Edit group
+                                </button>
+                                <button className="btn btn-add-member btn-sm d-flex align-items-center gap-2" type="button" onClick={() => navigate(`/add_member/${group_id}?return_tab=${activeTab}`)}>
                                     <i className="bi bi-person-plus"></i> Add member
                                 </button>
-                                <button className="btn btn-success btn-sm d-flex align-items-center gap-2" type="button" onClick={() => navigate(`/add_expense/${group_id}?return_tab=${activeTab}`)}>
+                                <button className="btn btn-add-expense btn-sm d-flex align-items-center gap-2" type="button" onClick={() => navigate(`/add_expense/${group_id}?return_tab=${activeTab}`)}>
                                     <i className="bi bi-plus-lg"></i> Add expense
                                 </button>
                             </div>

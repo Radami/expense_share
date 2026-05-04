@@ -211,6 +211,33 @@
   color: var(--primary-text);
 }
 
+/* ── Header action buttons ──────────────────────────── */
+.btn-add-member {
+  color: #fff;
+  border: 1px solid var(--av-color-slate);
+  background-color: var(--av-color-slate);
+  transition: background-color 0.15s, color 0.15s, border-color 0.15s;
+}
+
+.btn-add-member:hover {
+  background-color: var(--av-color-slate-dark);
+  border-color: var(--av-color-slate-dark);
+  color: #fff;
+}
+
+.btn-add-expense {
+  color: #fff;
+  border: 1px solid var(--av-color-teal);
+  background-color: var(--av-color-teal);
+  transition: background-color 0.15s, color 0.15s, border-color 0.15s;
+}
+
+.btn-add-expense:hover {
+  background-color: var(--av-color-teal-dark);
+  border-color: var(--av-color-teal-dark);
+  color: #fff;
+}
+
 /* ── Totals tab ─────────────────────────────────────── */
 .btn-nav {
   width: 28px;
@@ -250,6 +277,9 @@
   --av-color-plum:     oklch(62% 0.13 302);
   --av-color-rose:     oklch(62% 0.13 338);
   --av-color-coral:    oklch(62% 0.13  14);
+
+  --av-color-teal-dark:	oklch(56% 0.13 158);
+  --av-color-slate-dark: oklch(56% 0.13 230);
 }
 
 .av-color-amber    { background-color: var(--av-color-amber); }
