@@ -1,28 +1,21 @@
-import React, { useEffect, useState } from 'react';
-import { type ExpenseType, type GroupMemberType } from '../Types';
-import api from '../utils/axios';
+import React, { useEffect, useMemo, useState } from 'react';
+import { type ExpenseType } from '../Types';
 import { getAvatarBgClass } from '../utils/avatar';
+import api from '../utils/axios';
+import { MONTH_NAMES } from '../utils/constants';
 
 interface GroupDetailsExpensesProps {
     group_expenses: ExpenseType[],
-    group_members: GroupMemberType[],
-    group_id: string,
 }
-
-
-const MONTH_NAMES = [
-    "January", "February", "March", "April", "May", "June",
-    "July", "August", "September", "October", "November", "December",
-];
 
 const GroupDetailsExpenses: React.FC<GroupDetailsExpensesProps> = ({ group_expenses }) => {
     const [expenses, setExpenses] = useState(group_expenses);
-    const [headers, setHeaders] = useState<Record<number, string>>({});
 
     useEffect(() => {
         setExpenses(group_expenses);
-        setHeaders(processMonthHeaders(group_expenses));
     }, [group_expenses]);
+
+    const headers = useMemo(() => processMonthHeaders(expenses), [expenses]);
 
     function getMonthFromDate(datetime: string): string {
         return MONTH_NAMES[new Date(datetime).getUTCMonth()];
@@ -50,12 +43,10 @@ const GroupDetailsExpenses: React.FC<GroupDetailsExpensesProps> = ({ group_expen
     }
 
     function deleteExpense(id: string) {
-        api.post('http://localhost:8000/splittime/api/delete_group_expense', { expense_id: id })
+        api.delete(`/splittime/api/expenses/${id}/`)
             .then(response => {
-                if (response.status === 200) {
-                    const updated = expenses.filter(e => e.id !== id);
-                    setExpenses(updated);
-                    setHeaders(processMonthHeaders(updated));
+                if (response.status === 204) {
+                    setExpenses(expenses.filter(e => e.id !== id));
                 }
             })
             .catch(error => console.error('Error deleting expense', error));

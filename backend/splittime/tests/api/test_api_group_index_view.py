@@ -84,6 +84,17 @@ class GroupIndexAPITest(APITestCase):
         )
 
 
+    def test_recent_group_with_expenses(self):
+        """Balance aggregation loop runs when the group has outstanding debts"""
+        user2 = UserHelpers.create_user(user_name="gidx_user2")
+        group = GroupHelpers.create_group(days=-5, creator=self.user1)
+        GroupHelpers.add_user_to_group(group, user2)
+        GroupHelpers.add_expense(group, user2, amount=100.0, currency="USD")
+        response = self.client.get(reverse("splittime:api_index_view"))
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(len(response.data), 1)
+
+
 class GroupIndexViewNotLoggedInTests(APITestCase):
     """
     Test that all group API requests return 401 if user is not logged in
@@ -114,14 +125,10 @@ class GroupIndexViewNotLoggedInTests(APITestCase):
 
     def test_delete_group(self):
         """
-        Trying to access the delete group view without being logged in should return 200 and the
-        login url
+        Trying to access the delete group view without being logged in should return 401
         """
-        response = self.client.post(
-            reverse(
-                "splittime:api_delete_group",
-            ),
-            data={"id": self.group1.id},
+        response = self.client.delete(
+            reverse("splittime:api_delete_group", kwargs={"group_id": self.group1.id}),
         )
         self.assertEqual(response.status_code, 401)
 
@@ -211,24 +218,18 @@ class GroupPermissionsTests(APITestCase):
         Delete group should work for a group where the user is the creator
         """
         UserHelpers.login_user(self.client, self.user1)
-        response = self.client.post(
-            reverse(
-                "splittime:api_delete_group",
-            ),
-            data={"id": self.group1.id},
+        response = self.client.delete(
+            reverse("splittime:api_delete_group", kwargs={"group_id": self.group1.id}),
         )
-        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.status_code, 204)
 
     def test_delete_group_with_no_permission(self):
         """
         Delete group should return 403 for groups where the user is not the creator
         """
         UserHelpers.login_user(self.client, self.user1)
-        response = self.client.post(
-            reverse(
-                "splittime:api_delete_group",
-            ),
-            data={"id": self.group2.id},
+        response = self.client.delete(
+            reverse("splittime:api_delete_group", kwargs={"group_id": self.group2.id}),
         )
         self.assertEqual(response.status_code, 403)
 
@@ -237,10 +238,7 @@ class GroupPermissionsTests(APITestCase):
         Delete group should return 403 for a group where the user is just member
         """
         UserHelpers.login_user(self.client, self.user3)
-        response = self.client.post(
-            reverse(
-                "splittime:api_delete_group",
-            ),
-            data={"id": self.group2.id},
+        response = self.client.delete(
+            reverse("splittime:api_delete_group", kwargs={"group_id": self.group2.id}),
         )
         self.assertEqual(response.status_code, 403)

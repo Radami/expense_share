@@ -9,14 +9,14 @@ urlpatterns = [
     path("logout", user_views.logout_request, name="logout"),
     path("api/group_index", group_views.GroupIndexView.as_view(), name="api_index_view"),
     path("api/add_group", group_views.AddGroupView.as_view(), name="api_add_group"),
-    path("api/delete_group", group_views.DeleteGroupView.as_view(), name="api_delete_group"),
+    path("api/groups/<int:group_id>/", group_views.DeleteGroupView.as_view(), name="api_delete_group"),
     path(
         "api/group_details",
         group_views.GroupDetailsAPIView.as_view(),
         name="api_group_details_view",
     ),
     path(
-        "api/delete_group_member",
+        "api/groups/<int:group_id>/members/<int:user_id>/",
         group_views.DeleteGroupMemberAPIView.as_view(),
         name="api_delete_group_member_view",
     ),
@@ -36,9 +36,9 @@ urlpatterns = [
         name="api_add_group_expense_view",
     ),
     path(
-        "api/delete_group_expense",
+        "api/expenses/<int:expense_id>/",
         expense_views.DeleteExpenseAPIView.as_view(),
-        name="api_delete_group_expense_view",
+        name="api_delete_expense_view",
     ),
     path(
         "api/friends",

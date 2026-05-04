@@ -13,7 +13,7 @@ export default function GroupDetailPage() {
     const { group_id = "" } = useParams<string>();
     const [searchParams, setSearchParams] = useSearchParams();
     const activeTab = searchParams.get('tab') ?? 'expenses';
-    const [isAuth, setIsAuth] = useState(false);
+    const [isError, setIsError] = useState(false);
     const [groupName, setGroupName] = useState("");
     const [groupDescription, setGroupDescription] = useState("");
     const [userIsOwed, setUserIsOwed] = useState<string>("Nothing");
@@ -30,7 +30,7 @@ export default function GroupDetailPage() {
 
     const fetchGroupDetails = useCallback(async () => {
         try {
-            const response = await api.get('http://localhost:8000/splittime/api/group_details', {
+            const response = await api.get('/splittime/api/group_details', {
                 params: { group_id },
             });
             setGroupName(response.data.name);
@@ -42,10 +42,9 @@ export default function GroupDetailPage() {
             setGroupBalances(response.data.balances);
             setGroupMinimizedBalances(response.data.minimized_balances);
             setGroupMinimizeBalancesSetting(response.data.minimize_balances_setting);
-            setIsAuth(true);
         } catch (error) {
             console.error('Error fetching group details', error);
-            setIsAuth(false);
+            setIsError(true);
         } finally {
             setIsLoading(false);
         }
@@ -57,7 +56,19 @@ export default function GroupDetailPage() {
 
     return (
         <div className="py-4">
-            {isAuth ? (
+            {isLoading ? (
+                <div className="d-flex justify-content-center py-5">
+                    <div className="spinner-border text-success" role="status">
+                        <span className="visually-hidden">Loading...</span>
+                    </div>
+                </div>
+            ) : isError ? (
+                <div className="text-center py-5 text-secondary">
+                    <i className="bi bi-exclamation-circle display-4 d-block mb-3 opacity-50"></i>
+                    <p className="fs-5 fw-medium mb-1">Something went wrong</p>
+                    <small>Please try again later</small>
+                </div>
+            ) : (
                 <>
                     <div className="mb-3">
                         <h1 className="fw-bold mb-1">{groupName}</h1>
@@ -93,7 +104,7 @@ export default function GroupDetailPage() {
                         variant="pills"
                     >
                         <Tab eventKey="expenses" title="Expenses">
-                            <GroupDetailsExpenses group_expenses={groupExpenses} group_members={groupMembers} group_id={group_id} />
+                            <GroupDetailsExpenses group_expenses={groupExpenses} />
                         </Tab>
                         <Tab eventKey="members" title="Members">
                             <GroupDetailsMembers group_members={groupMembers} group_id={group_id} />
@@ -113,16 +124,6 @@ export default function GroupDetailPage() {
                         </Tab>
                     </Tabs>
                 </>
-            ) : isLoading ? (
-                <div className="d-flex justify-content-center py-5">
-                    <div className="spinner-border text-success" role="status">
-                        <span className="visually-hidden">Loading...</span>
-                    </div>
-                </div>
-            ) : (
-                <div className="container d-flex justify-content-center mt-4">
-                    <a className="btn btn-outline-primary" href="/auth/login">Login</a>
-                </div>
             )}
         </div>
     );

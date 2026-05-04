@@ -2,7 +2,7 @@ from django.contrib.auth.models import User
 
 from rest_framework import serializers
 
-from .models import Group, GroupMembership, Expense, Debt
+from .models import Group, GroupMembership, Expense
 from .services.balances import BalanceCalculator
 
 
@@ -13,7 +13,28 @@ class UserSerializer(serializers.ModelSerializer):
         fields = ["id", "username", "first_name", "last_name", "email"]
 
 
-class GroupSerializer(serializers.ModelSerializer):
+class UserBalanceMixin:
+    """Computes and caches per-request balance data shared by group serializers."""
+
+    def _get_balances(self, obj):
+        if not hasattr(self, '_balances_cache'):
+            self._balances_cache = BalanceCalculator.calculateBalancesAPI(obj)
+        return self._balances_cache
+
+    def get_user_is_owed(self, obj):
+        pair = BalanceCalculator.calculateUserIsOwed(obj.id, self.context["request"].user.id, True, self._get_balances(obj))
+        if pair[0] == "XYZ" or pair[1] < 0:
+            return "Nothing"
+        return f"{pair[0]} {pair[1]:.2f}"
+
+    def get_user_owes(self, obj):
+        pair = BalanceCalculator.calculateUserOwes(obj.id, self.context["request"].user.id, True, self._get_balances(obj))
+        if pair[0] == "XYZ" or pair[1] < 0:
+            return "Nothing"
+        return f"{pair[0]} {pair[1]:.2f}"
+
+
+class GroupSerializer(UserBalanceMixin, serializers.ModelSerializer):
 
     creator = serializers.ReadOnlyField(source="creator.username")
     name = serializers.CharField(max_length=100)
@@ -34,20 +55,8 @@ class GroupSerializer(serializers.ModelSerializer):
             "user_owes",
         ]
 
-    def get_user_is_owed(self, obj):
-        pair = BalanceCalculator.calculateUserIsOwed(obj.id, self.context["request"].user.id, True)
-        if pair[0] == "XYZ" or pair[1] < 0:
-            return "Nothing"
-        return str(pair[0]) + " " + str("{0:.2f}".format(pair[1]))
 
-    def get_user_owes(self, obj):
-        pair = BalanceCalculator.calculateUserOwes(obj.id, self.context["request"].user.id, True)
-        if pair[0] == "XYZ" or pair[1] < 0:
-            return "Nothing"
-        return str(pair[0]) + " " + str("{0:.2f}".format(pair[1]))
-
-
-class GroupDetailsSerializer(serializers.Serializer):
+class GroupDetailsSerializer(UserBalanceMixin, serializers.Serializer):
     name = serializers.CharField(max_length=100)
     description = serializers.CharField(max_length=100)
     creation_date = serializers.DateTimeField(read_only=True)
@@ -78,18 +87,6 @@ class GroupDetailsSerializer(serializers.Serializer):
             "minimized_balances",
         ]
 
-    def get_user_is_owed(self, obj):
-        pair = BalanceCalculator.calculateUserIsOwed(obj.id, self.context["request"].user.id, True)
-        if pair[0] == "XYZ" or pair[1] < 0:
-            return "Nothing"
-        return str(pair[0]) + " " + str("{0:.2f}".format(pair[1]))
-
-    def get_user_owes(self, obj):
-        pair = BalanceCalculator.calculateUserOwes(obj.id, self.context["request"].user.id, True)
-        if pair[0] == "XYZ" or pair[1] < 0:
-            return "Nothing"
-        return str(pair[0]) + " " + str("{0:.2f}".format(pair[1]))
-
     def get_group_members(self, obj):
         group_memberships = GroupMembership.objects.filter(group=obj)
         return [
@@ -103,10 +100,10 @@ class GroupDetailsSerializer(serializers.Serializer):
 
     def get_expenses(self, obj):
         user = self.context["request"].user
-        expenses = Expense.objects.filter(group=obj).order_by("creation_date")
+        expenses = Expense.objects.filter(group=obj).prefetch_related('debts').order_by("-creation_date")
         result = []
-        for e in expenses.reverse():
-            debt_set = list(Debt.objects.filter(expense=e))
+        for e in expenses:
+            debt_set = list(e.debts.all())
             total_shares = sum(d.shares for d in debt_set)
             if total_shares > 0:
                 user_debts = [
@@ -139,10 +136,10 @@ class GroupDetailsSerializer(serializers.Serializer):
         return totals
 
     def get_balances(self, obj):
-        return BalanceCalculator.calculateBalancesAPI(obj)
+        return self._get_balances(obj)
 
     def get_minimized_balances(self, obj):
-        return BalanceCalculator.calculateMinimizedDebts(obj)
+        return BalanceCalculator.calculateMinimizedDebts(obj, self._get_balances(obj))
 
 
 class ExpenseSerializer(serializers.ModelSerializer):

@@ -84,7 +84,7 @@ class Debt(models.Model):
         "auth.User", related_name="to_user", on_delete=models.DO_NOTHING
     )
     expense = models.ForeignKey(
-        Expense, related_name="expense", on_delete=models.CASCADE
+        Expense, related_name="debts", on_delete=models.CASCADE
     )
     shares = models.IntegerField(validators=INTEGER_VALIDATOR)
 

@@ -34,7 +34,7 @@ const GroupDetailsBalances: React.FC<GroupDetailsBalancesProps> = ({
 
     async function handleToggle() {
         try {
-            await api.post('http://localhost:8000/splittime/api/update_group_settings', {
+            await api.post('/splittime/api/update_group_settings', {
                 group_id,
                 minimize_balances_setting: !minimize_balances_setting,
             });

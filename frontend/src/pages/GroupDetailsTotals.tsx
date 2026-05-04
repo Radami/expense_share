@@ -4,17 +4,12 @@ import {
 } from 'recharts';
 import type { ExpenseType, GroupMemberType } from '../Types';
 import { getAvatarColor } from '../utils/avatar';
+import { MONTH_NAMES } from '../utils/constants';
 
 interface GroupDetailsTotalsProps {
     groupExpenses: ExpenseType[],
     groupMembers: GroupMemberType[],
 }
-
-
-const MONTHS = [
-    'January', 'February', 'March', 'April', 'May', 'June',
-    'July', 'August', 'September', 'October', 'November', 'December',
-];
 
 const GroupDetailsTotals: React.FC<GroupDetailsTotalsProps> = ({ groupExpenses, groupMembers }) => {
     const [selectedMonth, setSelectedMonth] = useState(new Date().getMonth());
@@ -73,7 +68,7 @@ const GroupDetailsTotals: React.FC<GroupDetailsTotalsProps> = ({ groupExpenses, 
                     <button className="btn-nav" onClick={prevMonth}>
                         <i className="bi bi-chevron-left"></i>
                     </button>
-                    <span className="fw-semibold small text-center totals-period-label">{MONTHS[selectedMonth]}</span>
+                    <span className="fw-semibold small text-center totals-period-label">{MONTH_NAMES[selectedMonth]}</span>
                     <button className="btn-nav" onClick={nextMonth}>
                         <i className="bi bi-chevron-right"></i>
                     </button>
@@ -115,20 +110,20 @@ const GroupDetailsTotals: React.FC<GroupDetailsTotalsProps> = ({ groupExpenses, 
                                         position="insideTop"
                                         fill="white"
                                         style={{ fontSize: 11, fontWeight: 700 }}
-                                        formatter={((v: unknown) => {
+                                        formatter={(v) => {
                                             const n = Number(v);
                                             return n > 0 ? `${selectedCurrency} ${n.toFixed(2)}` : '';
-                                        }) as never}
+                                        }}
                                     />
                                     <LabelList
                                         dataKey="percentage"
                                         position="top"
                                         fill="#2a2520"
                                         style={{ fontSize: 12, fontWeight: 700 }}
-                                        formatter={((v: unknown) => {
+                                        formatter={(v) => {
                                             const n = Number(v);
                                             return n > 0 ? `${n.toFixed(1)}%` : '';
-                                        }) as never}
+                                        }}
                                     />
                                 </Bar>
                             </BarChart>

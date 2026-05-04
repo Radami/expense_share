@@ -94,8 +94,7 @@ class GroupMembershipAPILoginTests(APITestCase):
         self.assertEqual(response.status_code, 401)
 
     def test_delete_group_member_not_logged_in(self):
-        data = {"user_id": self.user2.id, "group_id": self.group1.id}
-        response = self.client.post(reverse("splittime:api_delete_group_member_view"), data=data)
+        response = self.client.delete(reverse("splittime:api_delete_group_member_view", kwargs={"group_id": self.group1.id, "user_id": self.user2.id}))
         self.assertEqual(response.status_code, 401)
 
 
@@ -113,10 +112,8 @@ class GroupMembershipDeleteViewTests(APITestCase):
     def test_delete_group_member_as_creator(self):
         UserHelpers.login_user(self.client, self.creator)
 
-        # test begins
-        data = {"user_id": self.member.id, "group_id": self.group1.id}
-        response = self.client.post(reverse("splittime:api_delete_group_member_view"), data=data)
-        self.assertEqual(response.status_code, 200)
+        response = self.client.delete(reverse("splittime:api_delete_group_member_view", kwargs={"group_id": self.group1.id, "user_id": self.member.id}))
+        self.assertEqual(response.status_code, 204)
 
         # verify user is not in group anymore
         response = self.client.get(
@@ -128,10 +125,8 @@ class GroupMembershipDeleteViewTests(APITestCase):
     def test_delete_group_member_as_member(self):
         UserHelpers.login_user(self.client, self.member)
 
-        # test begins
-        data = {"user_id": self.creator.id, "group_id": self.group1.id}
-        response = self.client.post(reverse("splittime:api_delete_group_member_view"), data=data)
-        self.assertEqual(response.status_code, 200)
+        response = self.client.delete(reverse("splittime:api_delete_group_member_view", kwargs={"group_id": self.group1.id, "user_id": self.creator.id}))
+        self.assertEqual(response.status_code, 204)
 
         # verify user is not in group anymore
         response = self.client.get(
@@ -143,15 +138,11 @@ class GroupMembershipDeleteViewTests(APITestCase):
     def test_delete_group_member_self(self):
         UserHelpers.login_user(self.client, self.member)
 
-        # test begins
-        data = {"user_id": self.member.id, "group_id": self.group1.id}
-        response = self.client.post(reverse("splittime:api_delete_group_member_view"), data=data)
+        response = self.client.delete(reverse("splittime:api_delete_group_member_view", kwargs={"group_id": self.group1.id, "user_id": self.member.id}))
         self.assertEqual(response.status_code, 403)
 
     def test_delete_group_member_as_outsider(self):
         UserHelpers.login_user(self.client, self.outsider)
 
-        # test begins
-        data = {"user_id": self.member.id, "group_id": self.group1.id}
-        response = self.client.post(reverse("splittime:api_delete_group_member_view"), data=data)
+        response = self.client.delete(reverse("splittime:api_delete_group_member_view", kwargs={"group_id": self.group1.id, "user_id": self.member.id}))
         self.assertEqual(response.status_code, 403)

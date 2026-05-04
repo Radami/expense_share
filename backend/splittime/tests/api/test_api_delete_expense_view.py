@@ -20,38 +20,33 @@ class AddExpenseAPITestView(APITestCase):
 
     def test_delete_expense_creator(self):
         UserHelpers.login_user(self.client, self.user1)
-        data = {"expense_id": self.expense1.id}
 
-        response = self.client.post(reverse("splittime:api_delete_group_expense_view"), data=data)
-        self.assertEqual(response.status_code, 200)
+        response = self.client.delete(reverse("splittime:api_delete_expense_view", kwargs={"expense_id": self.expense1.id}))
+        self.assertEqual(response.status_code, 204)
 
         self.assertFalse(Expense.objects.filter(pk=self.expense1.id).exists())
         self.assertTrue(Expense.objects.filter(pk=self.expense2.id).exists())
 
     def test_delete_expense_participant(self):
         UserHelpers.login_user(self.client, self.user2)
-        data = {"expense_id": self.expense1.id}
 
-        response = self.client.post(reverse("splittime:api_delete_group_expense_view"), data=data)
-        self.assertEqual(response.status_code, 200)
+        response = self.client.delete(reverse("splittime:api_delete_expense_view", kwargs={"expense_id": self.expense1.id}))
+        self.assertEqual(response.status_code, 204)
 
         self.assertFalse(Expense.objects.filter(pk=self.expense1.id).exists())
         self.assertTrue(Expense.objects.filter(pk=self.expense2.id).exists())
 
     def test_delete_expense_outsider(self):
         UserHelpers.login_user(self.client, self.user3)
-        data = {"expense_id": self.expense1.id}
 
-        response = self.client.post(reverse("splittime:api_delete_group_expense_view"), data=data)
+        response = self.client.delete(reverse("splittime:api_delete_expense_view", kwargs={"expense_id": self.expense1.id}))
         self.assertEqual(response.status_code, 403)
 
         self.assertTrue(Expense.objects.filter(pk=self.expense1.id).exists())
         self.assertTrue(Expense.objects.filter(pk=self.expense2.id).exists())
 
     def test_delete_expense_not_logged_in(self):
-        data = {"expense_id": self.expense1.id}
-
-        response = self.client.post(reverse("splittime:api_delete_group_expense_view"), data=data)
+        response = self.client.delete(reverse("splittime:api_delete_expense_view", kwargs={"expense_id": self.expense1.id}))
         self.assertEqual(response.status_code, 401)
 
         self.assertTrue(Expense.objects.filter(pk=self.expense1.id).exists())

@@ -47,8 +47,8 @@ class AddExpenseAPIView(APIView):
 class DeleteExpenseAPIView(APIView):
     permission_classes = [IsAuthenticated]
 
-    def post(self, request):
-        expense = get_object_or_404(Expense, pk=request.data["expense_id"])
+    def delete(self, request, expense_id):
+        expense = get_object_or_404(Expense, pk=expense_id)
 
         if not expense.group.has_member(request.user):
             return Response(
@@ -62,4 +62,4 @@ class DeleteExpenseAPIView(APIView):
             print("DeleteExpenseException", exception)
             return Response(str(exception), status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
-        return Response(status=status.HTTP_200_OK)
+        return Response(status=status.HTTP_204_NO_CONTENT)
