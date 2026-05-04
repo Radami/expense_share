@@ -2,7 +2,7 @@ from django.contrib.auth.models import User
 
 from rest_framework import serializers
 
-from .models import Group, GroupMembership, Expense, Debt
+from .models import Group, GroupMembership, Expense
 from .services.balances import BalanceCalculator
 
 
@@ -100,10 +100,10 @@ class GroupDetailsSerializer(UserBalanceMixin, serializers.Serializer):
 
     def get_expenses(self, obj):
         user = self.context["request"].user
-        expenses = Expense.objects.filter(group=obj).order_by("creation_date")
+        expenses = Expense.objects.filter(group=obj).prefetch_related('debts').order_by("-creation_date")
         result = []
-        for e in expenses.reverse():
-            debt_set = list(Debt.objects.filter(expense=e))
+        for e in expenses:
+            debt_set = list(e.debts.all())
             total_shares = sum(d.shares for d in debt_set)
             if total_shares > 0:
                 user_debts = [
