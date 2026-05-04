@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { useNavigate, useParams } from "react-router-dom";
+import { useNavigate, useParams, useSearchParams } from "react-router-dom";
 import { type GroupMemberType, type GroupType } from '../Types';
 import api from '../utils/axios';
 
@@ -10,6 +10,8 @@ export default function AddExpensePage() {
     const [error, setError] = useState<string>('');
     const navigate = useNavigate();
     const { group_id: paramGroupId } = useParams<{ group_id: string }>();
+    const [searchParams] = useSearchParams();
+    const returnTab = searchParams.get('return_tab') ?? 'expenses';
 
     useEffect(() => {
         const fetchGroups = async () => {
@@ -59,7 +61,7 @@ export default function AddExpensePage() {
         try {
             const response = await api.post('/splittime/api/add_group_expense', expenseData);
             if (response.status === 201) {
-                navigate(`/group/${selectedGroupId}`);
+                navigate(`/group/${selectedGroupId}?tab=${returnTab}`);
             }
         } catch (err: any) {
             setError(err.response?.data?.detail || 'Failed to add expense');

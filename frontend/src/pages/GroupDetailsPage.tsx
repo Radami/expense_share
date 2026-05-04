@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import Tab from 'react-bootstrap/Tab';
 import Tabs from 'react-bootstrap/Tabs';
-import { useNavigate, useParams } from "react-router-dom";
+import { useNavigate, useParams, useSearchParams } from "react-router-dom";
 import { type BalancesType, type ExpenseType, type GroupMemberType, type MinimizedDebtType } from '../Types';
 import api from '../utils/axios';
 import GroupDetailsBalances from './GroupDetailsBalances';
@@ -11,6 +11,8 @@ import GroupDetailsTotals from './GroupDetailsTotals';
 
 export default function GroupDetailPage() {
     const { group_id = "" } = useParams<string>();
+    const [searchParams, setSearchParams] = useSearchParams();
+    const activeTab = searchParams.get('tab') ?? 'expenses';
     const [isAuth, setIsAuth] = useState(false);
     const [groupName, setGroupName] = useState("");
     const [groupDescription, setGroupDescription] = useState("");
@@ -66,10 +68,10 @@ export default function GroupDetailPage() {
                                 : <span className="badge rounded-pill bg-danger-subtle text-danger-emphasis fw-semibold px-3 py-2">You owe {userOwes}</span>
                             }
                             <div className="d-flex gap-2 ms-auto">
-                                <button className="btn btn-outline-secondary btn-sm d-flex align-items-center gap-2" type="button" onClick={() => navigate('/add_member/' + group_id)}>
+                                <button className="btn btn-outline-secondary btn-sm d-flex align-items-center gap-2" type="button" onClick={() => navigate(`/add_member/${group_id}?return_tab=${activeTab}`)}>
                                     <i className="bi bi-person-plus"></i> Add member
                                 </button>
-                                <button className="btn btn-success btn-sm d-flex align-items-center gap-2" type="button" onClick={() => navigate('/add_expense/' + group_id)}>
+                                <button className="btn btn-success btn-sm d-flex align-items-center gap-2" type="button" onClick={() => navigate(`/add_expense/${group_id}?return_tab=${activeTab}`)}>
                                     <i className="bi bi-plus-lg"></i> Add expense
                                 </button>
                             </div>
@@ -77,7 +79,8 @@ export default function GroupDetailPage() {
                     </div>
 
                     <Tabs
-                        defaultActiveKey="expenses"
+                        activeKey={activeTab}
+                        onSelect={k => k && setSearchParams({ tab: k }, { replace: true })}
                         id="group-detail-tabs"
                         className="mb-3 custom-tab-margin gap-1"
                         variant="pills"

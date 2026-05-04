@@ -1,11 +1,13 @@
 import { useState } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import api from '../utils/axios';
 
 export default function AddMemberPage() {
     const { group_id } = useParams<{ group_id: string }>();
     const [error, setError] = useState<string>('');
     const navigate = useNavigate();
+    const [searchParams] = useSearchParams();
+    const returnTab = searchParams.get('return_tab') ?? 'members';
 
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
@@ -17,7 +19,7 @@ export default function AddMemberPage() {
                 group_id,
             });
             if (response.status === 201) {
-                navigate(`/group/${group_id}`);
+                navigate(`/group/${group_id}?tab=${returnTab}`);
             }
         } catch (err: any) {
             setError(err.response?.data?.detail || 'Failed to add member');
