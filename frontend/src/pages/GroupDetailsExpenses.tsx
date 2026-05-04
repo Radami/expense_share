@@ -2,18 +2,13 @@ import React, { useEffect, useMemo, useState } from 'react';
 import { type ExpenseType, type GroupMemberType } from '../Types';
 import api from '../utils/axios';
 import { getAvatarBgClass } from '../utils/avatar';
+import { MONTH_NAMES } from '../utils/constants';
 
 interface GroupDetailsExpensesProps {
     group_expenses: ExpenseType[],
     group_members: GroupMemberType[],
     group_id: string,
 }
-
-
-const MONTH_NAMES = [
-    "January", "February", "March", "April", "May", "June",
-    "July", "August", "September", "October", "November", "December",
-];
 
 const GroupDetailsExpenses: React.FC<GroupDetailsExpensesProps> = ({ group_expenses }) => {
     const [expenses, setExpenses] = useState(group_expenses);
