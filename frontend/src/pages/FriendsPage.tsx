@@ -168,10 +168,9 @@ export default function FriendsPage() {
             ) : (
                 <>
                     <div className="mb-4">
-                        <div className="member-form-label text-uppercase fw-bold d-flex align-items-center gap-1 mb-1">
-                            <i className="bi bi-people"></i> Your people
+                        <div>
+                            <h1 className="fw-bold mb-0"><i className="bi bi-people me-1"></i>Friends</h1>
                         </div>
-                        <h1 className="fw-bold mb-0">Friends</h1>
                     </div>
 
                     {friends.length > 0 ? (

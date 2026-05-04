@@ -55,7 +55,7 @@ export default function HomePage() {
                     <>
                         <div className="d-flex justify-content-between align-items-center mb-4">
                             <div>
-                                <h1 className="fw-bold mb-0"><i className="bi bi-people me-1"></i>Your Groups</h1>
+                                <h1 className="fw-bold mb-0"><i className="bi bi-grid me-1"></i>Your Groups</h1>
                             </div>
                             <button
                                 className="btn btn-success d-flex align-items-center gap-2"
