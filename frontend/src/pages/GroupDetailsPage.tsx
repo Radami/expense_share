@@ -24,6 +24,8 @@ export default function GroupDetailPage() {
     const [groupMinimizedBalances, setGroupMinimizedBalances] = useState<MinimizedDebtType[]>([]);
     const [groupMinimizeBalancesSetting, setGroupMinimizeBalancesSetting] = useState<boolean>(false);
 
+    const [isLoading, setIsLoading] = useState(true);
+
     const navigate = useNavigate();
 
     const fetchGroupDetails = useCallback(async () => {
@@ -44,6 +46,8 @@ export default function GroupDetailPage() {
         } catch (error) {
             console.error('Error fetching group details', error);
             setIsAuth(false);
+        } finally {
+            setIsLoading(false);
         }
     }, [group_id]);
 
@@ -109,8 +113,16 @@ export default function GroupDetailPage() {
                         </Tab>
                     </Tabs>
                 </>
+            ) : isLoading ? (
+                <div className="d-flex justify-content-center py-5">
+                    <div className="spinner-border text-success" role="status">
+                        <span className="visually-hidden">Loading...</span>
+                    </div>
+                </div>
             ) : (
-                <p>Please log in</p>
+                <div className="container d-flex justify-content-center mt-4">
+                    <a className="btn btn-outline-primary" href="/auth/login">Login</a>
+                </div>
             )}
         </div>
     );

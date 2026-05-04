@@ -1,6 +1,6 @@
 import { AnimatePresence, motion } from 'framer-motion';
 import { useEffect, useState } from 'react';
-import { Link, useNavigate, type MetaFunction } from "react-router";
+import { useNavigate, type MetaFunction } from "react-router";
 import Group from '../components/Group';
 import type { GroupType } from '../Types';
 import api from '../utils/axios';
@@ -16,6 +16,7 @@ export const meta: MetaFunction = () => {
 
 export default function HomePage() {
     const [groups, setGroups] = useState<GroupType[]>([]);
+    const [isLoading, setIsLoading] = useState(true);
 
     // TODO: remove isAuth
     const [isAuth, setIsAuth] = useState(false);
@@ -31,6 +32,8 @@ export default function HomePage() {
             } catch (error) {
                 console.error('Error fetching groups', error);
                 setIsAuth(false);
+            } finally {
+                setIsLoading(false);
             }
         };
 
@@ -90,9 +93,15 @@ export default function HomePage() {
                             )}
                         </AnimatePresence>
                     </>
+                ) : isLoading ? (
+                    <div className="d-flex justify-content-center py-5">
+                        <div className="spinner-border text-success" role="status">
+                            <span className="visually-hidden">Loading...</span>
+                        </div>
+                    </div>
                 ) : (
                     <div className="container d-flex justify-content-center mt-4">
-                        <Link className="btn btn-outline-primary" to="auth/login">Login</Link>
+                        <a className="btn btn-outline-primary" href="/auth/login">Login</a>
                     </div>
                 )}
             </div>
