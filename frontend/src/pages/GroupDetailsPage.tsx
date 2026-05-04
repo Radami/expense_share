@@ -66,7 +66,7 @@ export default function GroupDetailPage() {
                                 : <span className="badge rounded-pill bg-danger-subtle text-danger-emphasis fw-semibold px-3 py-2">You owe {userOwes}</span>
                             }
                             <div className="d-flex gap-2 ms-auto">
-                                <button className="btn btn-outline-secondary btn-sm d-flex align-items-center gap-2" type="button">
+                                <button className="btn btn-outline-secondary btn-sm d-flex align-items-center gap-2" type="button" onClick={() => navigate('/add_member/' + group_id)}>
                                     <i className="bi bi-person-plus"></i> Add member
                                 </button>
                                 <button className="btn btn-success btn-sm d-flex align-items-center gap-2" type="button" onClick={() => navigate('/add_expense/' + group_id)}>

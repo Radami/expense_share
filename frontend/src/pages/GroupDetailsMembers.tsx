@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { type GroupMemberType } from '../Types';
-import api from '../utils/axios';
 import { getAvatarBgClass } from '../utils/avatar';
+import api from '../utils/axios';
 
 interface GroupDetailsMembersProps {
     group_members: GroupMemberType[],
@@ -71,28 +71,6 @@ const GroupDetailsMembers: React.FC<GroupDetailsMembersProps> = ({ group_members
                         <small>Add someone below to get started</small>
                     </div>
                 )}
-            </div>
-
-            <div className="card card-dashed rounded-3">
-                <div className="card-body p-3">
-                    <form onSubmit={addGroupMember} className="d-flex align-items-center gap-3">
-                        <div className="flex-grow-1">
-                            <label htmlFor="member_email" className="member-form-label text-uppercase fw-bold d-block mb-1">
-                                Email
-                            </label>
-                            <input
-                                className="form-control border-0 bg-transparent shadow-none p-0"
-                                type="email"
-                                id="member_email"
-                                name="member_email"
-                                placeholder="friend@example.com"
-                            />
-                        </div>
-                        <button className="btn btn-success btn-sm d-flex align-items-center gap-2 flex-shrink-0" type="submit">
-                            <i className="bi bi-person-plus"></i> Add
-                        </button>
-                    </form>
-                </div>
             </div>
         </div>
     );
