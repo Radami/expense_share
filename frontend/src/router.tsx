@@ -7,6 +7,7 @@ import RootLayout from "./layouts/RootLayout"; // Your main layout component (e.
 import AddExpensePage from "./pages/AddExpensePage";
 import AddGroupPage from "./pages/AddGroupPage";
 import AddMemberPage from "./pages/AddMemberPage";
+import EditGroupPage from "./pages/EditGroupPage";
 import GroupDetailsPage from "./pages/GroupDetailsPage";
 import HomePage from "./pages/HomePage";
 import NotFoundPage from "./pages/NotFoundPage";
@@ -36,6 +37,10 @@ const routes: RouteObject[] = [
             {
                 path: "add_member/:group_id",
                 element: <AddMemberPage />
+            },
+            {
+                path: "edit_group/:group_id",
+                element: <EditGroupPage />
             }
         ],
 

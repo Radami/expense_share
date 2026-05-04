@@ -165,7 +165,12 @@ class UpdateGroupSettingsAPIView(APIView):
                 "You are not a member of this group.",
                 status=status.HTTP_403_FORBIDDEN,
             )
-        group.minimize_balances_setting = request.data.get("minimize_balances_setting")
+        if "name" in request.data:
+            group.name = request.data.get("name")
+        if "description" in request.data:
+            group.description = request.data.get("description")
+        if "minimize_balances_setting" in request.data:
+            group.minimize_balances_setting = request.data.get("minimize_balances_setting")
         group.save()
         return Response(status=status.HTTP_200_OK)
 
