@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { type ExpenseType, type GroupMemberType } from '../Types';
 import api from '../utils/axios';
 import { getAvatarBgClass } from '../utils/avatar';
@@ -17,12 +17,12 @@ const MONTH_NAMES = [
 
 const GroupDetailsExpenses: React.FC<GroupDetailsExpensesProps> = ({ group_expenses }) => {
     const [expenses, setExpenses] = useState(group_expenses);
-    const [headers, setHeaders] = useState<Record<number, string>>({});
 
     useEffect(() => {
         setExpenses(group_expenses);
-        setHeaders(processMonthHeaders(group_expenses));
     }, [group_expenses]);
+
+    const headers = useMemo(() => processMonthHeaders(expenses), [expenses]);
 
     function getMonthFromDate(datetime: string): string {
         return MONTH_NAMES[new Date(datetime).getUTCMonth()];
@@ -53,9 +53,7 @@ const GroupDetailsExpenses: React.FC<GroupDetailsExpensesProps> = ({ group_expen
         api.post('/splittime/api/delete_group_expense', { expense_id: id })
             .then(response => {
                 if (response.status === 200) {
-                    const updated = expenses.filter(e => e.id !== id);
-                    setExpenses(updated);
-                    setHeaders(processMonthHeaders(updated));
+                    setExpenses(expenses.filter(e => e.id !== id));
                 }
             })
             .catch(error => console.error('Error deleting expense', error));
