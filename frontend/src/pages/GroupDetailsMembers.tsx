@@ -1,123 +1,101 @@
 import { useEffect, useState } from 'react';
 import { type GroupMemberType } from '../Types';
 import api from '../utils/axios';
+import { getAvatarBgClass } from '../utils/avatar';
 
 interface GroupDetailsMembersProps {
     group_members: GroupMemberType[],
     group_id: string,
 }
 
+
 const GroupDetailsMembers: React.FC<GroupDetailsMembersProps> = ({ group_members, group_id }) => {
+    const [members, setMembers] = useState(group_members);
 
-    const [members, setMembers] = useState(group_members)
-
-      // Update state when the prop changes
     useEffect(() => {
         setMembers(group_members);
-    }, [group_members]); // This will trigger whenever initialValue changes
+    }, [group_members]);
 
-    const deleteGroupMember = (group_member_id: number) => {
-        api.post('http://localhost:8000/splittime/api/delete_group_member',
-        {
-            user_id : group_member_id,
-            group_id : group_id
-        }).then(response => {
-            if (response.status === 200) {
-                console.log("Delete Group Member Success");
-                const updatedGroupMembers = members.filter(group_member => group_member.id !== group_member_id)
-                setMembers(updatedGroupMembers)
-            }
-        }).catch(error => {
-            if (error.response) {
-                // The request was made and the server responded with a status code
-                // that falls out of the range of 2xx
-                console.log('Error status code:', error.response.status);
-            } else if (error.request) {
-                // The request was made but no response was received
-                console.log('No response received:', error.request);
-            } else {
-                // Something happened in setting up the request that triggered an Error
-                console.log('Error', error.message);
-            }
-        });
-        
+    const deleteGroupMember = (id: number) => {
+        api.post('http://localhost:8000/splittime/api/delete_group_member', { user_id: id, group_id })
+            .then(response => {
+                if (response.status === 200) {
+                    setMembers(ms => ms.filter(m => m.id !== id));
+                }
+            })
+            .catch(error => console.error('Error deleting member', error));
     };
 
-    function addGroupMember(e : React.FormEvent<HTMLFormElement>) { // e is typed as a form event
-        e.preventDefault(); // Prevent form from reloading the page
-        const formData = new FormData(e.target as HTMLFormElement); // Use e.target to get the form
-        const member_email = formData.get("member_email");
-
-        api.post('http://localhost:8000/splittime/api/add_group_member',
-            {
-                member_email : member_email,
-                group_id : group_id
-            }
-        ).then(response => {
-            if (response.status === 201) {
-                console.log("Add Group Member Success", response.data);
-                const updatedGroupMembers = [...members, response.data]
-                setMembers(updatedGroupMembers)
-            }
-        }).catch(error => {
-            if (error.response) {
-                // The request was made and the server responded with a status code
-                // that falls out of the range of 2xx
-                console.log('Error status code:', error.response.status);
-            } else if (error.request) {
-                // The request was made but no response was received
-                console.log('No response received:', error.request);
-            } else {
-                // Something happened in setting up the request that triggered an Error
-                console.log('Error', error.message);
-            }
-        });
-        
-      }
+    function addGroupMember(e: React.FormEvent<HTMLFormElement>) {
+        e.preventDefault();
+        const form = e.target as HTMLFormElement;
+        const member_email = new FormData(form).get('member_email');
+        api.post('http://localhost:8000/splittime/api/add_group_member', { member_email, group_id })
+            .then(response => {
+                if (response.status === 201) {
+                    setMembers(ms => [...ms, response.data]);
+                    form.reset();
+                }
+            })
+            .catch(error => console.error('Error adding member', error));
+    }
 
     return (
         <div>
-            {members && members.length > 0 ? 
-                members.map((gm) => (
-                <div key={gm.id}>
-                    <div className="d-flex justify-content-between">
-                        <div className='d-flex justify-content-start'>
-                            <div className="">
-                                <i className="bi bi-person-fill fs-1" />
-                            </div>
-                            
-                            <div className="container">
-                                <div className="row"> 
-                                    <span className="fs-4">{gm.username}</span>
+            <div className="d-flex flex-column gap-2 mb-3">
+                {members && members.length > 0 ? members.map(m => (
+                    <div key={m.id} className="card border shadow-sm rounded-3">
+                        <div className="card-body p-3">
+                            <div className="d-flex align-items-center gap-3">
+                                <div className={`avatar-md rounded-circle text-white d-flex align-items-center justify-content-center fw-bold flex-shrink-0 ${getAvatarBgClass(m.username)}`}>
+                                    {m.username.slice(0, 2).toUpperCase()}
                                 </div>
-                                <div className="row"> 
-                                    <span className="fs-6">{gm.email}</span>
+                                <div className="flex-grow-1">
+                                    <div className="fw-bold text-dark small">{m.username}</div>
+                                    <div className="text-secondary" style={{ fontSize: '0.75rem' }}>{m.email}</div>
                                 </div>
+                                <button
+                                    className="btn btn-link text-secondary p-2 rounded-2 delete-btn-hover flex-shrink-0"
+                                    onClick={() => deleteGroupMember(m.id)}
+                                    title="Remove member"
+                                >
+                                    <i className="bi bi-x-lg"></i>
+                                </button>
                             </div>
-                        </div>
-                        <div className="col-1 d-flex justify-content-center">
-                            <button className="btn-red-circle" onClick={() => {deleteGroupMember(gm.id)}}>
-                                <i className="bi bi-x-circle-fill"></i>
-                            </button>
                         </div>
                     </div>
-                </div>
-            )): (<p>No members found</p>)}
-            <div className="container mt-3">
-            <form onSubmit={addGroupMember}>
-                <div className="d-flex justify-content-center">   
-                    <div>
-                        <div className="input-group">
-                            <span className="input-group-text">email</span>
-                            <input className="form-control" placeholder="Enter user's email" type="text" id="member_email" name="member_email" />
-                        </div>
+                )) : (
+                    <div className="text-center py-5 text-secondary">
+                        <i className="bi bi-people display-4 d-block mb-3 opacity-25"></i>
+                        <p className="fs-5 fw-medium mb-1">No members yet</p>
+                        <small>Add someone below to get started</small>
                     </div>
-                    <button className="btn btn-success mx-2" type="submit"><i className="bi bi-person-plus-fill" /><span className="ms-1">Add User</span></button>
+                )}
+            </div>
+
+            <div className="card card-dashed rounded-3">
+                <div className="card-body p-3">
+                    <form onSubmit={addGroupMember} className="d-flex align-items-center gap-3">
+                        <div className="flex-grow-1">
+                            <label htmlFor="member_email" className="member-form-label text-uppercase fw-bold d-block mb-1">
+                                Email
+                            </label>
+                            <input
+                                className="form-control border-0 bg-transparent shadow-none p-0"
+                                type="email"
+                                id="member_email"
+                                name="member_email"
+                                placeholder="friend@example.com"
+                            />
+                        </div>
+                        <button className="btn btn-success btn-sm d-flex align-items-center gap-2 flex-shrink-0" type="submit">
+                            <i className="bi bi-person-plus"></i> Add
+                        </button>
+                    </form>
                 </div>
-            </form>
             </div>
         </div>
     );
-}
+};
 
 export default GroupDetailsMembers;

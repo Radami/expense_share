@@ -1,28 +1,17 @@
 import React, { useEffect, useState } from 'react';
 import {
-    Bar,
-    BarChart,
-    CartesianGrid,
-    Cell,
-    LabelList,
-    ResponsiveContainer,
-    XAxis,
-    YAxis,
+    Bar, BarChart, CartesianGrid, Cell, LabelList, ResponsiveContainer, XAxis, YAxis,
 } from 'recharts';
-
 import type { ExpenseType, GroupMemberType } from '../Types';
+import { getAvatarColor } from '../utils/avatar';
 
 interface GroupDetailsTotalsProps {
     groupExpenses: ExpenseType[],
     groupMembers: GroupMemberType[],
 }
 
-const BAR_COLORS = [
-    '#0d6efd', '#6610f2', '#1d5525', '#d63384',
-    '#dc3545', '#fd7e14', '#198754', '#20c997', '#0dcaf0',
-];
 
-const months = [
+const MONTHS = [
     'January', 'February', 'March', 'April', 'May', 'June',
     'July', 'August', 'September', 'October', 'November', 'December',
 ];
@@ -50,12 +39,8 @@ const GroupDetailsTotals: React.FC<GroupDetailsTotalsProps> = ({ groupExpenses, 
     const total = filtered.reduce((sum, e) => sum + e.amount, 0);
 
     const byPayee: Record<string, number> = {};
-    for (const member of groupMembers) {
-        byPayee[member.username] = 0;
-    }
-    for (const e of filtered) {
-        byPayee[e.payee] = (byPayee[e.payee] ?? 0) + e.amount;
-    }
+    for (const member of groupMembers) byPayee[member.username] = 0;
+    for (const e of filtered) byPayee[e.payee] = (byPayee[e.payee] ?? 0) + e.amount;
 
     const chartData = Object.entries(byPayee).map(([name, amount]) => ({
         name,
@@ -63,12 +48,21 @@ const GroupDetailsTotals: React.FC<GroupDetailsTotalsProps> = ({ groupExpenses, 
         percentage: total > 0 ? (amount / total) * 100 : 0,
     }));
 
+    const prevMonth = () => {
+        if (selectedMonth === 0) { setSelectedMonth(11); setSelectedYear(y => y - 1); }
+        else setSelectedMonth(m => m - 1);
+    };
+    const nextMonth = () => {
+        if (selectedMonth === 11) { setSelectedMonth(0); setSelectedYear(y => y + 1); }
+        else setSelectedMonth(m => m + 1);
+    };
+
     return (
         <div>
-            <div className="d-flex flex-wrap gap-3 mb-4">
+            <div className="d-flex flex-wrap align-items-center gap-2 mb-4">
                 {currencies.length > 0 && (
                     <select
-                        className="form-select w-auto"
+                        className="form-select form-select-sm w-auto"
                         value={selectedCurrency}
                         onChange={e => setSelectedCurrency(e.target.value)}
                     >
@@ -76,82 +70,77 @@ const GroupDetailsTotals: React.FC<GroupDetailsTotalsProps> = ({ groupExpenses, 
                     </select>
                 )}
                 <div className="d-flex align-items-center gap-1">
-                    <button
-                        className="btn btn-sm btn-outline-secondary"
-                        onClick={() => {
-                            if (selectedMonth === 0) {
-                                setSelectedMonth(11)
-                                setSelectedYear(y => y - 1)
-                            } else {
-                                setSelectedMonth(m => m - 1)}}
-                            }
-                    >&lt;</button>
-                    <span className="mx-2 fw-semibold text-center" style={{ width: '90px', display: 'inline-block' }}>{months[selectedMonth]}</span>
-                    <button
-                        className="btn btn-sm btn-outline-secondary"
-                        onClick={() => {
-                            if (selectedMonth === 11) {
-                                setSelectedMonth(0)
-                                setSelectedYear(y => y + 1)
-                            } else {
-                                setSelectedMonth(m => m + 1)
-                            }
-                        }}
-                    >&gt;</button>
+                    <button className="btn-nav" onClick={prevMonth}>
+                        <i className="bi bi-chevron-left"></i>
+                    </button>
+                    <span className="fw-semibold small text-center totals-period-label">{MONTHS[selectedMonth]}</span>
+                    <button className="btn-nav" onClick={nextMonth}>
+                        <i className="bi bi-chevron-right"></i>
+                    </button>
                 </div>
                 <div className="d-flex align-items-center gap-1">
-                    <button
-                        className="btn btn-sm btn-outline-secondary"
-                        onClick={() => setSelectedYear(y => y - 1)}
-                    >&lt;</button>
-                    <span className="mx-2 fw-semibold">{selectedYear}</span>
-                    <button
-                        className="btn btn-sm btn-outline-secondary"
-                        onClick={() => setSelectedYear(y => y + 1)}
-                    >&gt;</button>
+                    <button className="btn-nav" onClick={() => setSelectedYear(y => y - 1)}>
+                        <i className="bi bi-chevron-left"></i>
+                    </button>
+                    <span className="fw-semibold small text-center totals-period-label">{selectedYear}</span>
+                    <button className="btn-nav" onClick={() => setSelectedYear(y => y + 1)}>
+                        <i className="bi bi-chevron-right"></i>
+                    </button>
                 </div>
             </div>
 
             {total > 0 ? (
                 <>
-                    <p className="text-muted mb-3">
-                        Total: <strong>{selectedCurrency} {total.toFixed(2)}</strong>
+                    <p className="small text-secondary mb-3">
+                        Total: <strong className="text-dark">{selectedCurrency} {total.toFixed(2)}</strong>
                     </p>
-                    <ResponsiveContainer width="100%" height={320}>
-                        <BarChart data={chartData} margin={{ top: 28, right: 20, left: 10, bottom: 5 }}>
-                            <CartesianGrid strokeDasharray="3 3" vertical={false} />
-                            <XAxis dataKey="name" />
-                            <YAxis
-                                tickFormatter={v => `${selectedCurrency} ${v}`}
-                                width={90}
-                            />
-                            <Bar dataKey="amount" radius={[4, 4, 0, 0]}>
-                                {chartData.map((_entry, i) => (
-                                    <Cell key={i} fill={BAR_COLORS[i % BAR_COLORS.length]} />
-                                ))}
-                                <LabelList
-                                    dataKey="amount"
-                                    position="insideTop"
-                                    fill="white"
-                                    formatter={((v: unknown) => {
-                                        const n = Number(v);
-                                        return n > 0 ? `${selectedCurrency} ${n.toFixed(2)}` : '';
-                                    }) as never}
+                    <div className="card border shadow-sm rounded-3 px-3 pt-4 pb-3">
+                        <ResponsiveContainer width="100%" height={320}>
+                            <BarChart data={chartData} margin={{ top: 28, right: 16, left: 8, bottom: 5 }}>
+                                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#ddd5c8" />
+                                <XAxis dataKey="name" tick={{ fontSize: 12, fill: '#9a9088' }} axisLine={false} tickLine={false} />
+                                <YAxis
+                                    tickFormatter={v => `${selectedCurrency} ${v}`}
+                                    width={90}
+                                    tick={{ fontSize: 11, fill: '#9a9088' }}
+                                    axisLine={false}
+                                    tickLine={false}
                                 />
-                                <LabelList
-                                    dataKey="percentage"
-                                    position="top"
-                                    formatter={((v: unknown) => {
-                                        const n = Number(v);
-                                        return n > 0 ? `${n.toFixed(1)}%` : '';
-                                    }) as never}
-                                />
-                            </Bar>
-                        </BarChart>
-                    </ResponsiveContainer>
+                                <Bar dataKey="amount" radius={[6, 6, 0, 0]}>
+                                    {chartData.map((entry) => (
+                                        <Cell key={entry.name} fill={getAvatarColor(entry.name)} />
+                                    ))}
+                                    <LabelList
+                                        dataKey="amount"
+                                        position="insideTop"
+                                        fill="white"
+                                        style={{ fontSize: 11, fontWeight: 700 }}
+                                        formatter={((v: unknown) => {
+                                            const n = Number(v);
+                                            return n > 0 ? `${selectedCurrency} ${n.toFixed(2)}` : '';
+                                        }) as never}
+                                    />
+                                    <LabelList
+                                        dataKey="percentage"
+                                        position="top"
+                                        fill="#2a2520"
+                                        style={{ fontSize: 12, fontWeight: 700 }}
+                                        formatter={((v: unknown) => {
+                                            const n = Number(v);
+                                            return n > 0 ? `${n.toFixed(1)}%` : '';
+                                        }) as never}
+                                    />
+                                </Bar>
+                            </BarChart>
+                        </ResponsiveContainer>
+                    </div>
                 </>
             ) : (
-                <p className="text-muted">No expenses for this period.</p>
+                <div className="text-center py-5 text-secondary">
+                    <i className="bi bi-bar-chart display-4 d-block mb-3 opacity-25"></i>
+                    <p className="fs-5 fw-medium mb-1">No expenses this period</p>
+                    <small>Try a different month or currency</small>
+                </div>
             )}
         </div>
     );

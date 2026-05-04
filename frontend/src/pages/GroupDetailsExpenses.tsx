@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { type ExpenseType, type GroupMemberType } from '../Types';
 import api from '../utils/axios';
+import { getAvatarBgClass } from '../utils/avatar';
 
 interface GroupDetailsExpensesProps {
     group_expenses: ExpenseType[],
@@ -8,11 +9,6 @@ interface GroupDetailsExpensesProps {
     group_id: string,
 }
 
-function getAvatarBgClass(name: string): string {
-    const classes = ['bg-primary', 'bg-success', 'bg-warning', 'bg-info', 'bg-danger', 'bg-secondary'];
-    const hash = name.charCodeAt(0) + (name.charCodeAt(1) || 0);
-    return classes[hash % classes.length];
-}
 
 const MONTH_NAMES = [
     "January", "February", "March", "April", "May", "June",
