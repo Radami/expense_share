@@ -1,7 +1,7 @@
 import { AnimatePresence, motion } from 'framer-motion';
 import { useEffect, useState } from 'react';
 import { Link, useNavigate, type MetaFunction } from "react-router";
-import Group from 'src/components/Group';
+import Group from '../components/Group';
 import type { GroupType } from '../Types';
 import api from '../utils/axios';
 

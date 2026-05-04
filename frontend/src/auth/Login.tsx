@@ -1,9 +1,8 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import api from '../utils/axios';
-import type * as Route from "./+types.Login";
 
-export default function Login({actionData}: Route.ComponentProps) {
+export default function Login() {
     const [error, setError] = useState("");
     const navigate = useNavigate();
     const [isHydrated, setIsHydrated] = useState(false);
