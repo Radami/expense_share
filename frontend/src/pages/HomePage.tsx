@@ -37,49 +37,25 @@ export default function HomePage() {
         fetchGroups();
     }, []);
 
-    const deleteGroup = (group_id: string) => {
-        api.post('/splittime/api/delete_group', 
-            {
-                id: group_id,
-            }
-        ).then(response => {
-            if (response.status === 200) {
-                console.log('Delete Group Success:', response.data);
-                const updatedGroups = groups.filter(group => group.id !== group_id)
-                setGroups(updatedGroups)
-            } else if (response.status === 404) {
-                console.log('Not found');
-            }
-        }).catch(error => {
-            if (error.response) {
-                console.log('Error status code:', error.response.status);
-            } else if (error.request) {
-                console.log('No response received:', error.request);
-            } else {
-                console.log('Error', error.message);
-            }
-        });
-    }
-
     return (
         <>
-            <div className="container py-3">
+            <div className="py-4">
                 {isAuth ? (
                     <>
-                        <div className="d-flex align-items-center py-2 mb-3 border-bottom border-2 border-light">
-                            <div className="d-flex align-items-center text-secondary fw-semibold text-uppercase">
-                                <i className="bi bi-people me-2"></i>
-                                Your Groups
+                        <div className="d-flex justify-content-between align-items-center mb-4">
+                            <div>
+                                <p className="text-secondary text-uppercase fw-semibold small mb-1">
+                                    <i className="bi bi-people me-1"></i>Your Groups
+                                </p>
+                                <h1 className="fw-bold mb-0">Groups</h1>
                             </div>
-                            <div className="ms-auto">
-                                <button 
-                                    className="btn btn-success d-flex align-items-center gap-2"
-                                    onClick={() => navigate('/add_group')}
-                                >
-                                    <i className="bi bi-plus-lg"></i>
-                                    <span>New Group</span>
-                                </button>
-                            </div>
+                            <button
+                                className="btn btn-success d-flex align-items-center gap-2"
+                                onClick={() => navigate('/add_group')}
+                            >
+                                <i className="bi bi-plus-lg"></i>
+                                New Group
+                            </button>
                         </div>
 
                         <AnimatePresence>
@@ -98,7 +74,7 @@ export default function HomePage() {
                                         }}
                                         className="mb-2"
                                     >
-                                        <Group group={group} deleteGroup={deleteGroup}/>
+                                        <Group group={group} />
                                     </motion.div>
                                 ))
                             ) : (

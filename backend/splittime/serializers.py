@@ -2,7 +2,7 @@ from django.contrib.auth.models import User
 
 from rest_framework import serializers
 
-from .models import Group, GroupMembership, Expense
+from .models import Group, GroupMembership, Expense, Debt
 from .services.balances import BalanceCalculator
 
 
@@ -52,6 +52,8 @@ class GroupDetailsSerializer(serializers.Serializer):
     description = serializers.CharField(max_length=100)
     creation_date = serializers.DateTimeField(read_only=True)
     minimize_balances_setting = serializers.BooleanField(read_only=True)
+    user_is_owed = serializers.SerializerMethodField()
+    user_owes = serializers.SerializerMethodField()
 
     group_members = serializers.SerializerMethodField()
     expenses = serializers.SerializerMethodField()
@@ -67,12 +69,26 @@ class GroupDetailsSerializer(serializers.Serializer):
             "description",
             "creation_date",
             "minimize_balances_setting",
+            "user_is_owed",
+            "user_owes",
             "group_members",
             "expenses",
             "totals",
             "balances",
             "minimized_balances",
         ]
+
+    def get_user_is_owed(self, obj):
+        pair = BalanceCalculator.calculateUserIsOwed(obj.id, self.context["request"].user.id, True)
+        if pair[0] == "XYZ" or pair[1] < 0:
+            return "Nothing"
+        return str(pair[0]) + " " + str("{0:.2f}".format(pair[1]))
+
+    def get_user_owes(self, obj):
+        pair = BalanceCalculator.calculateUserOwes(obj.id, self.context["request"].user.id, True)
+        if pair[0] == "XYZ" or pair[1] < 0:
+            return "Nothing"
+        return str(pair[0]) + " " + str("{0:.2f}".format(pair[1]))
 
     def get_group_members(self, obj):
         group_memberships = GroupMembership.objects.filter(group=obj)
@@ -86,18 +102,27 @@ class GroupDetailsSerializer(serializers.Serializer):
         ]
 
     def get_expenses(self, obj):
+        user = self.context["request"].user
         expenses = Expense.objects.filter(group=obj).order_by("creation_date")
-        return [
-            {
+        result = []
+        for e in expenses:
+            debt_set = list(Debt.objects.filter(expense=e))
+            total_shares = sum(d.shares for d in debt_set)
+            if total_shares > 0:
+                user_debts = [d for d in debt_set if d.from_user_id == user.id and d.to_user_id != user.id]
+                you_owe = sum(d.shares / total_shares * e.amount for d in user_debts)
+            else:
+                you_owe = 0
+            result.append({
                 "id": e.id,
                 "name": e.name,
                 "amount": e.amount,
                 "currency": e.currency,
                 "payee": e.payee.username,
                 "creation_date": e.creation_date,
-            }
-            for e in expenses
-        ]
+                "you_owe": round(you_owe, 2),
+            })
+        return result
 
     def get_totals(self, obj):
         expenses = Expense.objects.filter(group=obj)

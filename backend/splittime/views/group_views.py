@@ -122,7 +122,7 @@ class GroupDetailsAPIView(APIView):
                     "You are not a member of this group.",
                     status=status.HTTP_401_UNAUTHORIZED,
                 )
-            response_serializer = GroupDetailsSerializer(group)
+            response_serializer = GroupDetailsSerializer(group, context={"request": request})
             return Response(response_serializer.data, status=status.HTTP_200_OK)
         except ObjectDoesNotExist:
             return Response("Group not found", status=status.HTTP_404_NOT_FOUND)

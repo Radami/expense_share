@@ -23,7 +23,8 @@ export type ExpenseType = {
     amount: number,
     currency: string,
     payee: string,
-    creation_date: string
+    creation_date: string,
+    you_owe: number,
 }
 
 
