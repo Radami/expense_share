@@ -105,23 +105,27 @@ class GroupDetailsSerializer(serializers.Serializer):
         user = self.context["request"].user
         expenses = Expense.objects.filter(group=obj).order_by("creation_date")
         result = []
-        for e in expenses:
+        for e in expenses.reverse():
             debt_set = list(Debt.objects.filter(expense=e))
             total_shares = sum(d.shares for d in debt_set)
             if total_shares > 0:
-                user_debts = [d for d in debt_set if d.from_user_id == user.id and d.to_user_id != user.id]
+                user_debts = [
+                    d for d in debt_set if d.from_user_id == user.id and d.to_user_id != user.id
+                ]
                 you_owe = sum(d.shares / total_shares * e.amount for d in user_debts)
             else:
                 you_owe = 0
-            result.append({
-                "id": e.id,
-                "name": e.name,
-                "amount": e.amount,
-                "currency": e.currency,
-                "payee": e.payee.username,
-                "creation_date": e.creation_date,
-                "you_owe": round(you_owe, 2),
-            })
+            result.append(
+                {
+                    "id": e.id,
+                    "name": e.name,
+                    "amount": e.amount,
+                    "currency": e.currency,
+                    "payee": e.payee.username,
+                    "creation_date": e.creation_date,
+                    "you_owe": round(you_owe, 2),
+                }
+            )
         return result
 
     def get_totals(self, obj):
