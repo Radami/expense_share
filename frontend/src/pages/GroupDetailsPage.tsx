@@ -53,28 +53,26 @@ export default function GroupDetailPage() {
         <div className="py-4">
             {isAuth ? (
                 <>
-                    <div className="d-flex justify-content-between align-items-start mb-3">
-                        <div>
-                            <h1 className="fw-bold mb-1">{groupName}</h1>
-                            {groupDescription && <p className="text-secondary small mb-2">{groupDescription}</p>}
-                            <div className="d-flex flex-wrap gap-2 mt-1">
-                                {userIsOwed === "Nothing"
-                                    ? <span className="badge rounded-pill bg-body-secondary text-secondary fw-medium px-3 py-2">You are owed nothing</span>
-                                    : <span className="badge rounded-pill bg-success-subtle text-success-emphasis fw-semibold px-3 py-2">You are owed {userIsOwed}</span>
-                                }
-                                {userOwes === "Nothing"
-                                    ? <span className="badge rounded-pill bg-body-secondary text-secondary fw-medium px-3 py-2">You owe nothing</span>
-                                    : <span className="badge rounded-pill bg-danger-subtle text-danger-emphasis fw-semibold px-3 py-2">You owe {userOwes}</span>
-                                }
+                    <div className="mb-3">
+                        <h1 className="fw-bold mb-1">{groupName}</h1>
+                        {groupDescription && <p className="text-secondary small mb-2">{groupDescription}</p>}
+                        <div className="d-flex align-items-center gap-2 mt-1">
+                            {userIsOwed === "Nothing"
+                                ? <span className="badge rounded-pill bg-body-secondary text-secondary fw-medium px-3 py-2">You are owed nothing</span>
+                                : <span className="badge rounded-pill bg-success-subtle text-success-emphasis fw-semibold px-3 py-2">You are owed {userIsOwed}</span>
+                            }
+                            {userOwes === "Nothing"
+                                ? <span className="badge rounded-pill bg-body-secondary text-secondary fw-medium px-3 py-2">You owe nothing</span>
+                                : <span className="badge rounded-pill bg-danger-subtle text-danger-emphasis fw-semibold px-3 py-2">You owe {userOwes}</span>
+                            }
+                            <div className="d-flex gap-2 ms-auto">
+                                <button className="btn btn-outline-secondary btn-sm d-flex align-items-center gap-2" type="button">
+                                    <i className="bi bi-person-plus"></i> Add member
+                                </button>
+                                <button className="btn btn-success btn-sm d-flex align-items-center gap-2" type="button" onClick={() => navigate('/add_expense/' + group_id)}>
+                                    <i className="bi bi-plus-lg"></i> Add expense
+                                </button>
                             </div>
-                        </div>
-                        <div className="d-flex gap-2 flex-shrink-0">
-                            <button className="btn btn-outline-secondary btn-sm d-flex align-items-center gap-2" type="button">
-                                <i className="bi bi-person-plus"></i> Add member
-                            </button>
-                            <button className="btn btn-success btn-sm d-flex align-items-center gap-2" type="button" onClick={() => navigate('/add_expense/' + group_id)}>
-                                <i className="bi bi-plus-lg"></i> Add expense
-                            </button>
                         </div>
                     </div>
 
