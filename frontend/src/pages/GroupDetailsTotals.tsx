@@ -110,20 +110,20 @@ const GroupDetailsTotals: React.FC<GroupDetailsTotalsProps> = ({ groupExpenses, 
                                         position="insideTop"
                                         fill="white"
                                         style={{ fontSize: 11, fontWeight: 700 }}
-                                        formatter={((v: unknown) => {
+                                        formatter={(v) => {
                                             const n = Number(v);
                                             return n > 0 ? `${selectedCurrency} ${n.toFixed(2)}` : '';
-                                        }) as never}
+                                        }}
                                     />
                                     <LabelList
                                         dataKey="percentage"
                                         position="top"
                                         fill="#2a2520"
                                         style={{ fontSize: 12, fontWeight: 700 }}
-                                        formatter={((v: unknown) => {
+                                        formatter={(v) => {
                                             const n = Number(v);
                                             return n > 0 ? `${n.toFixed(1)}%` : '';
-                                        }) as never}
+                                        }}
                                     />
                                 </Bar>
                             </BarChart>
