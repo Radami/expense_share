@@ -50,7 +50,7 @@ const GroupDetailsExpenses: React.FC<GroupDetailsExpensesProps> = ({ group_expen
     }
 
     function deleteExpense(id: string) {
-        api.post('http://localhost:8000/splittime/api/delete_group_expense', { expense_id: id })
+        api.post('/splittime/api/delete_group_expense', { expense_id: id })
             .then(response => {
                 if (response.status === 200) {
                     const updated = expenses.filter(e => e.id !== id);

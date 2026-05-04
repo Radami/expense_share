@@ -30,7 +30,7 @@ export default function GroupDetailPage() {
 
     const fetchGroupDetails = useCallback(async () => {
         try {
-            const response = await api.get('http://localhost:8000/splittime/api/group_details', {
+            const response = await api.get('/splittime/api/group_details', {
                 params: { group_id },
             });
             setGroupName(response.data.name);

@@ -17,7 +17,7 @@ const GroupDetailsMembers: React.FC<GroupDetailsMembersProps> = ({ group_members
     }, [group_members]);
 
     const deleteGroupMember = (id: number) => {
-        api.post('http://localhost:8000/splittime/api/delete_group_member', { user_id: id, group_id })
+        api.post('/splittime/api/delete_group_member', { user_id: id, group_id })
             .then(response => {
                 if (response.status === 200) {
                     setMembers(ms => ms.filter(m => m.id !== id));
@@ -25,20 +25,6 @@ const GroupDetailsMembers: React.FC<GroupDetailsMembersProps> = ({ group_members
             })
             .catch(error => console.error('Error deleting member', error));
     };
-
-    function addGroupMember(e: React.FormEvent<HTMLFormElement>) {
-        e.preventDefault();
-        const form = e.target as HTMLFormElement;
-        const member_email = new FormData(form).get('member_email');
-        api.post('http://localhost:8000/splittime/api/add_group_member', { member_email, group_id })
-            .then(response => {
-                if (response.status === 201) {
-                    setMembers(ms => [...ms, response.data]);
-                    form.reset();
-                }
-            })
-            .catch(error => console.error('Error adding member', error));
-    }
 
     return (
         <div>
@@ -68,7 +54,7 @@ const GroupDetailsMembers: React.FC<GroupDetailsMembersProps> = ({ group_members
                     <div className="text-center py-5 text-secondary">
                         <i className="bi bi-people display-4 d-block mb-3 opacity-25"></i>
                         <p className="fs-5 fw-medium mb-1">No members yet</p>
-                        <small>Add someone below to get started</small>
+                        <small>Use "Add member" to invite someone</small>
                     </div>
                 )}
             </div>
