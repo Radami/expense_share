@@ -84,6 +84,17 @@ class GroupIndexAPITest(APITestCase):
         )
 
 
+    def test_recent_group_with_expenses(self):
+        """Balance aggregation loop runs when the group has outstanding debts"""
+        user2 = UserHelpers.create_user(user_name="gidx_user2")
+        group = GroupHelpers.create_group(days=-5, creator=self.user1)
+        GroupHelpers.add_user_to_group(group, user2)
+        GroupHelpers.add_expense(group, user2, amount=100.0, currency="USD")
+        response = self.client.get(reverse("splittime:api_index_view"))
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(len(response.data), 1)
+
+
 class GroupIndexViewNotLoggedInTests(APITestCase):
     """
     Test that all group API requests return 401 if user is not logged in

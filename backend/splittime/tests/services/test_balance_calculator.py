@@ -460,3 +460,58 @@ class GroupOwingManyUsersTests(TestCase):
         self.assertEqual(user2_is_owed_explicit, ("USD", 25))
         self.assertEqual(user3_is_owed_explicit, ("USD", 75))
         self.assertEqual(user4_is_owed_explicit, ("USD", 150))
+
+
+class MixedPositiveNegativeBalanceTests(TestCase):
+    """
+    Tests the `has_positive and has_negative` branch in calculateUserIsOwed
+    and calculateUserOwes (balances.py lines 113-114 and 149-150).
+
+    Setup: 3-member group.
+      user1 pays 300 USD  → net owed: +200 USD
+      user1 pays 450 EUR  → net owed: +300 EUR
+      user2 pays  60 GBP  → net owes:  -20 GBP
+      user2 pays 150 CHF  → net owes:  -50 CHF
+
+    user1 net: {USD: +200, EUR: +300, GBP: -20, CHF: -50}
+    Both owed-currencies (USD, EUR) and debt-currencies (GBP, CHF) have
+    two entries, so max() is meaningfully selecting the largest among multiple
+    candidates in both calculateUserIsOwed and calculateUserOwes.
+    """
+
+    def setUp(self):
+        self.user1 = UserHelpers.create_user()
+        self.user2 = UserHelpers.create_user()
+        self.user3 = UserHelpers.create_user()
+        self.group = GroupHelpers.create_group(creator=self.user1)
+        GroupHelpers.add_user_to_group(self.group, self.user2)
+        GroupHelpers.add_user_to_group(self.group, self.user3)
+        GroupHelpers.add_expense(self.group, self.user1, amount=300.0, currency="USD")
+        GroupHelpers.add_expense(self.group, self.user1, amount=450.0, currency="EUR")
+        GroupHelpers.add_expense(self.group, self.user2, amount=60.0, currency="GBP")
+        GroupHelpers.add_expense(self.group, self.user2, amount=150.0, currency="CHF")
+        self.balances = BalanceCalculator.calculateBalancesAPI(self.group)
+
+    def test_user_is_owed_returns_largest_among_multiple_positive_currencies(self):
+        """
+        user1 net: {USD: +200, EUR: +300, GBP: -20, CHF: -50}
+        With two positive currencies (USD 200, EUR 300) the mixed-sign branch
+        must return EUR as the larger of the two, not USD.
+        """
+        result = BalanceCalculator.calculateUserIsOwed(
+            self.group.id, self.user1.id, True, self.balances
+        )
+        self.assertEqual(result[0], "EUR")
+        self.assertAlmostEqual(result[1], 300.0, places=1)
+
+    def test_user_owes_returns_largest_among_multiple_positive_debt_currencies(self):
+        """
+        Debt perspective negates the net: {USD: -200, EUR: -300, GBP: +20, CHF: +50}
+        With two positive entries (GBP 20, CHF 50) the mixed-sign branch
+        must return CHF as the larger of the two, not GBP.
+        """
+        result = BalanceCalculator.calculateUserOwes(
+            self.group.id, self.user1.id, True, self.balances
+        )
+        self.assertEqual(result[0], "CHF")
+        self.assertAlmostEqual(result[1], 50.0, places=1)
