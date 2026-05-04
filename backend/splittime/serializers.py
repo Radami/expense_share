@@ -25,13 +25,13 @@ class UserBalanceMixin:
         pair = BalanceCalculator.calculateUserIsOwed(obj.id, self.context["request"].user.id, True, self._get_balances(obj))
         if pair[0] == "XYZ" or pair[1] < 0:
             return "Nothing"
-        return str(pair[0]) + " " + str("{0:.2f}".format(pair[1]))
+        return f"{pair[0]} {pair[1]:.2f}"
 
     def get_user_owes(self, obj):
         pair = BalanceCalculator.calculateUserOwes(obj.id, self.context["request"].user.id, True, self._get_balances(obj))
         if pair[0] == "XYZ" or pair[1] < 0:
             return "Nothing"
-        return str(pair[0]) + " " + str("{0:.2f}".format(pair[1]))
+        return f"{pair[0]} {pair[1]:.2f}"
 
 
 class GroupSerializer(UserBalanceMixin, serializers.ModelSerializer):
